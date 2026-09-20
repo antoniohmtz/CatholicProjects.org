@@ -1,0 +1,7 @@
+<Image
+  src="/brand/catholicprojects-logo.png"
+  alt="Catholic Projects"
+  width={650}
+  height={300}
+  priority
+/>
