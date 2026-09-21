@@ -5,7 +5,7 @@ import styles from "./page.module.css"
 export const metadata: Metadata = {
     title: "CatholicProjects — In Beta",
     description:
-        "CatholicProjects is currently in beta. We are building free Catholic resources, beginning with source-linked Saint profiles and worksheets.",
+        "CatholicProjects is currently in beta. We are building a free Catholic resource platform, beginning with source-linked Saint profiles and worksheets.",
     robots: {
         index: false,
         follow: false,
@@ -15,24 +15,16 @@ export const metadata: Metadata = {
 export default function HomePage() {
     return (
         <main className={styles.page}>
-            <div className={styles.glow} aria-hidden="true" />
+            <div className={styles.topGlow} aria-hidden="true" />
+            <div className={styles.bottomGlow} aria-hidden="true" />
 
             <section className={styles.card}>
                 <div className={styles.brand}>
                     <Image
-                        src="/brand/catholicprojects-crucifix.png"
-                        alt=""
-                        width={88}
-                        height={88}
-                        priority
-                        className={styles.mark}
-                    />
-
-                    <Image
                         src="/brand/catholicprojects-wordmark.png"
                         alt="CatholicProjects.org"
-                        width={620}
-                        height={150}
+                        width={720}
+                        height={170}
                         priority
                         className={styles.wordmark}
                     />
@@ -40,50 +32,55 @@ export default function HomePage() {
 
                 <div className={styles.status}>
                     <span className={styles.statusDot} aria-hidden="true" />
+                    Beta
+                    <span className={styles.statusSeparator} aria-hidden="true">
+                        •
+                    </span>
                     Currently in production
                 </div>
 
                 <h1>
-                    CatholicProjects is
-                    <span> in beta.</span>
+                    We&apos;re building the
+                    <span> first phase.</span>
                 </h1>
 
                 <p className={styles.lead}>
-                    We are actively building a free Catholic resource platform
-                    for families, parishes, catechists, educators, students,
-                    and anyone who wants to learn more about the faith.
+                    CatholicProjects is building a free Catholic resource
+                    platform for families, parishes, catechists, educators,
+                    students, and anyone who wants to learn more about the
+                    faith.
                 </p>
 
                 <div className={styles.divider} />
 
                 <div className={styles.content}>
-                    <div className={styles.section}>
+                    <article className={styles.section}>
                         <div className={styles.eyebrow}>WHERE WE ARE STARTING</div>
 
                         <h2>The lives of the Saints.</h2>
 
                         <p>
                             Our first phase is focused on documented Saint
-                            profiles, with direct connections to the Catholic
-                            sources used to build them.
+                            profiles with direct links to the Catholic sources
+                            used to build them.
                         </p>
-                    </div>
+                    </article>
 
-                    <div className={styles.section}>
-                        <div className={styles.eyebrow}>WHAT COMES NEXT</div>
+                    <article className={styles.section}>
+                        <div className={styles.eyebrow}>WHAT COMES FROM IT</div>
 
                         <h2>Free resources families can use.</h2>
 
                         <p>
                             We are developing worksheets, activities, coloring
-                            pages, and other resources from the researched
-                            profiles so parents, parishes, and educators have
-                            practical Catholic materials they can use and share.
+                            pages, and other resources from those researched
+                            profiles for parents, parishes, catechists, and
+                            educators.
                         </p>
-                    </div>
+                    </article>
                 </div>
 
-                <div className={styles.promise}>
+                <aside className={styles.promise}>
                     <div className={styles.promiseLabel}>OUR COMMITMENT</div>
 
                     <p>
@@ -92,15 +89,15 @@ export default function HomePage() {
                         Savior Jesus Christ should be available to the people
                         who need them.
                     </p>
-                </div>
+                </aside>
 
                 <div className={styles.actions}>
                     <a
                         className={styles.primaryButton}
                         href="https://catholicprojects.org"
                     >
-                        Visit CatholicProjects.org
-                        <span aria-hidden="true">→</span>
+                        <span aria-hidden="true">←</span>
+                        Return to CatholicProjects.org
                     </a>
 
                     <a
