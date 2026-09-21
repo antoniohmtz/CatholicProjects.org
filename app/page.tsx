@@ -20,23 +20,35 @@ export default function HomePage() {
 
             <section className={styles.panel}>
                 <header className={styles.hero}>
-                    <Image
-                        src="/brand/catholicprojects-wordmark.png"
-                        alt="CatholicProjects.org"
-                        width={720}
-                        height={170}
-                        priority
-                        className={styles.wordmark}
-                    />
+                    <div className={styles.logoWrap}>
+                        <Image
+                            src="/brand/catholicprojects-logo.png"
+                            alt="CatholicProjects.org"
+                            width={900}
+                            height={260}
+                            priority
+                            className={styles.wordmark}
+                            sizes="(max-width: 640px) 88vw, (max-width: 900px) 620px, 720px"
+                        />
+                    </div>
 
                     <div className={styles.statusRow}>
                         <div className={styles.status}>
-                            <span className={styles.statusDot} aria-hidden="true" />
-                            In Beta
-                            <span className={styles.statusSeparator} aria-hidden="true">
+                            <span
+                                className={styles.statusDot}
+                                aria-hidden="true"
+                            />
+
+                            <span>In Beta</span>
+
+                            <span
+                                className={styles.statusSeparator}
+                                aria-hidden="true"
+                            >
                                 •
                             </span>
-                            Currently in Production
+
+                            <span>Currently in Production</span>
                         </div>
                     </div>
 
@@ -52,23 +64,35 @@ export default function HomePage() {
                         can use for free.
                     </p>
 
-                    <div className={styles.foundation}>
+                    <div
+                        className={styles.foundation}
+                        aria-label="How CatholicProjects resources are built"
+                    >
                         <span>Catholic sources</span>
+
                         <i aria-hidden="true">→</i>
+
                         <span>Documented profiles</span>
+
                         <i aria-hidden="true">→</i>
+
                         <span>Free resources</span>
                     </div>
                 </header>
 
                 <div className={styles.rule} />
 
-                <section className={styles.progress} aria-label="Current development">
+                <section
+                    className={styles.progress}
+                    aria-label="Current development"
+                >
                     <article className={styles.progressItem}>
                         <div className={styles.step}>01</div>
 
-                        <div>
-                            <div className={styles.eyebrow}>WHERE WE ARE STARTING</div>
+                        <div className={styles.progressContent}>
+                            <div className={styles.eyebrow}>
+                                WHERE WE ARE STARTING
+                            </div>
 
                             <h2>The lives of the Saints.</h2>
 
@@ -83,10 +107,14 @@ export default function HomePage() {
                     <article className={styles.progressItem}>
                         <div className={styles.step}>02</div>
 
-                        <div>
-                            <div className={styles.eyebrow}>WHAT WE ARE BUILDING NEXT</div>
+                        <div className={styles.progressContent}>
+                            <div className={styles.eyebrow}>
+                                WHAT WE ARE BUILDING NEXT
+                            </div>
 
-                            <h2>Resources families can actually use.</h2>
+                            <h2>
+                                Resources families can actually use.
+                            </h2>
 
                             <p>
                                 Worksheets, activities, coloring pages, and
@@ -99,12 +127,17 @@ export default function HomePage() {
                 </section>
 
                 <aside className={styles.commitment}>
-                    <div className={styles.commitmentMark} aria-hidden="true">
+                    <div
+                        className={styles.commitmentMark}
+                        aria-hidden="true"
+                    >
                         ✦
                     </div>
 
                     <div>
-                        <div className={styles.eyebrow}>OUR COMMITMENT</div>
+                        <div className={styles.eyebrow}>
+                            OUR COMMITMENT
+                        </div>
 
                         <p>
                             CatholicProjects will remain free to access. We
@@ -122,7 +155,7 @@ export default function HomePage() {
                             href="https://catholicprojects.org"
                         >
                             <span aria-hidden="true">←</span>
-                            Return to CatholicProjects.org
+                            <span>Return to CatholicProjects.org</span>
                         </a>
 
                         <a
