@@ -1,6 +1,6 @@
 .page {
     --ivory: #fffdf9;
-    --ivory-warm: #fbf6ee;
+    --ivory-warm: #faf5ec;
     --white: #ffffff;
     --chestnut: #8a5d3b;
     --chestnut-deep: #6f4327;
@@ -9,25 +9,23 @@
     --ink: #2b211a;
     --text: #51463e;
     --sub: #766a60;
-    --border: rgba(111, 67, 39, 0.12);
+    --border: rgba(111, 67, 39, 0.105);
     --border-gold: rgba(200, 148, 58, 0.22);
 
     position: relative;
-
-    width: 100%;
     min-height: 100svh;
-
+    width: 100%;
     overflow: hidden;
 
     display: grid;
     place-items: center;
 
-    padding: 72px 24px;
+    padding: 56px 22px;
 
     background:
         linear-gradient(
             180deg,
-            #fffdfa 0%,
+            #fffdf9 0%,
             #fbf6ee 100%
         );
 
@@ -41,27 +39,26 @@
 }
 
 .topGlow {
-    top: -320px;
+    top: -360px;
     left: 50%;
 
-    width: 780px;
-    height: 780px;
+    width: 860px;
+    height: 860px;
 
     transform: translateX(-50%);
-
     border-radius: 50%;
 
     background:
         radial-gradient(
             circle,
-            rgba(200, 148, 58, 0.12),
-            transparent 67%
+            rgba(200, 148, 58, 0.115),
+            transparent 68%
         );
 }
 
 .bottomGlow {
-    right: -240px;
-    bottom: -320px;
+    right: -260px;
+    bottom: -330px;
 
     width: 620px;
     height: 620px;
@@ -71,75 +68,80 @@
     background:
         radial-gradient(
             circle,
-            rgba(138, 93, 59, 0.07),
-            transparent 68%
+            rgba(138, 93, 59, 0.055),
+            transparent 70%
         );
 }
 
-.card {
+.panel {
     position: relative;
     z-index: 1;
 
-    width: min(980px, 100%);
+    width: min(1000px, 100%);
 
-    padding: 66px 72px 48px;
+    padding: 62px 68px 38px;
 
     border: 1px solid var(--border-gold);
-    border-radius: 30px;
+    border-radius: 28px;
 
     background:
-        rgba(255, 255, 255, 0.84);
+        rgba(255, 255, 255, 0.86);
 
     box-shadow:
-        0 30px 90px rgba(77, 47, 25, 0.085);
+        0 28px 80px rgba(77, 47, 25, 0.075);
 
-    backdrop-filter: blur(18px);
-    -webkit-backdrop-filter: blur(18px);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
 }
 
-.card::before {
+.panel::before {
     content: "";
 
     position: absolute;
-    inset: 11px;
+    inset: 10px;
 
-    border: 1px solid rgba(200, 148, 58, 0.065);
-    border-radius: 21px;
+    border: 1px solid rgba(200, 148, 58, 0.055);
+    border-radius: 20px;
 
     pointer-events: none;
 }
 
-.brand {
-    display: flex;
-    justify-content: center;
+.hero {
+    position: relative;
+    z-index: 1;
 
-    margin-bottom: 20px;
+    text-align: center;
 }
 
 .wordmark {
     display: block;
 
-    width: min(430px, 72vw);
+    width: min(390px, 72vw);
     height: auto;
+
+    margin: 0 auto 22px;
 
     object-fit: contain;
 }
 
+.statusRow {
+    display: flex;
+    justify-content: center;
+}
+
 .status {
-    width: fit-content;
-
-    margin: 0 auto 26px;
-
     display: inline-flex;
     align-items: center;
+    justify-content: center;
+
     gap: 8px;
 
     padding: 8px 12px;
 
-    border: 1px solid rgba(168, 116, 37, 0.18);
+    border: 1px solid rgba(168, 116, 37, 0.17);
     border-radius: 999px;
 
-    background: rgba(200, 148, 58, 0.065);
+    background: rgba(200, 148, 58, 0.06);
 
     color: var(--chestnut-deep);
 
@@ -155,7 +157,7 @@
     font-size: 10px;
     line-height: 1;
     font-weight: 850;
-    letter-spacing: 0.11em;
+    letter-spacing: 0.105em;
     text-transform: uppercase;
 }
 
@@ -172,34 +174,33 @@
 }
 
 .statusSeparator {
-    opacity: 0.45;
+    opacity: 0.42;
 }
 
-.card h1 {
-    max-width: 760px;
+.hero h1 {
+    max-width: 790px;
 
-    margin: 0 auto;
+    margin: 28px auto 0;
 
     font-family:
         Georgia,
         "Times New Roman",
         serif;
 
-    font-size: clamp(52px, 6vw, 78px);
+    font-size: clamp(54px, 6.1vw, 80px);
     line-height: 0.96;
     font-weight: 500;
-    letter-spacing: -0.052em;
-    text-align: center;
+    letter-spacing: -0.055em;
 }
 
-.card h1 span {
+.hero h1 span {
     color: var(--gold);
 }
 
 .lead {
     max-width: 720px;
 
-    margin: 25px auto 0;
+    margin: 24px auto 0;
 
     color: var(--text);
 
@@ -213,15 +214,55 @@
         sans-serif;
 
     font-size: 16px;
-    line-height: 1.72;
-    text-align: center;
+    line-height: 1.7;
 }
 
-.divider {
-    width: min(660px, 88%);
+.foundation {
+    margin: 28px auto 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+
+    gap: 10px;
+
+    color: var(--chestnut-deep);
+
+    font-family:
+        Inter,
+        ui-sans-serif,
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+
+    font-size: 11px;
+    line-height: 1.3;
+    font-weight: 760;
+}
+
+.foundation span {
+    padding: 7px 10px;
+
+    border: 1px solid rgba(111, 67, 39, 0.10);
+    border-radius: 999px;
+
+    background: rgba(255, 253, 249, 0.7);
+}
+
+.foundation i {
+    color: var(--gold-dark);
+    font-style: normal;
+    opacity: 0.75;
+}
+
+.rule {
+    width: min(720px, 88%);
     height: 1px;
 
-    margin: 44px auto 42px;
+    margin: 42px auto 40px;
 
     background:
         linear-gradient(
@@ -232,19 +273,42 @@
         );
 }
 
-.content {
+.progress {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
 
-    gap: 54px;
+    gap: 46px;
 }
 
-.section {
-    padding: 2px 4px;
+.progressItem {
+    display: grid;
+    grid-template-columns: 34px 1fr;
+
+    gap: 15px;
+
+    align-items: start;
 }
 
-.eyebrow,
-.promiseLabel {
+.step {
+    padding-top: 2px;
+
+    color: var(--gold);
+
+    font-family:
+        Inter,
+        ui-sans-serif,
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+
+    font-size: 10px;
+    font-weight: 850;
+    letter-spacing: 0.13em;
+}
+
+.eyebrow {
     color: var(--gold-dark);
 
     font-family:
@@ -263,8 +327,8 @@
     text-transform: uppercase;
 }
 
-.section h2 {
-    margin: 12px 0 13px;
+.progressItem h2 {
+    margin: 11px 0 12px;
 
     color: var(--ink);
 
@@ -273,13 +337,13 @@
         "Times New Roman",
         serif;
 
-    font-size: 28px;
+    font-size: 27px;
     line-height: 1.06;
     font-weight: 500;
     letter-spacing: -0.032em;
 }
 
-.section p {
+.progressItem p {
     margin: 0;
 
     color: var(--sub);
@@ -294,26 +358,43 @@
         sans-serif;
 
     font-size: 13px;
-    line-height: 1.72;
+    line-height: 1.7;
 }
 
-.promise {
-    margin-top: 44px;
-    padding: 28px 30px;
+.commitment {
+    margin-top: 42px;
+
+    padding: 25px 28px;
+
+    display: grid;
+    grid-template-columns: 34px 1fr;
+
+    gap: 16px;
+
+    align-items: start;
 
     border: 1px solid var(--border-gold);
-    border-radius: 18px;
+    border-radius: 17px;
 
     background:
         linear-gradient(
             135deg,
             rgba(200, 148, 58, 0.075),
-            rgba(255, 253, 249, 0.82)
+            rgba(255, 253, 249, 0.84)
         );
 }
 
-.promise p {
-    margin: 12px 0 0;
+.commitmentMark {
+    padding-top: 3px;
+
+    color: var(--gold);
+
+    font-size: 16px;
+    line-height: 1;
+}
+
+.commitment p {
+    margin: 11px 0 0;
 
     color: var(--chestnut-deep);
 
@@ -323,13 +404,17 @@
         serif;
 
     font-size: 20px;
-    line-height: 1.5;
+    line-height: 1.48;
     font-weight: 500;
 }
 
-.actions {
-    margin-top: 34px;
+.footer {
+    margin-top: 31px;
 
+    text-align: center;
+}
+
+.actions {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -398,7 +483,7 @@
 .secondaryButton {
     border: 1px solid var(--border);
 
-    background: rgba(255, 255, 255, 0.72);
+    background: rgba(255, 255, 255, 0.74);
 
     color: var(--chestnut-deep);
 }
@@ -415,7 +500,7 @@
 }
 
 .footerNote {
-    margin: 28px 0 0;
+    margin: 25px 0 0;
 
     color: var(--sub);
 
@@ -430,72 +515,94 @@
 
     font-size: 11px;
     line-height: 1.5;
-    text-align: center;
 }
 
-@media (max-width: 720px) {
+@media (max-width: 760px) {
     .page {
-        padding: 28px 14px;
+        padding: 24px 12px;
     }
 
-    .card {
-        padding: 38px 22px 32px;
+    .panel {
+        padding: 38px 22px 30px;
 
         border-radius: 22px;
     }
 
-    .card::before {
+    .panel::before {
         inset: 7px;
 
         border-radius: 16px;
     }
 
-    .brand {
+    .wordmark {
+        width: min(320px, 86vw);
+
         margin-bottom: 18px;
     }
 
-    .wordmark {
-        width: min(330px, 88vw);
-    }
-
     .status {
-        margin-bottom: 21px;
-
         font-size: 9px;
     }
 
-    .card h1 {
-        font-size: clamp(44px, 13.5vw, 62px);
+    .hero h1 {
+        margin-top: 24px;
+
+        font-size: clamp(43px, 13vw, 62px);
     }
 
     .lead {
-        margin-top: 20px;
+        margin-top: 19px;
 
         font-size: 15px;
-        line-height: 1.65;
+        line-height: 1.64;
     }
 
-    .divider {
+    .foundation {
+        margin-top: 23px;
+
+        gap: 7px;
+    }
+
+    .foundation span {
+        padding: 6px 8px;
+
+        font-size: 10px;
+    }
+
+    .rule {
         margin: 32px auto;
     }
 
-    .content {
+    .progress {
         grid-template-columns: 1fr;
 
         gap: 30px;
     }
 
-    .section h2 {
+    .progressItem {
+        grid-template-columns: 30px 1fr;
+
+        gap: 12px;
+    }
+
+    .progressItem h2 {
         font-size: 24px;
     }
 
-    .promise {
+    .commitment {
         margin-top: 32px;
 
-        padding: 22px 20px;
+        padding: 21px 20px;
+
+        grid-template-columns: 1fr;
+        gap: 8px;
     }
 
-    .promise p {
+    .commitmentMark {
+        display: none;
+    }
+
+    .commitment p {
         font-size: 18px;
     }
 
