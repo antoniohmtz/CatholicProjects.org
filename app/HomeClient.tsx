@@ -240,6 +240,96 @@ function Motif({ kind }: { kind: Kind }) {
   }
 }
 
+
+function ActivityPreview({ kind, className }: { kind: Kind; className?: string }) {
+  const paper = "#fffdf8";
+  const ink = "#6f4327";
+  const gold = "#c8943a";
+  const soft = "#f7e8c7";
+  const sage = "#dfe8d7";
+  const blue = "#dfe9ef";
+  const rose = "#f0ded8";
+
+  const Scene = () => {
+    switch (kind) {
+      case "saints":
+        return (<>
+          <circle cx="120" cy="72" r="24" fill={soft} stroke={ink} strokeWidth="2.4" />
+          <ellipse cx="120" cy="45" rx="34" ry="8" fill="none" stroke={gold} strokeWidth="3" />
+          <path d="M78 148c5-36 20-54 42-54s37 18 42 54" fill={blue} stroke={ink} strokeWidth="2.4" />
+          <path d="M120 111v24M108 123h24" stroke={gold} strokeWidth="3" strokeLinecap="round"/>
+          <path d="M88 154h64" stroke={ink} opacity=".22" strokeWidth="5" strokeLinecap="round"/>
+        </>);
+      case "bible":
+        return (<>
+          <path d="M69 103q24-13 51 0q27-13 51 0v42q-24-11-51 1q-27-12-51-1Z" fill={soft} stroke={ink} strokeWidth="2.4"/>
+          <path d="M120 103v43" stroke={ink} strokeWidth="2"/>
+          <circle cx="120" cy="65" r="17" fill="#f2cf72" stroke={gold} strokeWidth="2.2"/>
+          {[0,45,90,135,180,225,270,315].map(a => <line key={a} x1={120+24*Math.cos(a*Math.PI/180)} y1={65+24*Math.sin(a*Math.PI/180)} x2={120+33*Math.cos(a*Math.PI/180)} y2={65+33*Math.sin(a*Math.PI/180)} stroke={gold} strokeWidth="2" strokeLinecap="round"/>)}
+          <path d="M83 126h26M131 126h26M83 136h19M131 136h21" stroke={ink} opacity=".26" strokeWidth="4" strokeLinecap="round"/>
+        </>);
+      case "mass":
+        return (<>
+          <rect x="70" y="123" width="100" height="23" rx="4" fill={soft} stroke={ink} strokeWidth="2.2"/>
+          <path d="M86 123v-13h68v13" fill={paper} stroke={ink} strokeWidth="2.2"/>
+          <circle cx="120" cy="65" r="22" fill="#fff" stroke={gold} strokeWidth="2.7"/>
+          <path d="M120 54v22M109 65h22" stroke={gold} strokeWidth="2.5"/>
+          <path d="M100 93h40q-2 21-20 21t-20-21Z" fill={rose} stroke={ink} strokeWidth="2.2"/>
+          <path d="M120 114v9" stroke={ink} strokeWidth="2"/>
+        </>);
+      case "sacraments":
+        return (<>
+          <path d="M91 72c0-20 14-31 29-31s29 11 29 31v64H91Z" fill={blue} stroke={ink} strokeWidth="2.4"/>
+          <path d="M120 52v22M109 63h22" stroke={gold} strokeWidth="2.6"/>
+          <path d="M120 86c-8 11-13 18-13 26a13 13 0 0 0 26 0c0-8-5-15-13-26Z" fill="#d8eef6" stroke={ink} strokeWidth="2.2"/>
+          <circle cx="153" cy="100" r="14" fill="#fff" stroke={gold} strokeWidth="2"/>
+        </>);
+      case "prayers":
+        return (<>
+          <path d="M120 48v72M91 72h58" stroke={ink} strokeWidth="5" strokeLinecap="round"/>
+          <path d="M72 137c14-11 28-13 48-5c20-8 34-6 48 5" fill="none" stroke={gold} strokeWidth="2.8" strokeLinecap="round"/>
+          <circle cx="84" cy="52" r="5" fill={gold}/><circle cx="156" cy="52" r="5" fill={gold}/><circle cx="82" cy="118" r="4" fill={gold}/><circle cx="158" cy="118" r="4" fill={gold}/>
+        </>);
+      case "seasons":
+        return (<>
+          <ellipse cx="120" cy="124" rx="54" ry="18" fill={sage} stroke={ink} strokeWidth="2.2"/>
+          {[84,108,132,156].map((x,i)=><g key={x}><rect x={x-6} y={74+(i%2)*5} width="12" height={45-(i%2)*5} rx="3" fill={i===2?"#e7bfd1":"#d9c9e8"} stroke={ink} strokeWidth="1.8"/><path d={`M${x} ${62+(i%2)*5}q8 9 0 18q-8-9 0-18z`} fill="#f1c45f" stroke={gold} strokeWidth="1.5"/></g>)}
+          <path d="M79 127c17-15 65-15 82 0" fill="none" stroke="#7d9a69" strokeWidth="4" strokeLinecap="round"/>
+        </>);
+      case "rosary":
+        return (<>
+          {Array.from({length:12}).map((_,i)=>{const a=i/12*Math.PI*2-Math.PI/2;return <circle key={i} cx={120+42*Math.cos(a)} cy={83+34*Math.sin(a)} r="5.5" fill={i%4===0?"#e2bd64":soft} stroke={ink} strokeWidth="1.8"/>})}
+          <circle cx="120" cy="126" r="5" fill={soft} stroke={ink} strokeWidth="1.8"/>
+          <path d="M120 131v27M110 143h20" stroke={ink} strokeWidth="3" strokeLinecap="round"/>
+          <path d="M73 52h24M143 52h24" stroke={gold} strokeWidth="3" strokeLinecap="round"/>
+        </>);
+      case "virtues":
+        return (<>
+          <path d="M120 139c-38-25-43-55-24-66c15-9 24 5 24 5s9-14 24-5c19 11 14 41-24 66Z" fill={rose} stroke={ink} strokeWidth="2.4"/>
+          <path d="M82 127c-16-6-21-18-17-27M158 127c16-6 21-18 17-27" fill="none" stroke={gold} strokeWidth="3" strokeLinecap="round"/>
+          <path d="M120 87v25M109 99h22" stroke={gold} strokeWidth="2.6" strokeLinecap="round"/>
+          <circle cx="77" cy="77" r="5" fill={gold}/><circle cx="163" cy="77" r="5" fill={gold}/>
+        </>);
+    }
+  };
+
+  return (
+    <svg className={className} viewBox="0 0 240 184" aria-hidden="true">
+      <g className="cpPreviewBack cpPreviewBackA"><rect x="52" y="24" width="136" height="146" rx="14" fill="#ead7ad"/></g>
+      <g className="cpPreviewBack cpPreviewBackB"><rect x="52" y="24" width="136" height="146" rx="14" fill="#f5ead2"/></g>
+      <g className="cpPreviewFront">
+        <rect x="52" y="24" width="136" height="146" rx="14" fill={paper} stroke="rgba(111,67,39,.22)"/>
+        <rect x="67" y="39" width="46" height="5" rx="2.5" fill={gold}/><rect x="119" y="39" width="28" height="5" rx="2.5" fill={ink} opacity=".14"/>
+        <Scene/>
+      </g>
+      <g className="cpPreviewPencil" transform="rotate(-18 190 144)">
+        <rect x="184" y="92" width="12" height="60" rx="5" fill="#d5a34b" stroke={ink} strokeWidth="1.5"/>
+        <path d="M184 92l6-12 6 12Z" fill="#f0ddba" stroke={ink} strokeWidth="1.5"/>
+      </g>
+    </svg>
+  );
+}
+
 function Illustration({ kind, className }: { kind: Kind; className?: string }) {
   return (
     <svg className={className} viewBox="0 0 240 180" aria-hidden="true">
@@ -321,10 +411,11 @@ function Header({ onHome, onSearch, onJump }: { onHome: () => void; onSearch: ()
 function CategoryCard({ c, onOpen }: { c: Category; onOpen: (slug: string) => void }) {
   return (
     <button className="cpCat" onClick={() => onOpen(c.slug)} aria-label={`Open ${c.name}`}>
-      <span className="cpArt">
+      <span className={`cpArt cpArt--${c.kind}`}>
         <span className="cpArtBadge cpArtGrade">{gradeRange(c)}</span>
         <span className="cpArtBadge cpArtCount">{c.formats.length} formats</span>
-        <Illustration kind={c.kind} className="cpArtSvg" />
+        <span className="cpArtKicker">Kids activity pack</span>
+        <ActivityPreview kind={c.kind} className="cpArtSvg" />
       </span>
 
       <span className="cpCatBody">
@@ -776,21 +867,31 @@ const CSS = `
 .cpGrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:22px;}
 
 /* Category card */
-.cpCat{display:flex;flex-direction:column;padding:0;border:1px solid var(--line);border-radius:var(--r-lg);background:#fff;cursor:pointer;text-align:left;overflow:hidden;box-shadow:var(--sh-1);transition:transform 260ms cubic-bezier(.2,.8,.2,1),box-shadow 260ms ease,border-color 260ms ease;}
-.cpCat:hover{transform:translateY(-6px);border-color:var(--line-strong);box-shadow:var(--sh-3);}
-.cpArt{position:relative;display:block;height:204px;background:radial-gradient(120% 90% at 50% 0%,#fff6e0,#f6e7c8 70%,#f0dcb6);border-bottom:1px solid var(--line);overflow:hidden;}
-.cpArt::before{content:"";position:absolute;inset:0;background-image:radial-gradient(rgba(138,93,59,.14) 1px,transparent 1px);background-size:16px 16px;opacity:.5;}
-.cpArtSvg{position:absolute;left:50%;bottom:-12px;width:230px;height:172px;transform:translateX(-50%);overflow:visible;filter:drop-shadow(0 12px 18px rgba(74,43,22,.18));}
-.cpSheetA,.cpSheetB{transform-origin:120px 168px;transition:transform 420ms cubic-bezier(.2,.8,.2,1);}
-.cpSheetA{transform:rotate(-8deg);}
-.cpSheetB{transform:rotate(6deg);}
-.cpSheetFront{transition:transform 420ms cubic-bezier(.2,.8,.2,1);transform-origin:120px 168px;}
-.cpCat:hover .cpSheetA{transform:rotate(-15deg) translateX(-8px);}
-.cpCat:hover .cpSheetB{transform:rotate(12deg) translateX(8px);}
-.cpCat:hover .cpSheetFront{transform:translateY(-6px);}
-.cpArtBadge{position:absolute;top:14px;z-index:2;height:26px;padding:0 11px;display:inline-flex;align-items:center;border-radius:999px;font-size:11.5px;font-weight:700;letter-spacing:.04em;}
-.cpArtGrade{left:14px;background:var(--ink);color:#fff3da;}
-.cpArtCount{right:14px;background:rgba(255,255,255,.9);color:var(--chestnut-deep);border:1px solid var(--line);}
+.cpCat{display:flex;flex-direction:column;padding:0;border:1px solid rgba(111,67,39,.12);border-radius:30px;background:rgba(255,255,255,.96);cursor:pointer;text-align:left;overflow:hidden;box-shadow:0 1px 2px rgba(75,46,25,.04),0 14px 34px rgba(75,46,25,.07);transition:transform 280ms cubic-bezier(.2,.8,.2,1),box-shadow 280ms ease,border-color 280ms ease;}
+.cpCat:hover{transform:translateY(-7px);border-color:rgba(200,148,58,.42);box-shadow:0 4px 8px rgba(75,46,25,.06),0 30px 58px rgba(75,46,25,.14);}
+.cpArt{position:relative;display:block;height:232px;border-bottom:1px solid rgba(111,67,39,.1);overflow:hidden;isolation:isolate;background:linear-gradient(145deg,#f7edda 0%,#efe0c2 100%);}
+.cpArt::before{content:"";position:absolute;inset:-30% -20%;z-index:-1;background:radial-gradient(circle at 70% 25%,rgba(255,255,255,.9),transparent 32%),radial-gradient(circle at 24% 90%,rgba(255,255,255,.48),transparent 38%);}
+.cpArt::after{content:"✠";position:absolute;right:18px;bottom:10px;font-family:var(--serif);font-size:54px;line-height:1;color:rgba(111,67,39,.07);}
+.cpArt--saints{background:linear-gradient(145deg,#f7ead6,#ecd7b7);}
+.cpArt--bible{background:linear-gradient(145deg,#eaf0e1,#dce5d2);}
+.cpArt--mass{background:linear-gradient(145deg,#eee8df,#ddd6cc);}
+.cpArt--sacraments{background:linear-gradient(145deg,#e8f0f2,#d8e5e9);}
+.cpArt--prayers{background:linear-gradient(145deg,#f2e8de,#eadacb);}
+.cpArt--seasons{background:linear-gradient(145deg,#eee8f0,#e1d7e7);}
+.cpArt--rosary{background:linear-gradient(145deg,#f2eadf,#e5d5c3);}
+.cpArt--virtues{background:linear-gradient(145deg,#f2e4df,#ead4cd);}
+.cpArtKicker{position:absolute;left:18px;bottom:14px;z-index:3;font-size:10.5px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:rgba(111,67,39,.58);}
+.cpArtSvg{position:absolute;left:50%;bottom:7px;width:246px;height:190px;transform:translateX(-50%);overflow:visible;filter:drop-shadow(0 16px 22px rgba(74,43,22,.14));}
+.cpPreviewBackA,.cpPreviewBackB,.cpPreviewFront,.cpPreviewPencil{transform-origin:120px 170px;transition:transform 420ms cubic-bezier(.2,.8,.2,1);}
+.cpPreviewBackA{transform:rotate(-8deg) translateX(-8px);}
+.cpPreviewBackB{transform:rotate(7deg) translateX(8px);}
+.cpCat:hover .cpPreviewBackA{transform:rotate(-13deg) translateX(-14px) translateY(-2px);}
+.cpCat:hover .cpPreviewBackB{transform:rotate(12deg) translateX(14px) translateY(-3px);}
+.cpCat:hover .cpPreviewFront{transform:translateY(-8px);}
+.cpCat:hover .cpPreviewPencil{transform:rotate(-10deg) translate(6px,-7px);}
+.cpArtBadge{position:absolute;top:14px;z-index:4;height:27px;padding:0 11px;display:inline-flex;align-items:center;border-radius:999px;font-size:11px;font-weight:750;letter-spacing:.035em;backdrop-filter:blur(8px);}
+.cpArtGrade{left:14px;background:rgba(43,33,26,.92);color:#fff6e5;box-shadow:0 5px 14px rgba(43,33,26,.12);}
+.cpArtCount{right:14px;background:rgba(255,253,248,.82);color:var(--chestnut-deep);border:1px solid rgba(111,67,39,.13);}
 
 .cpCatBody{display:flex;flex-direction:column;flex:1;padding:22px 22px 4px;}
 .cpCatName{font-family:var(--serif);font-size:29px;font-weight:600;line-height:1.02;letter-spacing:-.01em;color:var(--ink);}
