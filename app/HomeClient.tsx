@@ -242,94 +242,132 @@ function Motif({ kind }: { kind: Kind }) {
 
 
 function ActivityPreview({ kind, className }: { kind: Kind; className?: string }) {
-  const paper = "#fffdf8";
-  const ink = "#6f4327";
+  const ink = "#5f3e29";
   const gold = "#c8943a";
-  const soft = "#f7e8c7";
-  const sage = "#dfe8d7";
-  const blue = "#dfe9ef";
-  const rose = "#f0ded8";
+  const paper = "#fffdf8";
+  const line = "rgba(95,62,41,.2)";
+
+  const meta: Record<Kind, { title: string; sub: string; tag: string; accent: string; wash: string }> = {
+    saints: { title: "ST. FRANCIS", sub: "COLOR • CUT • RETELL", tag: "Saint story", accent: "#c8943a", wash: "#f5e7c8" },
+    bible: { title: "NOAH'S ARK", sub: "MINI STORY BOOK", tag: "Bible story", accent: "#7c8b69", wash: "#e8eee0" },
+    mass: { title: "PARTS OF THE MASS", sub: "MATCH • NAME • LEARN", tag: "Mass activity", accent: "#a58965", wash: "#eee8df" },
+    sacraments: { title: "FIRST COMMUNION", sub: "PREP • COLOR • LEARN", tag: "Sacrament", accent: "#6f91a0", wash: "#e4eef1" },
+    prayers: { title: "OUR FATHER", sub: "TRACE • PRAY • LEARN", tag: "Prayer page", accent: "#8a5d3b", wash: "#f1e7dc" },
+    seasons: { title: "ADVENT", sub: "COLOR • COUNT • PREPARE", tag: "Church year", accent: "#7b6788", wash: "#ede8f0" },
+    rosary: { title: "JOYFUL MYSTERIES", sub: "PRAY • COLOR • LEARN", tag: "Rosary guide", accent: "#718b9b", wash: "#e8eef1" },
+    virtues: { title: "WORKS OF MERCY", sub: "MATCH • REFLECT • DO", tag: "Virtue activity", accent: "#9a6b5f", wash: "#f0e4df" },
+  };
+
+  const m = meta[kind];
 
   const Scene = () => {
     switch (kind) {
       case "saints":
         return (<>
-          <circle cx="120" cy="72" r="24" fill={soft} stroke={ink} strokeWidth="2.4" />
-          <ellipse cx="120" cy="45" rx="34" ry="8" fill="none" stroke={gold} strokeWidth="3" />
-          <path d="M78 148c5-36 20-54 42-54s37 18 42 54" fill={blue} stroke={ink} strokeWidth="2.4" />
-          <path d="M120 111v24M108 123h24" stroke={gold} strokeWidth="3" strokeLinecap="round"/>
-          <path d="M88 154h64" stroke={ink} opacity=".22" strokeWidth="5" strokeLinecap="round"/>
+          <ellipse cx="166" cy="116" rx="34" ry="9" fill="none" stroke={gold} strokeWidth="3" />
+          <circle cx="166" cy="144" r="23" fill={m.wash} stroke={ink} strokeWidth="2.4" />
+          <path d="M124 232c3-49 22-70 42-70s39 21 42 70" fill="#e7edf1" stroke={ink} strokeWidth="2.5" />
+          <path d="M166 184v29M153 198h26" stroke={gold} strokeWidth="3" strokeLinecap="round" />
+          <path d="M105 213q-17-12-23-2q8 10 23 2ZM227 202q18-12 24-1q-9 9-24 1Z" fill="none" stroke={m.accent} strokeWidth="2" />
         </>);
       case "bible":
         return (<>
-          <path d="M69 103q24-13 51 0q27-13 51 0v42q-24-11-51 1q-27-12-51-1Z" fill={soft} stroke={ink} strokeWidth="2.4"/>
-          <path d="M120 103v43" stroke={ink} strokeWidth="2"/>
-          <circle cx="120" cy="65" r="17" fill="#f2cf72" stroke={gold} strokeWidth="2.2"/>
-          {[0,45,90,135,180,225,270,315].map(a => <line key={a} x1={120+24*Math.cos(a*Math.PI/180)} y1={65+24*Math.sin(a*Math.PI/180)} x2={120+33*Math.cos(a*Math.PI/180)} y2={65+33*Math.sin(a*Math.PI/180)} stroke={gold} strokeWidth="2" strokeLinecap="round"/>)}
-          <path d="M83 126h26M131 126h26M83 136h19M131 136h21" stroke={ink} opacity=".26" strokeWidth="4" strokeLinecap="round"/>
+          <path d="M111 185q27-17 55 0q28-17 56 0v45q-28-14-56 1q-28-15-55-1Z" fill={m.wash} stroke={ink} strokeWidth="2.5" />
+          <path d="M166 185v46" stroke={ink} strokeWidth="2" />
+          <path d="M117 146q49-57 98 0" fill="none" stroke={m.accent} strokeWidth="4" strokeLinecap="round" />
+          <path d="M128 145q38-44 76 0" fill="none" stroke="#c8943a" strokeWidth="3" strokeLinecap="round" />
+          <path d="M143 168h46l13 17h-72Z" fill="#e6c28a" stroke={ink} strokeWidth="2" />
+          <circle cx="150" cy="158" r="4" fill={ink}/><circle cx="181" cy="158" r="4" fill={ink}/>
         </>);
       case "mass":
         return (<>
-          <rect x="70" y="123" width="100" height="23" rx="4" fill={soft} stroke={ink} strokeWidth="2.2"/>
-          <path d="M86 123v-13h68v13" fill={paper} stroke={ink} strokeWidth="2.2"/>
-          <circle cx="120" cy="65" r="22" fill="#fff" stroke={gold} strokeWidth="2.7"/>
-          <path d="M120 54v22M109 65h22" stroke={gold} strokeWidth="2.5"/>
-          <path d="M100 93h40q-2 21-20 21t-20-21Z" fill={rose} stroke={ink} strokeWidth="2.2"/>
-          <path d="M120 114v9" stroke={ink} strokeWidth="2"/>
+          <circle cx="166" cy="133" r="29" fill="#fff" stroke={gold} strokeWidth="3" />
+          <path d="M166 118v30M151 133h30" stroke={gold} strokeWidth="2.8" />
+          <path d="M140 177h52q-3 29-26 29t-26-29Z" fill={m.wash} stroke={ink} strokeWidth="2.4" />
+          <path d="M166 206v18M149 225h34" stroke={ink} strokeWidth="2.4" strokeLinecap="round" />
+          <rect x="111" y="231" width="110" height="18" rx="3" fill="#f7edd9" stroke={ink} strokeWidth="2" />
         </>);
       case "sacraments":
         return (<>
-          <path d="M91 72c0-20 14-31 29-31s29 11 29 31v64H91Z" fill={blue} stroke={ink} strokeWidth="2.4"/>
-          <path d="M120 52v22M109 63h22" stroke={gold} strokeWidth="2.6"/>
-          <path d="M120 86c-8 11-13 18-13 26a13 13 0 0 0 26 0c0-8-5-15-13-26Z" fill="#d8eef6" stroke={ink} strokeWidth="2.2"/>
-          <circle cx="153" cy="100" r="14" fill="#fff" stroke={gold} strokeWidth="2"/>
+          <circle cx="186" cy="144" r="26" fill="#fff" stroke={gold} strokeWidth="2.8" />
+          <path d="M186 131v26M173 144h26" stroke={gold} strokeWidth="2.4" />
+          <path d="M128 119q22 8 38 28l-14 15q-18-20-38-25Z" fill={m.wash} stroke={ink} strokeWidth="2.2" />
+          <path d="M126 178c-10 15-15 25-15 35a18 18 0 0 0 36 0c0-10-6-20-21-35Z" fill="#ddecf2" stroke={ink} strokeWidth="2.2" />
+          <path d="M180 191h32q-2 21-16 21t-16-21Z" fill="#f7ead0" stroke={ink} strokeWidth="2" />
+          <path d="M196 212v14" stroke={ink} strokeWidth="2" />
         </>);
       case "prayers":
         return (<>
-          <path d="M120 48v72M91 72h58" stroke={ink} strokeWidth="5" strokeLinecap="round"/>
-          <path d="M72 137c14-11 28-13 48-5c20-8 34-6 48 5" fill="none" stroke={gold} strokeWidth="2.8" strokeLinecap="round"/>
-          <circle cx="84" cy="52" r="5" fill={gold}/><circle cx="156" cy="52" r="5" fill={gold}/><circle cx="82" cy="118" r="4" fill={gold}/><circle cx="158" cy="118" r="4" fill={gold}/>
+          <path d="M166 112v90M128 144h76" stroke={ink} strokeWidth="5" strokeLinecap="round" />
+          <path d="M116 220h101M125 232h83M137 244h59" stroke={m.accent} opacity=".45" strokeWidth="3.5" strokeLinecap="round" />
+          <circle cx="118" cy="116" r="5" fill={gold}/><circle cx="218" cy="116" r="5" fill={gold}/>
         </>);
       case "seasons":
         return (<>
-          <ellipse cx="120" cy="124" rx="54" ry="18" fill={sage} stroke={ink} strokeWidth="2.2"/>
-          {[84,108,132,156].map((x,i)=><g key={x}><rect x={x-6} y={74+(i%2)*5} width="12" height={45-(i%2)*5} rx="3" fill={i===2?"#e7bfd1":"#d9c9e8"} stroke={ink} strokeWidth="1.8"/><path d={`M${x} ${62+(i%2)*5}q8 9 0 18q-8-9 0-18z`} fill="#f1c45f" stroke={gold} strokeWidth="1.5"/></g>)}
-          <path d="M79 127c17-15 65-15 82 0" fill="none" stroke="#7d9a69" strokeWidth="4" strokeLinecap="round"/>
+          <ellipse cx="166" cy="218" rx="61" ry="20" fill="#dfe8d7" stroke={ink} strokeWidth="2.2" />
+          {[126,153,180,207].map((x,i)=><g key={x}>
+            <rect x={x-7} y={154+(i%2)*5} width="14" height={54-(i%2)*5} rx="3" fill={i===2?"#e8bfd0":"#d7c6e4"} stroke={ink} strokeWidth="1.8"/>
+            <path d={`M${x} ${139+(i%2)*5}q9 10 0 20q-9-10 0-20z`} fill="#f0c05b" stroke={gold} strokeWidth="1.6"/>
+          </g>)}
+          <path d="M116 222c18-18 82-18 101 0" fill="none" stroke="#7d9a69" strokeWidth="4.5" strokeLinecap="round" />
         </>);
       case "rosary":
         return (<>
-          {Array.from({length:12}).map((_,i)=>{const a=i/12*Math.PI*2-Math.PI/2;return <circle key={i} cx={120+42*Math.cos(a)} cy={83+34*Math.sin(a)} r="5.5" fill={i%4===0?"#e2bd64":soft} stroke={ink} strokeWidth="1.8"/>})}
-          <circle cx="120" cy="126" r="5" fill={soft} stroke={ink} strokeWidth="1.8"/>
-          <path d="M120 131v27M110 143h20" stroke={ink} strokeWidth="3" strokeLinecap="round"/>
-          <path d="M73 52h24M143 52h24" stroke={gold} strokeWidth="3" strokeLinecap="round"/>
+          {Array.from({ length: 14 }).map((_, i) => { const a = i / 14 * Math.PI * 2 - Math.PI / 2; return <circle key={i} cx={166 + 52 * Math.cos(a)} cy={166 + 40 * Math.sin(a)} r="5.6" fill={i % 5 === 0 ? "#e2bd64" : m.wash} stroke={ink} strokeWidth="1.7" />; })}
+          <circle cx="166" cy="218" r="5.5" fill={m.wash} stroke={ink} strokeWidth="1.7" />
+          <path d="M166 224v31M155 239h22" stroke={ink} strokeWidth="3" strokeLinecap="round" />
+          <path d="M110 123h22M200 123h22" stroke={m.accent} strokeWidth="3" strokeLinecap="round" />
         </>);
       case "virtues":
         return (<>
-          <path d="M120 139c-38-25-43-55-24-66c15-9 24 5 24 5s9-14 24-5c19 11 14 41-24 66Z" fill={rose} stroke={ink} strokeWidth="2.4"/>
-          <path d="M82 127c-16-6-21-18-17-27M158 127c16-6 21-18 17-27" fill="none" stroke={gold} strokeWidth="3" strokeLinecap="round"/>
-          <path d="M120 87v25M109 99h22" stroke={gold} strokeWidth="2.6" strokeLinecap="round"/>
-          <circle cx="77" cy="77" r="5" fill={gold}/><circle cx="163" cy="77" r="5" fill={gold}/>
+          <path d="M166 225c-44-29-50-66-28-79c17-10 28 7 28 7s11-17 28-7c22 13 16 50-28 79Z" fill={m.wash} stroke={ink} strokeWidth="2.5" />
+          <path d="M166 163v28M152 177h28" stroke={gold} strokeWidth="2.8" strokeLinecap="round" />
+          <path d="M119 221q-25-10-30-31M213 221q25-10 30-31" fill="none" stroke={m.accent} strokeWidth="3" strokeLinecap="round" />
+          <path d="M111 136h32M190 136h32" stroke={m.accent} opacity=".45" strokeWidth="3.5" strokeLinecap="round" />
         </>);
     }
   };
 
   return (
-    <svg className={className} viewBox="0 0 240 184" aria-hidden="true">
-      <g className="cpPreviewBack cpPreviewBackA"><rect x="52" y="24" width="136" height="146" rx="14" fill="#ead7ad"/></g>
-      <g className="cpPreviewBack cpPreviewBackB"><rect x="52" y="24" width="136" height="146" rx="14" fill="#f5ead2"/></g>
-      <g className="cpPreviewFront">
-        <rect x="52" y="24" width="136" height="146" rx="14" fill={paper} stroke="rgba(111,67,39,.22)"/>
-        <rect x="67" y="39" width="46" height="5" rx="2.5" fill={gold}/><rect x="119" y="39" width="28" height="5" rx="2.5" fill={ink} opacity=".14"/>
-        <Scene/>
+    <svg className={className} viewBox="0 0 520 330" aria-hidden="true">
+      <g className="cpPreviewBack cpPreviewBackA">
+        <rect x="245" y="34" width="202" height="246" rx="13" fill="#f0e3c8" stroke={line} />
+        <rect x="266" y="57" width="72" height="7" rx="3.5" fill={m.accent} opacity=".68" />
+        <rect x="266" y="73" width="126" height="5" rx="2.5" fill={ink} opacity=".11" />
+        <rect x="266" y="91" width="158" height="108" rx="9" fill={m.wash} opacity=".85" />
+        <path d="M272 224h142M272 237h116M272 250h132" stroke={ink} opacity=".13" strokeWidth="5" strokeLinecap="round" />
       </g>
-      <g className="cpPreviewPencil" transform="rotate(-18 190 144)">
-        <rect x="184" y="92" width="12" height="60" rx="5" fill="#d5a34b" stroke={ink} strokeWidth="1.5"/>
-        <path d="M184 92l6-12 6 12Z" fill="#f0ddba" stroke={ink} strokeWidth="1.5"/>
+
+      <g className="cpPreviewBack cpPreviewBackB">
+        <rect x="104" y="25" width="225" height="272" rx="14" fill="#faf1df" stroke={line} />
+      </g>
+
+      <g className="cpPreviewFront">
+        <rect x="73" y="43" width="232" height="268" rx="14" fill={paper} stroke={line} />
+        <rect x="94" y="65" width="54" height="7" rx="3.5" fill={m.accent} />
+        <text x="94" y="91" fill={ink} fontSize="13" fontWeight="700" letterSpacing="1.6" fontFamily="Arial, sans-serif">{m.tag.toUpperCase()}</text>
+        <text x="94" y="111" fill={ink} fontSize="18" fontWeight="700" fontFamily="Georgia, serif">{m.title}</text>
+        <text x="94" y="128" fill={m.accent} fontSize="8.7" fontWeight="700" letterSpacing="1.2" fontFamily="Arial, sans-serif">{m.sub}</text>
+        <Scene />
+        <path d="M94 274h124M94 286h103" stroke={ink} opacity=".12" strokeWidth="5" strokeLinecap="round" />
+      </g>
+
+      <g className="cpPreviewMini">
+        <rect x="335" y="173" width="120" height="105" rx="12" fill="#fffdf8" stroke={line} />
+        <rect x="350" y="189" width="42" height="5" rx="2.5" fill={m.accent} opacity=".8" />
+        <rect x="350" y="203" width="78" height="4" rx="2" fill={ink} opacity=".12" />
+        <circle cx="395" cy="237" r="22" fill={m.wash} stroke={m.accent} strokeWidth="2" />
+        <path d="M395 224v27M382 237h26" stroke={m.accent} strokeWidth="2" strokeLinecap="round" opacity={kind === "rosary" || kind === "seasons" ? .25 : .85} />
+      </g>
+
+      <g className="cpPreviewPencil" transform="rotate(-13 458 251)">
+        <rect x="451" y="205" width="13" height="75" rx="5" fill="#d4a249" stroke={ink} strokeWidth="1.4" />
+        <path d="M451 205l6.5-15 6.5 15Z" fill="#ecd8b2" stroke={ink} strokeWidth="1.4" />
+        <rect x="451" y="267" width="13" height="13" rx="3" fill="#c47f75" opacity=".8" />
       </g>
     </svg>
   );
 }
-
 function Illustration({ kind, className }: { kind: Kind; className?: string }) {
   return (
     <svg className={className} viewBox="0 0 240 180" aria-hidden="true">
@@ -408,45 +446,37 @@ function Header({ onHome, onSearch, onJump }: { onHome: () => void; onSearch: ()
 
 /* ── Category card ─────────────────────────────────────────── */
 
-function CategoryCard({ c, onOpen }: { c: Category; onOpen: (slug: string) => void }) {
+function CategoryCard({ c, onOpen, featured = false }: { c: Category; onOpen: (slug: string) => void; featured?: boolean }) {
+  const formatText = c.formats.map((f) => FORMAT_SHORT[f]).join(" · ");
+  const topics = c.topics.slice(0, featured ? 4 : 3);
+
   return (
-    <button className="cpCat" onClick={() => onOpen(c.slug)} aria-label={`Open ${c.name}`}>
-      <span className={`cpArt cpArt--${c.kind}`}>
-        <span className="cpArtBadge cpArtGrade">{gradeRange(c)}</span>
-        <span className="cpArtBadge cpArtCount">{c.formats.length} formats</span>
-        <span className="cpArtKicker">Kids activity pack</span>
+    <button className={`cpCat cpCat--${c.kind}${featured ? " cpCatFeatured" : ""}`} onClick={() => onOpen(c.slug)} aria-label={`Open ${c.name}`}>
+      <span className="cpCatVisual">
         <ActivityPreview kind={c.kind} className="cpArtSvg" />
       </span>
 
-      <span className="cpCatBody">
+      <span className="cpCatContent">
+        <span className="cpCatOverline">
+          <span>{featured ? "Featured collection" : "Catholic activities"}</span>
+          <span className="cpCatGrade">{gradeRange(c)}</span>
+        </span>
+
         <span className="cpCatName">{c.name}</span>
         <span className="cpCatDesc">{c.description}</span>
 
-        <span className="cpInsideLabel">What’s inside</span>
-        <span className="cpInside">
-          {c.topics.map((t) => <span key={t} className="cpInsideItem">{t}</span>)}
+        <span className="cpTopicList" aria-label={`Popular ${c.name} topics`}>
+          {topics.map((t) => <span key={t}>{t}</span>)}
         </span>
 
-        <span className="cpFormats">
-          {c.formats.map((f) => (
-            <span key={f} className="cpFormat">
-              <Svg className="cpFormatIcon">{FORMAT_ICON[f]}</Svg>{FORMAT_SHORT[f]}
-            </span>
-          ))}
+        <span className="cpCatBottom">
+          <span className="cpFormatText">{formatText}</span>
+          <span className="cpExplore">Explore {c.name}<Svg sw={2}>{UI.arrow}</Svg></span>
         </span>
-      </span>
-
-      <span className="cpCatFoot">
-        <span className="cpStatus">
-          <span className="cpStatusDot" />
-          {c.worksheets > 0 ? `${c.worksheets} ready to print` : "Arriving soon"}
-        </span>
-        <span className="cpGo" aria-hidden="true"><Svg sw={2}>{UI.arrow}</Svg></span>
       </span>
     </button>
   );
 }
-
 /* ── Library home ──────────────────────────────────────────── */
 
 function LibraryHome({ query, onQuery, band, onBand, onOpen }: {
@@ -512,19 +542,35 @@ function LibraryHome({ query, onQuery, band, onBand, onOpen }: {
 
       <section className="cpTopics" id="topics">
         <div className="cpTopicsHead">
-          <div>
+          <div className="cpTopicsIntro">
+            <span className="cpSectionEyebrow">Explore the library</span>
             <h2 className="cpH2">
-              {activeBand ? <>Topics for <em>{activeBand.label}</em></> : <>Choose a topic</>}
+              {query ? <>Results for <em>“{query}”</em></> : activeBand ? <>Resources for <em>{activeBand.label}</em></> : <>Find something for <em>the lesson ahead.</em></>}
             </h2>
-            <p className="cpCount">{results.length} {results.length === 1 ? "topic" : "topics"}{query ? ` matching “${query}”` : ""}</p>
-          </div>
-          <div className="cpComing">
-            <span className="cpComingLabel">Coming up</span>
-            {COMING_UP.map((x) => (
-              <button key={x.label} className="cpComingChip" onClick={() => onOpen(x.slug)}>{x.label}</button>
-            ))}
+            <p className="cpTopicsLead">
+              {query || activeBand
+                ? `${results.length} ${results.length === 1 ? "collection" : "collections"} match your current filters.`
+                : "Start with the part of the faith you’re teaching. Each collection brings together print-ready activities made for Catholic children."}
+            </p>
           </div>
         </div>
+
+        {!query && !band && (
+          <div className="cpChurchYear" aria-label="Coming up in the Church year">
+            <div className="cpChurchYearLead">
+              <span className="cpChurchYearMark" aria-hidden="true">✦</span>
+              <span>
+                <small>Coming up in the Church year</small>
+                <b>Plan the next lesson around what’s ahead.</b>
+              </span>
+            </div>
+            <div className="cpComing">
+              {COMING_UP.map((x) => (
+                <button key={x.label} className="cpComingChip" onClick={() => onOpen(x.slug)}>{x.label}</button>
+              ))}
+            </div>
+          </div>
+        )}
 
         {results.length === 0 ? (
           <div className="cpEmpty">
@@ -535,8 +581,10 @@ function LibraryHome({ query, onQuery, band, onBand, onOpen }: {
             <button className="cpTextBtn" onClick={() => { onBand(null); onQuery(""); }}>Show all topics</button>
           </div>
         ) : (
-          <div className="cpGrid">
-            {results.map((c) => <CategoryCard key={c.slug} c={c} onOpen={onOpen} />)}
+          <div className={`cpEditorialGrid${query || band ? " cpEditorialGridFiltered" : ""}`}>
+            {results.map((c) => (
+              <CategoryCard key={c.slug} c={c} onOpen={onOpen} featured={!query && !band && (c.kind === "saints" || c.kind === "bible")} />
+            ))}
           </div>
         )}
       </section>
@@ -856,60 +904,82 @@ const CSS = `
 .cpFinderNote span{margin-right:6px;color:var(--gold);}
 
 /* Topics */
-.cpTopics{margin-top:56px;scroll-margin-top:96px;}
-.cpTopicsHead{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap;margin-bottom:26px;}
-.cpCount{margin:8px 0 0;font-size:14px;color:var(--mute);}
-.cpComing{display:flex;align-items:center;flex-wrap:wrap;gap:8px;}
-.cpComingLabel{font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);margin-right:2px;}
-.cpComingChip{height:36px;padding:0 14px;border:1px solid var(--line);border-radius:999px;background:rgba(255,255,255,.85);cursor:pointer;font-size:13.5px;font-weight:600;color:var(--chestnut-deep);transition:border-color 150ms ease,background 150ms ease;}
-.cpComingChip:hover{border-color:var(--line-strong);background:var(--tint);}
+.cpTopics{margin-top:84px;scroll-margin-top:96px;}
+.cpTopicsHead{margin-bottom:26px;}
+.cpTopicsIntro{max-width:760px;}
+.cpSectionEyebrow{display:block;margin-bottom:12px;font-size:11px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);}
+.cpTopicsLead{margin:14px 0 0;max-width:690px;font-size:16px;line-height:1.7;color:var(--sub);text-wrap:pretty;}
 
-.cpGrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:22px;}
+.cpChurchYear{margin:30px 0 28px;display:flex;align-items:center;justify-content:space-between;gap:24px;padding:17px 18px 17px 20px;border-top:1px solid rgba(111,67,39,.12);border-bottom:1px solid rgba(111,67,39,.12);background:linear-gradient(90deg,rgba(255,255,255,.5),rgba(248,236,211,.24),rgba(255,255,255,.38));}
+.cpChurchYearLead{display:flex;align-items:center;gap:12px;min-width:260px;}
+.cpChurchYearMark{width:34px;height:34px;display:flex;align-items:center;justify-content:center;flex:0 0 auto;border:1px solid rgba(200,148,58,.3);border-radius:999px;background:#fffaf0;color:var(--gold);font-size:13px;box-shadow:0 7px 18px rgba(74,43,22,.06);}
+.cpChurchYearLead>span:last-child{display:flex;flex-direction:column;gap:2px;}
+.cpChurchYearLead small{font-size:10.5px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);}
+.cpChurchYearLead b{font-family:var(--serif);font-size:17px;font-weight:600;color:var(--ink);}
+.cpComing{display:flex;align-items:center;justify-content:flex-end;flex-wrap:wrap;gap:7px;}
+.cpComingChip{height:35px;padding:0 13px;border:1px solid rgba(111,67,39,.12);border-radius:999px;background:rgba(255,255,255,.82);cursor:pointer;font-size:12.5px;font-weight:650;color:var(--chestnut-deep);box-shadow:0 2px 8px rgba(74,43,22,.035);transition:transform 160ms ease,border-color 160ms ease,background 160ms ease,box-shadow 160ms ease;}
+.cpComingChip:hover{transform:translateY(-1px);border-color:rgba(200,148,58,.45);background:#fffaf0;box-shadow:0 6px 14px rgba(74,43,22,.07);}
 
-/* Category card */
-.cpCat{display:flex;flex-direction:column;padding:0;border:1px solid rgba(111,67,39,.12);border-radius:30px;background:rgba(255,255,255,.96);cursor:pointer;text-align:left;overflow:hidden;box-shadow:0 1px 2px rgba(75,46,25,.04),0 14px 34px rgba(75,46,25,.07);transition:transform 280ms cubic-bezier(.2,.8,.2,1),box-shadow 280ms ease,border-color 280ms ease;}
-.cpCat:hover{transform:translateY(-7px);border-color:rgba(200,148,58,.42);box-shadow:0 4px 8px rgba(75,46,25,.06),0 30px 58px rgba(75,46,25,.14);}
-.cpArt{position:relative;display:block;height:232px;border-bottom:1px solid rgba(111,67,39,.1);overflow:hidden;isolation:isolate;background:linear-gradient(145deg,#f7edda 0%,#efe0c2 100%);}
-.cpArt::before{content:"";position:absolute;inset:-30% -20%;z-index:-1;background:radial-gradient(circle at 70% 25%,rgba(255,255,255,.9),transparent 32%),radial-gradient(circle at 24% 90%,rgba(255,255,255,.48),transparent 38%);}
-.cpArt::after{content:"✠";position:absolute;right:18px;bottom:10px;font-family:var(--serif);font-size:54px;line-height:1;color:rgba(111,67,39,.07);}
-.cpArt--saints{background:linear-gradient(145deg,#f7ead6,#ecd7b7);}
-.cpArt--bible{background:linear-gradient(145deg,#eaf0e1,#dce5d2);}
-.cpArt--mass{background:linear-gradient(145deg,#eee8df,#ddd6cc);}
-.cpArt--sacraments{background:linear-gradient(145deg,#e8f0f2,#d8e5e9);}
-.cpArt--prayers{background:linear-gradient(145deg,#f2e8de,#eadacb);}
-.cpArt--seasons{background:linear-gradient(145deg,#eee8f0,#e1d7e7);}
-.cpArt--rosary{background:linear-gradient(145deg,#f2eadf,#e5d5c3);}
-.cpArt--virtues{background:linear-gradient(145deg,#f2e4df,#ead4cd);}
-.cpArtKicker{position:absolute;left:18px;bottom:14px;z-index:3;font-size:10.5px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:rgba(111,67,39,.58);}
-.cpArtSvg{position:absolute;left:50%;bottom:7px;width:246px;height:190px;transform:translateX(-50%);overflow:visible;filter:drop-shadow(0 16px 22px rgba(74,43,22,.14));}
-.cpPreviewBackA,.cpPreviewBackB,.cpPreviewFront,.cpPreviewPencil{transform-origin:120px 170px;transition:transform 420ms cubic-bezier(.2,.8,.2,1);}
-.cpPreviewBackA{transform:rotate(-8deg) translateX(-8px);}
-.cpPreviewBackB{transform:rotate(7deg) translateX(8px);}
-.cpCat:hover .cpPreviewBackA{transform:rotate(-13deg) translateX(-14px) translateY(-2px);}
-.cpCat:hover .cpPreviewBackB{transform:rotate(12deg) translateX(14px) translateY(-3px);}
-.cpCat:hover .cpPreviewFront{transform:translateY(-8px);}
-.cpCat:hover .cpPreviewPencil{transform:rotate(-10deg) translate(6px,-7px);}
-.cpArtBadge{position:absolute;top:14px;z-index:4;height:27px;padding:0 11px;display:inline-flex;align-items:center;border-radius:999px;font-size:11px;font-weight:750;letter-spacing:.035em;backdrop-filter:blur(8px);}
-.cpArtGrade{left:14px;background:rgba(43,33,26,.92);color:#fff6e5;box-shadow:0 5px 14px rgba(43,33,26,.12);}
-.cpArtCount{right:14px;background:rgba(255,253,248,.82);color:var(--chestnut-deep);border:1px solid rgba(111,67,39,.13);}
+.cpEditorialGrid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:24px;align-items:stretch;}
 
-.cpCatBody{display:flex;flex-direction:column;flex:1;padding:22px 22px 4px;}
-.cpCatName{font-family:var(--serif);font-size:29px;font-weight:600;line-height:1.02;letter-spacing:-.01em;color:var(--ink);}
-.cpCatDesc{margin-top:10px;font-size:14.5px;line-height:1.55;color:var(--sub);}
-.cpInsideLabel{margin-top:18px;font-size:11.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);}
-.cpInside{margin-top:8px;display:grid;grid-template-columns:1fr 1fr;gap:6px 12px;}
-.cpInsideItem{position:relative;padding-left:14px;font-size:13.5px;font-weight:550;line-height:1.35;color:var(--ink);}
-.cpInsideItem::before{content:"";position:absolute;left:0;top:6px;width:6px;height:6px;background:var(--gold);transform:rotate(45deg);}
-.cpFormats{margin-top:16px;display:flex;flex-wrap:wrap;gap:6px;}
-.cpFormat{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;white-space:nowrap;border-radius:999px;background:var(--tint);font-size:12.5px;font-weight:650;color:var(--chestnut-deep);}
-.cpFormatIcon{width:14px;height:14px;flex:0 0 auto;}
-.cpCatFoot{margin-top:auto;padding:18px 22px 20px;display:flex;align-items:center;justify-content:space-between;gap:10px;}
-.cpStatus{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:650;color:var(--sub);}
-.cpStatusDot{width:8px;height:8px;border-radius:999px;background:var(--gold);flex:0 0 auto;animation:cpPulse 2.4s ease-out infinite;}
-@keyframes cpPulse{0%{box-shadow:0 0 0 0 rgba(200,148,58,.5);}70%{box-shadow:0 0 0 8px rgba(200,148,58,0);}100%{box-shadow:0 0 0 0 rgba(200,148,58,0);}}
-.cpGo{width:40px;height:40px;display:flex;align-items:center;justify-content:center;border-radius:999px;background:var(--tint);color:var(--chestnut);transition:background 200ms ease,color 200ms ease,transform 200ms ease;}
-.cpGo svg{width:18px;height:18px;}
-.cpCat:hover .cpGo{background:var(--gold);color:#2e1f12;transform:translateX(2px);}
+/* Editorial collection cards */
+.cpCat{--collection:#c8943a;--collection-soft:rgba(200,148,58,.12);position:relative;grid-column:span 4;min-width:0;display:flex;flex-direction:column;padding:0;border:1px solid rgba(95,62,41,.12);border-radius:28px;background:linear-gradient(180deg,#fffefb 0%,#fffaf2 100%);cursor:pointer;text-align:left;overflow:hidden;box-shadow:0 1px 2px rgba(74,43,22,.035),0 12px 34px rgba(74,43,22,.065);transition:transform 320ms cubic-bezier(.2,.8,.2,1),box-shadow 320ms ease,border-color 320ms ease;}
+.cpCat::before{content:"";position:absolute;left:0;right:0;top:0;height:2px;z-index:5;background:linear-gradient(90deg,transparent,var(--collection),transparent);opacity:.48;}
+.cpCat:hover{transform:translateY(-6px);border-color:rgba(200,148,58,.36);box-shadow:0 3px 8px rgba(74,43,22,.055),0 28px 58px rgba(74,43,22,.13);}
+.cpCat--saints{--collection:#c8943a;--collection-soft:rgba(200,148,58,.13);}
+.cpCat--bible{--collection:#7c8b69;--collection-soft:rgba(124,139,105,.12);}
+.cpCat--mass{--collection:#9e896d;--collection-soft:rgba(158,137,109,.11);}
+.cpCat--sacraments{--collection:#6f91a0;--collection-soft:rgba(111,145,160,.12);}
+.cpCat--prayers{--collection:#8a5d3b;--collection-soft:rgba(138,93,59,.1);}
+.cpCat--seasons{--collection:#7b6788;--collection-soft:rgba(123,103,136,.11);}
+.cpCat--rosary{--collection:#718b9b;--collection-soft:rgba(113,139,155,.12);}
+.cpCat--virtues{--collection:#9a6b5f;--collection-soft:rgba(154,107,95,.11);}
+
+.cpCatVisual{position:relative;height:235px;display:block;overflow:hidden;border-bottom:1px solid rgba(95,62,41,.09);background:radial-gradient(100% 90% at 70% 6%,rgba(255,255,255,.96),transparent 48%),linear-gradient(145deg,#fbf5e9 0%,#f4ead8 100%);}
+.cpCatVisual::before{content:"";position:absolute;inset:0;background:linear-gradient(135deg,var(--collection-soft),transparent 48%);pointer-events:none;}
+.cpCatVisual::after{content:"✠";position:absolute;right:18px;top:14px;font-family:var(--serif);font-size:26px;color:var(--collection);opacity:.11;}
+.cpArtSvg{position:absolute;left:50%;bottom:-11px;width:112%;height:auto;max-width:500px;transform:translateX(-50%);overflow:visible;filter:drop-shadow(0 18px 22px rgba(74,43,22,.11));}
+.cpPreviewBackA,.cpPreviewBackB,.cpPreviewFront,.cpPreviewMini,.cpPreviewPencil{transform-origin:260px 300px;transition:transform 460ms cubic-bezier(.2,.8,.2,1);}
+.cpPreviewBackA{transform:rotate(5deg) translate(3px,1px);}
+.cpPreviewBackB{transform:rotate(-5deg) translate(-3px,1px);}
+.cpPreviewMini{transform:rotate(3deg);}
+.cpCat:hover .cpPreviewBackA{transform:rotate(8deg) translate(12px,-4px);}
+.cpCat:hover .cpPreviewBackB{transform:rotate(-8deg) translate(-11px,-5px);}
+.cpCat:hover .cpPreviewFront{transform:translateY(-8px) rotate(-.7deg);}
+.cpCat:hover .cpPreviewMini{transform:translate(9px,-8px) rotate(5deg);}
+.cpCat:hover .cpPreviewPencil{transform:translate(6px,-8px) rotate(-2deg);}
+
+.cpCatContent{display:flex;flex-direction:column;flex:1;padding:24px 24px 22px;}
+.cpCatOverline{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px;font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--collection);}
+.cpCatGrade{color:var(--mute);letter-spacing:.06em;white-space:nowrap;}
+.cpCatName{display:block;font-family:var(--serif);font-size:31px;font-weight:600;line-height:1;letter-spacing:-.015em;color:var(--ink);}
+.cpCatDesc{display:block;margin-top:11px;font-size:14.5px;line-height:1.58;color:var(--sub);}
+.cpTopicList{display:flex;flex-wrap:wrap;gap:6px 0;margin-top:17px;color:#604d3f;}
+.cpTopicList span{display:inline-flex;align-items:center;font-size:12.5px;font-weight:650;line-height:1.35;}
+.cpTopicList span:not(:last-child)::after{content:"•";margin:0 8px;color:var(--collection);opacity:.75;}
+.cpCatBottom{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-top:auto;padding-top:22px;}
+.cpFormatText{font-size:10.5px;font-weight:750;letter-spacing:.08em;text-transform:uppercase;color:var(--mute);}
+.cpExplore{display:inline-flex;align-items:center;justify-content:flex-end;gap:8px;font-size:13px;font-weight:750;color:var(--chestnut-deep);white-space:nowrap;}
+.cpExplore svg{width:17px;height:17px;color:var(--collection);transition:transform 200ms ease;}
+.cpCat:hover .cpExplore svg{transform:translateX(4px);}
+
+.cpCatFeatured{grid-column:span 6;min-height:380px;display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);background:linear-gradient(135deg,#fffefb 0%,#fffaf2 70%,#f9efdd 100%);}
+.cpCatFeatured .cpCatVisual{order:2;height:auto;min-height:380px;border-bottom:none;border-left:1px solid rgba(95,62,41,.09);background:radial-gradient(110% 90% at 65% 22%,#fff 0%,#fbf5e8 46%,#f2e4ce 100%);}
+.cpCatFeatured .cpArtSvg{width:124%;max-width:610px;bottom:10px;}
+.cpCatFeatured .cpCatContent{order:1;padding:34px 30px 30px;justify-content:center;}
+.cpCatFeatured .cpCatOverline{margin-bottom:18px;}
+.cpCatFeatured .cpCatName{font-size:clamp(38px,3.1vw,50px);}
+.cpCatFeatured .cpCatDesc{margin-top:15px;font-size:15.5px;line-height:1.65;}
+.cpCatFeatured .cpTopicList{margin-top:22px;}
+.cpCatFeatured .cpCatBottom{padding-top:28px;}
+.cpCatFeatured .cpExplore{font-size:13.5px;}
+
+.cpEditorialGridFiltered .cpCat{grid-column:span 4;}
+.cpEditorialGridFiltered .cpCatFeatured{grid-column:span 4;display:flex;min-height:0;}
+.cpEditorialGridFiltered .cpCatFeatured .cpCatVisual{order:initial;height:235px;min-height:0;border-left:none;border-bottom:1px solid rgba(95,62,41,.09);}
+.cpEditorialGridFiltered .cpCatFeatured .cpCatContent{order:initial;padding:24px 24px 22px;}
+.cpEditorialGridFiltered .cpCatFeatured .cpCatName{font-size:31px;}
+.cpEditorialGridFiltered .cpCatFeatured .cpCatDesc{font-size:14.5px;}
 
 .cpEmpty{margin:0 auto;max-width:560px;padding:52px 24px;display:flex;flex-direction:column;align-items:center;text-align:center;color:var(--sub);border:1px solid var(--line);border-radius:var(--r-lg);background:rgba(255,255,255,.8);}
 .cpEmptyMark{font-size:28px;color:var(--gold);}
@@ -968,12 +1038,21 @@ const CSS = `
 
 /* Responsive */
 @media (max-width:1240px){
-  .cpGrid{grid-template-columns:repeat(3,minmax(0,1fr));}
+  .cpCat{grid-column:span 4;}
+  .cpCatFeatured{grid-column:span 6;}
   .cpSearchPill{min-width:0;width:42px;padding:0;justify-content:center;}
   .cpSearchPill span,.cpSearchPill kbd{display:none;}
   .cpMini{grid-template-columns:repeat(3,minmax(0,1fr));}
 }
 @media (max-width:1040px){
+  .cpCat,.cpEditorialGridFiltered .cpCat{grid-column:span 6;}
+  .cpCatFeatured{grid-column:span 6;display:flex;min-height:0;}
+  .cpCatFeatured .cpCatVisual{order:initial;height:250px;min-height:0;border-left:none;border-bottom:1px solid rgba(95,62,41,.09);}
+  .cpCatFeatured .cpCatContent{order:initial;padding:24px 24px 22px;}
+  .cpCatFeatured .cpCatName{font-size:32px;}
+  .cpCatFeatured .cpCatDesc{font-size:14.5px;}
+  .cpChurchYear{align-items:flex-start;flex-direction:column;}
+  .cpComing{justify-content:flex-start;}
   .cpNav{display:none;}
   .cpIntro{grid-template-columns:1fr;gap:40px;padding-top:50px;}
   .cpIntroCopy{max-width:800px;}
@@ -986,7 +1065,6 @@ const CSS = `
   .cpLogo{height:46px;}
   .cpSheet{display:flex;flex-direction:column;padding:6px clamp(16px,3vw,40px) 16px;border-top:1px solid var(--line);background:var(--ivory);animation:cpFade 160ms ease;}
   .cpSheetRow{padding:14px 4px;border:none;border-bottom:1px solid var(--line);background:transparent;cursor:pointer;text-align:left;font-family:var(--serif);font-size:24px;font-weight:600;color:var(--ink);text-decoration:none;}
-  .cpGrid{grid-template-columns:repeat(2,minmax(0,1fr));}
   .cpAsk{grid-template-columns:auto 1fr;}
   .cpAsk .cpBtn{grid-column:1 / -1;}
   .cpHero{grid-template-columns:1fr;gap:26px;padding:26px 24px 32px;text-align:center;}
@@ -998,6 +1076,17 @@ const CSS = `
   .cpTopicGrid,.cpMini{grid-template-columns:repeat(2,minmax(0,1fr));}
 }
 @media (max-width:640px){
+  .cpTopics{margin-top:66px;}
+  .cpEditorialGrid{gap:16px;}
+  .cpCat,.cpCatFeatured,.cpEditorialGridFiltered .cpCat{grid-column:1 / -1;}
+  .cpCat{border-radius:24px;}
+  .cpCatVisual,.cpCatFeatured .cpCatVisual{height:225px;}
+  .cpCatContent,.cpCatFeatured .cpCatContent{padding:22px 20px 20px;}
+  .cpCatName,.cpCatFeatured .cpCatName{font-size:30px;}
+  .cpCatBottom{align-items:flex-start;flex-direction:column;gap:12px;padding-top:20px;}
+  .cpChurchYear{margin-top:24px;padding:16px 0;background:transparent;}
+  .cpComing{gap:6px;}
+  .cpComingChip{height:34px;padding:0 11px;font-size:11.5px;}
   .cpIntro{padding-top:34px;gap:32px;}
   .cpWelcome{font-size:9.5px;letter-spacing:.08em;padding-right:10px;}
   .cpWelcomeCross{width:25px;height:25px;}
@@ -1015,7 +1104,6 @@ const CSS = `
   .cpGradePills{gap:6px;}
   .cpPill{height:36px;padding:0 13px;font-size:12.5px;}
   .cpTopicsHead{flex-direction:column;align-items:flex-start;}
-  .cpGrid{grid-template-columns:1fr;gap:18px;}
   .cpAsk{grid-template-columns:1fr;padding:26px 22px;}
   .cpAskText h3{font-size:27px;}
   .cpHeroArt{height:240px;}
