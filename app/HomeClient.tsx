@@ -405,15 +405,37 @@ function TopicArt({ kind, accent }: { kind: Kind; accent: string }) {
 
 /* ── Header ────────────────────────────────────────────────── */
 
+const NAV = [
+  { id: "topics", label: "Topics" },
+  { id: "finder", label: "Grades" },
+  { id: "how", label: "How it works" },
+] as const;
+
 function Header({ onHome, onSearch, onJump }: { onHome: () => void; onSearch: () => void; onJump: (id: string) => void }) {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [current, setCurrent] = useState<string | null>(null);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 6);
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  useEffect(() => {
+    const ids = ["finder", "topics", "how"];
+    const seen: Record<string, number> = {};
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => { seen[e.target.id] = e.isIntersecting ? e.intersectionRatio : 0; });
+        const best = ids.filter((i) => seen[i] > 0).sort((x, y) => seen[y] - seen[x])[0];
+        setCurrent(best ?? null);
+      },
+      { rootMargin: "-90px 0px -35% 0px", threshold: [0, 0.15, 0.4, 0.75] }
+    );
+    ids.forEach((i) => { const el = document.getElementById(i); if (el) io.observe(el); });
+    return () => io.disconnect();
   }, []);
 
   const go = (fn: () => void) => () => {
@@ -429,18 +451,23 @@ function Header({ onHome, onSearch, onJump }: { onHome: () => void; onSearch: ()
         </button>
 
         <nav className="cp-nav" aria-label="Primary">
-          <button className="cp-link" onClick={go(() => onJump("topics"))}>Topics</button>
-          <button className="cp-link" onClick={go(() => onJump("finder"))}>Grades</button>
-          <button className="cp-link" onClick={go(() => onJump("how"))}>How it works</button>
-          <button className="cp-link" onClick={go(() => onJump("ask"))}>Request a worksheet</button>
+          {NAV.map((n) => (
+            <button key={n.id} className={current === n.id ? "cp-link cp-linkOn" : "cp-link"} aria-current={current === n.id ? "location" : undefined} onClick={go(() => onJump(n.id))}>
+              {n.label}
+            </button>
+          ))}
           <a className="cp-link" href={MARKETING_URL}>About us</a>
         </nav>
 
         <div className="cp-actions">
           <button className="cp-searchPill" onClick={go(onSearch)} aria-label="Search topics">
             <Svg className="cp-searchPillIcon">{UI.search}</Svg>
-            <span>Search topics</span>
+            <span>Search</span>
             <kbd>/</kbd>
+          </button>
+          <button className="cp-navCta" onClick={go(() => onJump("ask"))}>
+            <Svg sw={2}>{UI.mail}</Svg>
+            Request a worksheet
           </button>
           <button className="cp-burger" onClick={() => setOpen((v) => !v)} aria-label={open ? "Close menu" : "Open menu"} aria-expanded={open}>
             <Svg>{open ? UI.close : UI.menu}</Svg>
@@ -450,12 +477,12 @@ function Header({ onHome, onSearch, onJump }: { onHome: () => void; onSearch: ()
 
       {open && (
         <div className="cp-sheet">
-          <button className="cp-sheetRow" onClick={go(onSearch)}>Search topics</button>
-          <button className="cp-sheetRow" onClick={go(() => onJump("topics"))}>Topics</button>
-          <button className="cp-sheetRow" onClick={go(() => onJump("finder"))}>Grades</button>
-          <button className="cp-sheetRow" onClick={go(() => onJump("how"))}>How it works</button>
-          <button className="cp-sheetRow" onClick={go(() => onJump("ask"))}>Request a worksheet</button>
+          <button className="cp-sheetRow" onClick={go(onSearch)}><Svg>{UI.search}</Svg>Search topics</button>
+          {NAV.map((n) => (
+            <button key={n.id} className="cp-sheetRow" onClick={go(() => onJump(n.id))}>{n.label}</button>
+          ))}
           <a className="cp-sheetRow" href={MARKETING_URL}>About us</a>
+          <button className="cp-sheetCta" onClick={go(() => onJump("ask"))}>Request a worksheet</button>
         </div>
       )}
     </header>
@@ -903,20 +930,26 @@ const CSS = `
   background:radial-gradient(720px 430px at 80% 24%,rgba(200,148,58,.14),transparent 67%),radial-gradient(520px 300px at 7% 17%,rgba(200,148,58,.055),transparent 72%);}
 
 /* ================= HEADER ================= */
-.cp-head{position:sticky;top:0;z-index:50;background:rgba(255,253,249,.9);-webkit-backdrop-filter:saturate(1.3) blur(14px);backdrop-filter:saturate(1.3) blur(14px);border-bottom:1px solid transparent;transition:border-color 200ms ease,box-shadow 200ms ease;}
-.cp-headOn{border-bottom-color:var(--cp-line);box-shadow:0 8px 28px rgba(74,43,22,.06);}
-.cp-bar{max-width:1240px;height:76px;margin:0 auto;padding:0 20px;display:flex;align-items:center;gap:28px;}
+.cp-head{position:sticky;top:0;z-index:50;padding:12px 16px 0;pointer-events:none;}
+.cp-bar{pointer-events:auto;position:relative;max-width:1240px;height:68px;margin:0 auto;padding:0 12px 0 20px;display:flex;align-items:center;gap:18px;border:1px solid rgba(74,43,22,.09);border-radius:22px;background:rgba(255,253,249,.82);-webkit-backdrop-filter:saturate(1.4) blur(18px);backdrop-filter:saturate(1.4) blur(18px);box-shadow:0 1px 0 rgba(255,255,255,.8) inset,0 10px 30px -18px rgba(74,43,22,.28);transition:box-shadow 200ms ease,background 200ms ease;}
+.cp-bar::after{content:"";position:absolute;left:28px;right:28px;bottom:-1px;height:1px;background:linear-gradient(90deg,transparent,rgba(200,148,58,.55),transparent);opacity:.7;pointer-events:none;}
+.cp-headOn .cp-bar{background:rgba(255,253,249,.94);box-shadow:0 1px 0 rgba(255,255,255,.8) inset,0 18px 40px -20px rgba(74,43,22,.4);}
 .cp-brand{display:flex;align-items:center;padding:0;border:none;background:none;cursor:pointer;flex:0 0 auto;}
-.cp-logo{height:54px;width:auto;display:block;}
-.cp-nav{display:flex;align-items:center;gap:2px;}
-.cp-link{display:inline-flex;align-items:center;height:40px;padding:0 14px;border:none;border-radius:999px;background:transparent;cursor:pointer;font-size:15px;font-weight:650;color:#5B4535;text-decoration:none;white-space:nowrap;transition:background 150ms ease,color 150ms ease;}
-.cp-link:hover{background:rgba(200,148,58,.11);color:var(--cp-espresso);}
+.cp-logo{height:50px;width:auto;display:block;}
+.cp-nav{margin-left:14px;padding:4px;display:flex;align-items:center;gap:2px;border-radius:999px;background:rgba(74,43,22,.04);}
+.cp-link{position:relative;display:inline-flex;align-items:center;height:38px;padding:0 16px;border:none;border-radius:999px;background:transparent;cursor:pointer;font-size:14.5px;font-weight:700;color:#6B5847;text-decoration:none;white-space:nowrap;transition:background 150ms ease,color 150ms ease,box-shadow 150ms ease;}
+.cp-link:hover{color:var(--cp-espresso);background:rgba(255,255,255,.7);}
+.cp-link.cp-linkOn{color:var(--cp-espresso);background:#fff;box-shadow:0 0 0 1px rgba(200,148,58,.28),0 6px 14px -8px rgba(74,43,22,.45);}
+.cp-link.cp-linkOn::after{content:"";position:absolute;left:50%;bottom:5px;width:14px;height:2px;margin-left:-7px;border-radius:2px;background:var(--cp-gold);}
 .cp-actions{margin-left:auto;display:flex;align-items:center;gap:10px;}
-.cp-searchPill{height:42px;padding:0 10px 0 14px;display:inline-flex;align-items:center;gap:9px;border:1px solid rgba(74,43,22,.12);border-radius:999px;background:rgba(255,255,255,.75);cursor:pointer;font-size:14px;font-weight:600;color:#7A6857;transition:background 150ms ease,border-color 150ms ease;}
-.cp-searchPill:hover{background:#fff;border-color:rgba(200,148,58,.4);}
+.cp-searchPill{height:44px;padding:0 10px 0 14px;display:inline-flex;align-items:center;gap:9px;border:1px solid rgba(74,43,22,.12);border-radius:14px;background:#fff;cursor:pointer;font-size:14px;font-weight:650;color:#7A6857;transition:border-color 150ms ease,box-shadow 150ms ease;}
+.cp-searchPill:hover{border-color:rgba(200,148,58,.45);box-shadow:0 0 0 4px rgba(200,148,58,.1);}
 .cp-searchPillIcon{width:17px;height:17px;color:var(--cp-gold-dark);}
 .cp-searchPill kbd{min-width:22px;height:22px;padding:0 6px;display:inline-flex;align-items:center;justify-content:center;border:1px solid rgba(74,43,22,.14);border-radius:6px;background:var(--cp-cream);font-size:12px;font-weight:700;color:#8A7867;}
-.cp-burger{display:none;width:44px;height:44px;align-items:center;justify-content:center;border:1px solid rgba(74,43,22,.12);border-radius:12px;background:rgba(255,255,255,.8);cursor:pointer;}
+.cp-navCta{height:44px;padding:0 18px 0 15px;display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(168,116,37,.22);border-radius:14px;background:linear-gradient(135deg,#D7A94F 0%,#C8943A 55%,#B88029 100%);box-shadow:0 8px 20px -8px rgba(168,116,37,.5);color:#2E1E10;cursor:pointer;font-size:14.5px;font-weight:800;white-space:nowrap;transition:transform 160ms ease,box-shadow 160ms ease,filter 160ms ease;}
+.cp-navCta:hover{transform:translateY(-1px);filter:brightness(1.03);box-shadow:0 12px 24px -8px rgba(168,116,37,.55);}
+.cp-navCta svg{width:17px;height:17px;}
+.cp-burger{display:none;width:44px;height:44px;align-items:center;justify-content:center;border:1px solid rgba(74,43,22,.12);border-radius:14px;background:#fff;cursor:pointer;}
 .cp-burger svg{width:22px;height:22px;}
 .cp-sheet{display:none;}
 
@@ -1068,16 +1101,22 @@ const CSS = `
 
 /* ================= RESPONSIVE ================= */
 @media (max-width:1080px){
-  .cp-nav .cp-link:nth-child(3){display:none;}
+  .cp-searchPill span{display:none;}
+  .cp-searchPill kbd{display:none;}
+  .cp-searchPill{padding:0 13px;}
   .cp-shell{gap:36px;grid-template-columns:minmax(0,1fr) minmax(360px,.9fr);}
   .tp-grid,.cp-topicGrid{grid-template-columns:repeat(3,minmax(0,1fr));}
 }
 @media (max-width:940px){
-  .cp-nav,.cp-searchPill{display:none;}
+  .cp-nav,.cp-searchPill,.cp-navCta{display:none;}
   .cp-burger{display:inline-flex;}
-  .cp-sheet{display:flex;flex-direction:column;padding:8px 16px 16px;border-top:1px solid var(--cp-line);background:rgba(255,253,249,.98);}
-  .cp-sheetRow{display:flex;align-items:center;height:48px;padding:0 10px;border:0;border-radius:12px;background:none;cursor:pointer;text-align:left;font-size:16px;font-weight:650;color:var(--cp-espresso);text-decoration:none;}
+  .cp-head{padding:8px 10px 0;}
+  .cp-bar{height:62px;padding:0 9px 0 14px;border-radius:18px;}
+  .cp-sheet{pointer-events:auto;position:absolute;top:calc(100% + 8px);left:0;right:0;display:flex;flex-direction:column;gap:2px;padding:10px;border:1px solid rgba(74,43,22,.09);border-radius:20px;background:rgba(255,253,249,.98);box-shadow:0 30px 60px -24px rgba(74,43,22,.45);}
+  .cp-sheetRow{display:flex;align-items:center;gap:10px;height:48px;padding:0 14px;border:0;border-radius:12px;background:none;cursor:pointer;text-align:left;font-size:16px;font-weight:700;color:var(--cp-espresso);text-decoration:none;}
+  .cp-sheetRow svg{width:18px;height:18px;color:var(--cp-gold-dark);}
   .cp-sheetRow:hover{background:rgba(200,148,58,.1);}
+  .cp-sheetCta{margin-top:6px;height:50px;border:1px solid rgba(168,116,37,.22);border-radius:13px;background:linear-gradient(135deg,#D7A94F,#B88029);color:#2E1E10;font-size:16px;font-weight:800;cursor:pointer;}
   .cp-shell{grid-template-columns:1fr;gap:36px;padding-top:40px;text-align:center;}
   .cp-copy{display:flex;flex-direction:column;align-items:center;}
   .cp-actions2,.cp-trust{justify-content:center;}
@@ -1094,8 +1133,7 @@ const CSS = `
   .cp-ask{flex-direction:column;text-align:center;}
 }
 @media (max-width:620px){
-  .cp-bar{height:68px;padding:0 16px;}
-  .cp-logo{height:46px;}
+  .cp-logo{height:42px;}
   .cp-shell{width:calc(100% - 32px);padding:32px 0 32px;gap:30px;}
   .cp-eyebrow{margin-bottom:15px;padding:6px 11px;font-size:11px;letter-spacing:.06em;}
   .cp-title{font-size:clamp(2.3rem,10.5vw,3.1rem);margin-bottom:16px;}
