@@ -307,7 +307,7 @@ function Preview({ w, onClose, onOpen }: { w: Worksheet; onClose: () => void; on
   const printPdf = () => {
     if (!w.pdf || w.pdf === "#") return;
     const win = window.open(w.pdf, "_blank");
-    win?.addEventListener("load", () => win.print());
+    if (win) win.addEventListener("load", () => win.print());
   };
 
   return (
@@ -833,4 +833,4 @@ const CSS = `
   .cpFoot{flex-direction:column;}
 }
 @media (prefers-reduced-motion:reduce){.cpRoot *{animation:none!important;transition:none!important;}}
-`;s
+`;
