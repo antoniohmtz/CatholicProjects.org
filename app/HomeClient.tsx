@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Inter, Cormorant_Garamond } from "next/font/google";
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 
 const ui = Inter({ subsets: ["latin"], variable: "--cp-ui", display: "swap" });
 const display = Cormorant_Garamond({ subsets: ["latin"], weight: ["500", "600", "700"], style: ["normal", "italic"], variable: "--cp-display", display: "swap" });
@@ -11,62 +11,73 @@ const display = Cormorant_Garamond({ subsets: ["latin"], weight: ["500", "600", 
 /* ── Edit your categories here ─────────────────────────────── */
 
 type IconKey = "saints" | "bible" | "mass" | "sacraments" | "prayers" | "seasons" | "rosary" | "virtues";
-type Category = { slug: string; name: string; description: string; icon: IconKey };
 
-const CATEGORIES: Category[] = [
-  { slug: "saints", name: "Saints", description: "Lives of the saints, feast days, and patronage", icon: "saints" },
-  { slug: "bible-stories", name: "Bible Stories", description: "Old and New Testament, told for the classroom", icon: "bible" },
-  { slug: "the-mass", name: "The Mass", description: "The parts of the Mass and what they mean", icon: "mass" },
-  { slug: "sacraments", name: "Sacraments", description: "Baptism, Reconciliation, Communion, Confirmation", icon: "sacraments" },
-  { slug: "prayers", name: "Prayers", description: "Traditional prayers to learn and pray", icon: "prayers" },
-  { slug: "liturgical-seasons", name: "Liturgical Seasons", description: "Advent, Christmas, Lent, Easter, Ordinary Time", icon: "seasons" },
-  { slug: "the-rosary", name: "The Rosary", description: "The mysteries and how to pray it", icon: "rosary" },
-  { slug: "virtues", name: "Virtues & Moral Life", description: "Faith, hope, charity, and the commandments", icon: "virtues" },
-];
-
-/* ── Edit your worksheets here (sample data — swap for Supabase later) ── */
-
-type WType = "worksheet" | "coloring" | "craft" | "activity";
-type Grade = "K–2" | "3–5" | "6–8" | "All ages";
-type Worksheet = {
-  id: string;
-  title: string;
-  category: string;
-  type: WType;
-  grade: Grade;
-  pages: number;
+type Category = {
+  slug: string;
+  name: string;
+  latin: string;
+  numeral: string;
   description: string;
-  added: string;
-  pdf?: string;
-  thumb?: string;
+  topics: string[];
+  verse: string;
+  reference: string;
+  accent: string;
+  icon: IconKey;
+  worksheets: number;
 };
 
-const WORKSHEETS: Worksheet[] = [
-  { id: "st-francis-panel", title: "St. Francis of Assisi — Four-Panel Story", category: "saints", type: "coloring", grade: "K–2", pages: 1, added: "2026-09-24", description: "Color the life of St. Francis in four scenes, from his conversion to preaching to the birds.", pdf: "#" },
-  { id: "st-therese-standup", title: "St. Thérèse — Mini Stand-Up Saint", category: "saints", type: "craft", grade: "3–5", pages: 1, added: "2026-09-22", description: "Color, cut, fold, and stand. A desk-sized St. Thérèse with her feast day and patronage.", pdf: "#" },
-  { id: "st-michael-panel", title: "St. Michael the Archangel — Four-Panel Story", category: "saints", type: "coloring", grade: "K–2", pages: 1, added: "2026-09-18", description: "Four scenes introducing St. Michael and the prayer for protection.", pdf: "#" },
-  { id: "st-juan-diego-standup", title: "St. Juan Diego — Mini Stand-Up Saint", category: "saints", type: "craft", grade: "All ages", pages: 1, added: "2026-09-12", description: "Color, cut, fold, and stand. St. Juan Diego with the tilma of Our Lady of Guadalupe.", pdf: "#" },
-  { id: "creation", title: "The Story of Creation", category: "bible-stories", type: "worksheet", grade: "K–2", pages: 2, added: "2026-09-10", description: "Walk through the seven days of creation with drawing and matching prompts.", pdf: "#" },
-  { id: "noah-sequence", title: "Noah and the Ark — Sequencing", category: "bible-stories", type: "activity", grade: "K–2", pages: 1, added: "2026-09-08", description: "Cut and order the scenes of the flood story.", pdf: "#" },
-  { id: "prodigal-son", title: "The Prodigal Son — Reflection", category: "bible-stories", type: "worksheet", grade: "6–8", pages: 2, added: "2026-09-05", description: "Read Luke 15 and reflect on mercy, repentance, and the Father’s love.", pdf: "#" },
-  { id: "parts-of-mass", title: "The Parts of the Mass", category: "the-mass", type: "worksheet", grade: "3–5", pages: 2, added: "2026-09-15", description: "Label and order the Liturgy of the Word and the Liturgy of the Eucharist.", pdf: "#" },
-  { id: "sacred-vessels", title: "Sacred Vessels Matching", category: "the-mass", type: "activity", grade: "3–5", pages: 1, added: "2026-09-02", description: "Match the chalice, paten, ciborium, and cruets to their names and uses.", pdf: "#" },
-  { id: "seven-sacraments", title: "The Seven Sacraments", category: "sacraments", type: "worksheet", grade: "3–5", pages: 2, added: "2026-09-14", description: "An overview of the sacraments of initiation, healing, and service.", pdf: "#" },
-  { id: "baptism-symbols", title: "Symbols of Baptism", category: "sacraments", type: "coloring", grade: "K–2", pages: 1, added: "2026-08-30", description: "Color the water, oil, white garment, and candle.", pdf: "#" },
-  { id: "our-father", title: "The Our Father — Line by Line", category: "prayers", type: "worksheet", grade: "3–5", pages: 2, added: "2026-09-20", description: "Learn what each line of the Lord’s Prayer means.", pdf: "#" },
-  { id: "hail-mary-trace", title: "Hail Mary Tracing Page", category: "prayers", type: "activity", grade: "K–2", pages: 1, added: "2026-08-28", description: "Trace the Hail Mary to practice handwriting and memorization.", pdf: "#" },
-  { id: "advent-wreath", title: "The Advent Wreath", category: "liturgical-seasons", type: "craft", grade: "All ages", pages: 1, added: "2026-09-26", description: "Build a paper Advent wreath and learn what each candle means.", pdf: "#" },
-  { id: "joyful-mysteries", title: "The Joyful Mysteries", category: "the-rosary", type: "worksheet", grade: "3–5", pages: 2, added: "2026-09-16", description: "The five Joyful Mysteries with a Scripture line and coloring bead for each.", pdf: "#" },
-  { id: "fruits-spirit", title: "Fruits of the Holy Spirit", category: "virtues", type: "worksheet", grade: "6–8", pages: 2, added: "2026-09-06", description: "Identify the fruits of the Spirit and where you see them in daily life.", pdf: "#" },
-  { id: "ten-commandments", title: "The Ten Commandments", category: "virtues", type: "activity", grade: "3–5", pages: 1, added: "2026-08-26", description: "Sort everyday choices under the commandment they honor.", pdf: "#" },
+const CATEGORIES: Category[] = [
+  {
+    slug: "saints", name: "Saints", latin: "Sancti", numeral: "I", icon: "saints", accent: "#a87a2c", worksheets: 0,
+    description: "The lives of the saints, their feast days, and the causes they patron.",
+    topics: ["Feast days", "Patron saints", "Four-panel stories", "Stand-up saints"],
+    verse: "Be ye followers of me, as I also am of Christ.", reference: "1 Corinthians 11:1",
+  },
+  {
+    slug: "bible-stories", name: "Bible Stories", latin: "Sacra Scriptura", numeral: "II", icon: "bible", accent: "#4f6b4a", worksheets: 0,
+    description: "The Old and New Testaments, told simply for the classroom.",
+    topics: ["Old Testament", "The Gospels", "Parables", "Miracles of Jesus"],
+    verse: "Thy word is a lamp to my feet, and a light to my paths.", reference: "Psalm 118:105",
+  },
+  {
+    slug: "the-mass", name: "The Mass", latin: "Sancta Missa", numeral: "III", icon: "mass", accent: "#7a2e33", worksheets: 0,
+    description: "The parts of the Mass, the sacred vessels, and what each moment means.",
+    topics: ["Parts of the Mass", "Sacred vessels", "Vestments & colors", "Responses"],
+    verse: "Do this for a commemoration of me.", reference: "Luke 22:19",
+  },
+  {
+    slug: "sacraments", name: "Sacraments", latin: "Sacramenta", numeral: "IV", icon: "sacraments", accent: "#2f6570", worksheets: 0,
+    description: "The seven sacraments, with special care for First Communion and Confirmation.",
+    topics: ["Baptism", "Reconciliation", "First Communion", "Confirmation"],
+    verse: "Unless a man be born again of water and the Holy Ghost.", reference: "John 3:5",
+  },
+  {
+    slug: "prayers", name: "Prayers", latin: "Orationes", numeral: "V", icon: "prayers", accent: "#7d5436", worksheets: 0,
+    description: "The traditional prayers of the Church, to learn by heart and pray together.",
+    topics: ["Our Father", "Hail Mary", "Glory Be", "Act of Contrition"],
+    verse: "Lord, teach us to pray.", reference: "Luke 11:1",
+  },
+  {
+    slug: "liturgical-seasons", name: "Liturgical Seasons", latin: "Annus Liturgicus", numeral: "VI", icon: "seasons", accent: "#5a4273", worksheets: 0,
+    description: "Walk through the Church year, from Advent to Ordinary Time.",
+    topics: ["Advent", "Christmas", "Lent", "Easter"],
+    verse: "All things have their season.", reference: "Ecclesiastes 3:1",
+  },
+  {
+    slug: "the-rosary", name: "The Rosary", latin: "Rosarium", numeral: "VII", icon: "rosary", accent: "#3d5a86", worksheets: 0,
+    description: "The mysteries of the Rosary and how to pray them, decade by decade.",
+    topics: ["Joyful", "Luminous", "Sorrowful", "Glorious"],
+    verse: "Hail, full of grace, the Lord is with thee.", reference: "Luke 1:28",
+  },
+  {
+    slug: "virtues", name: "Virtues & Moral Life", latin: "Virtutes", numeral: "VIII", icon: "virtues", accent: "#8c4a2a", worksheets: 0,
+    description: "The virtues, the Commandments, and the works of mercy in daily life.",
+    topics: ["Theological virtues", "Cardinal virtues", "Ten Commandments", "Works of mercy"],
+    verse: "And now there remain faith, hope, and charity, these three.", reference: "1 Corinthians 13:13",
+  },
 ];
 
 /* ──────────────────────────────────────────────────────────── */
-
-const TYPE_LABEL: Record<WType, string> = { worksheet: "Worksheet", coloring: "Coloring page", craft: "Craft", activity: "Activity" };
-const TYPES: WType[] = ["worksheet", "coloring", "craft", "activity"];
-const GRADES: Grade[] = ["K–2", "3–5", "6–8", "All ages"];
-const NEW_DAYS = 14;
 
 const ICONS: Record<IconKey, ReactNode> = {
   saints: (<><path d="M8 5.2a6 6 0 0 1 8 0" /><circle cx="12" cy="9.2" r="2.8" /><path d="M6.5 20.5c.4-3.6 2.6-6 5.5-6s5.1 2.4 5.5 6" /></>),
@@ -79,24 +90,18 @@ const ICONS: Record<IconKey, ReactNode> = {
   virtues: (<><path d="M12 20s-7-4.3-7-9.6A3.9 3.9 0 0 1 12 8a3.9 3.9 0 0 1 7 2.4C19 15.7 12 20 12 20Z" /><path d="M12 3v3M10.5 4.5h3" /></>),
 };
 
-const UI_ICONS: Record<string, ReactNode> = {
-  library: (<><rect x="4" y="4" width="6.5" height="6.5" rx="1.5" /><rect x="13.5" y="4" width="6.5" height="6.5" rx="1.5" /><rect x="4" y="13.5" width="6.5" height="6.5" rx="1.5" /><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.5" /></>),
-  categories: (<><path d="M4 6h16M4 12h16M4 18h10" /></>),
-  new: (<><path d="M12 3l2.2 5.3L20 9l-4.4 3.8L17 18.5 12 15.6 7 18.5l1.4-5.7L4 9l5.8-.7Z" /></>),
-  external: (<><path d="M14 4h6v6" /><path d="M20 4 11 13" /><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5" /></>),
+const UI: Record<string, ReactNode> = {
+  library: (<><path d="M4 20V9l8-5 8 5v11" /><path d="M9 20v-6h6v6" /><path d="M12 4V2M11 3h2" /></>),
+  categories: (<><rect x="4" y="4" width="6.5" height="6.5" rx="1.5" /><rect x="13.5" y="4" width="6.5" height="6.5" rx="1.5" /><rect x="4" y="13.5" width="6.5" height="6.5" rx="1.5" /><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.5" /></>),
   search: (<><circle cx="11" cy="11" r="7" /><path d="m20 20-3.6-3.6" /></>),
-  grid: (<><rect x="4" y="4" width="7" height="7" rx="1.5" /><rect x="13" y="4" width="7" height="7" rx="1.5" /><rect x="4" y="13" width="7" height="7" rx="1.5" /><rect x="13" y="13" width="7" height="7" rx="1.5" /></>),
-  list: (<><path d="M9 6h11M9 12h11M9 18h11" /><circle cx="4.5" cy="6" r="1" /><circle cx="4.5" cy="12" r="1" /><circle cx="4.5" cy="18" r="1" /></>),
-  download: (<><path d="M12 4v11" /><path d="m7 10 5 5 5-5" /><path d="M5 20h14" /></>),
-  print: (<><path d="M7 9V4h10v5" /><rect x="4" y="9" width="16" height="7" rx="1.5" /><path d="M7 14h10v6H7z" /></>),
+  external: (<><path d="M14 4h6v6" /><path d="M20 4 11 13" /><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5" /></>),
   close: (<><path d="M18 6 6 18M6 6l12 12" /></>),
   menu: (<><path d="M4 7h16M4 12h16M4 17h16" /></>),
   caret: (<><path d="m6 9 6 6 6-6" /></>),
-  check: (<><path d="m5 12 4.5 4.5L19 7" /></>),
-  worksheet: (<><path d="M6 3.5h8l4 4v13H6z" /><path d="M14 3.5v4h4" /><path d="M9 12h6M9 15.5h6" /></>),
-  coloring: (<><path d="M4 20c2.5 0 4-1.3 4-3.5a2.5 2.5 0 0 0-5 0" /><path d="m8.5 14.5 10-10a1.8 1.8 0 0 1 2.5 2.5l-10 10" /></>),
-  craft: (<><circle cx="6" cy="6.5" r="2.5" /><circle cx="6" cy="17.5" r="2.5" /><path d="M8 8.2 20 18M8 15.8 20 6" /></>),
-  activity: (<><path d="M5 4h6v2.5a1.5 1.5 0 1 0 3 0V4h5v6h-2.5a1.5 1.5 0 1 0 0 3H19v7h-6v-2.5a1.5 1.5 0 1 0-3 0V20H5v-6h2.5a1.5 1.5 0 1 0 0-3H5Z" /></>),
+  arrow: (<><path d="M5 12h14" /><path d="m13 6 6 6-6 6" /></>),
+  back: (<><path d="M19 12H5" /><path d="m11 18-6-6 6-6" /></>),
+  quill: (<><path d="M20 4c-6 0-11 4.5-12.5 11L6 20" /><path d="M20 4c0 6-4 10.5-10.5 11.5" /><path d="M9 14.5 13.5 10" /></>),
+  mail: (<><rect x="3.5" y="5.5" width="17" height="13" rx="2" /><path d="m4 7 8 6 8-6" /></>),
 };
 
 function Svg({ children, className, sw = 1.6 }: { children: ReactNode; className?: string; sw?: number }) {
@@ -107,18 +112,24 @@ function Svg({ children, className, sw = 1.6 }: { children: ReactNode; className
   );
 }
 
-const catBySlug = (slug: string) => CATEGORIES.find((c) => c.slug === slug);
-const isNew = (w: Worksheet) => Date.now() - new Date(w.added).getTime() < NEW_DAYS * 86400000;
+const accentStyle = (c: Category) => ({ "--accent": c.accent }) as CSSProperties;
+const bySlug = (slug: string | null) => CATEGORIES.find((c) => c.slug === slug);
 
-type View = "library" | "new";
+function Ornament() {
+  return (
+    <div className="cpOrnament" aria-hidden="true">
+      <span className="cpOrnLine" />
+      <span className="cpOrnCross">✠</span>
+      <span className="cpOrnLine" />
+    </div>
+  );
+}
 
 /* ── Top navigation (Owntric-style app bar) ────────────────── */
 
-function TopNav({
-  view, category, query, onView, onCategory, onQuery,
-}: {
-  view: View; category: string; query: string;
-  onView: (v: View) => void; onCategory: (slug: string) => void; onQuery: (q: string) => void;
+function TopNav({ active, query, onHome, onOpen, onQuery }: {
+  active: Category | undefined; query: string;
+  onHome: () => void; onOpen: (slug: string) => void; onQuery: (q: string) => void;
 }) {
   const [catOpen, setCatOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -130,13 +141,9 @@ function TopNav({
     const onScroll = () => setScrolled(window.scrollY > 4);
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-
-  useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      const t = e.target as HTMLElement;
-      const typing = t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA");
+      const t = e.target as HTMLElement | null;
+      const typing = !!t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA");
       if ((e.key === "/" && !typing) || ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k")) {
         e.preventDefault();
         searchRef.current?.focus();
@@ -149,96 +156,100 @@ function TopNav({
     document.addEventListener("keydown", onKey);
     document.addEventListener("mousedown", onDown);
     return () => {
+      window.removeEventListener("scroll", onScroll);
       document.removeEventListener("keydown", onKey);
       document.removeEventListener("mousedown", onDown);
     };
   }, []);
 
-  const pick = (slug: string) => {
-    onCategory(slug);
+  const go = (slug: string) => {
+    onOpen(slug);
     setCatOpen(false);
     setMobileOpen(false);
   };
 
-  const activeCat = category !== "all" ? catBySlug(category) : undefined;
+  const home = () => {
+    onHome();
+    setCatOpen(false);
+    setMobileOpen(false);
+  };
 
   return (
     <header className={scrolled ? "cpTop cpTopScrolled" : "cpTop"}>
       <div className="cpTopInner">
-        <button className="cpBrand" onClick={() => { onView("library"); pick("all"); onQuery(""); }} aria-label="Library home">
+        <button className="cpBrand" onClick={home} aria-label="Library home">
           <Image src="/brand/catholicprojects-logo.png" alt="CatholicProjects.org" width={900} height={260} priority className="cpLogo" />
         </button>
 
         <nav className="cpNav" aria-label="Primary">
-          <button className={view === "library" && category === "all" ? "cpNavItem cpNavActive" : "cpNavItem"} onClick={() => { onView("library"); pick("all"); }}>
-            <Svg className="cpNavIcon">{UI_ICONS.library}</Svg> Library
+          <button className={!active ? "cpNavItem cpNavActive" : "cpNavItem"} onClick={home}>
+            <Svg className="cpNavIcon">{UI.library}</Svg> Library
           </button>
 
           <div className="cpDrop" ref={catRef}>
-            <button className={catOpen || (view === "library" && activeCat) ? "cpNavItem cpNavActive" : "cpNavItem"} aria-expanded={catOpen} aria-haspopup="true" onClick={() => setCatOpen((v) => !v)}>
-              <Svg className="cpNavIcon">{UI_ICONS.categories}</Svg>
-              {activeCat ? activeCat.name : "Categories"}
-              <Svg className={catOpen ? "cpCaret cpCaretUp" : "cpCaret"} sw={2.2}>{UI_ICONS.caret}</Svg>
+            <button className={catOpen || active ? "cpNavItem cpNavActive" : "cpNavItem"} aria-expanded={catOpen} aria-haspopup="true" onClick={() => setCatOpen((v) => !v)}>
+              <Svg className="cpNavIcon">{UI.categories}</Svg>
+              {active ? active.name : "Categories"}
+              <Svg className={catOpen ? "cpCaret cpCaretUp" : "cpCaret"} sw={2.2}>{UI.caret}</Svg>
             </button>
             {catOpen && (
               <div className="cpMenu" role="menu">
-                {CATEGORIES.map((c) => {
-                  const count = WORKSHEETS.filter((w) => w.category === c.slug).length;
-                  return (
-                    <button key={c.slug} role="menuitem" className={category === c.slug ? "cpMenuItem cpMenuItemOn" : "cpMenuItem"} onClick={() => { onView("library"); pick(c.slug); }}>
-                      <span className="cpMenuIcon"><Svg>{ICONS[c.icon]}</Svg></span>
+                <div className="cpMenuHead">
+                  <span className="cpMenuEyebrow">The Library</span>
+                  <span className="cpMenuTitle">Browse by category</span>
+                </div>
+                <div className="cpMenuGrid">
+                  {CATEGORIES.map((c) => (
+                    <button key={c.slug} role="menuitem" style={accentStyle(c)} className={active?.slug === c.slug ? "cpMenuItem cpMenuItemOn" : "cpMenuItem"} onClick={() => go(c.slug)}>
+                      <span className="cpMenuMedal"><Svg>{ICONS[c.icon]}</Svg></span>
                       <span className="cpMenuText">
-                        <span className="cpMenuName">{c.name}<em>{count}</em></span>
-                        <span className="cpMenuDesc">{c.description}</span>
+                        <span className="cpMenuName">{c.name}</span>
+                        <span className="cpMenuLatin">{c.latin}</span>
                       </span>
+                      <span className="cpMenuNum">{c.numeral}</span>
                     </button>
-                  );
-                })}
+                  ))}
+                </div>
               </div>
             )}
           </div>
-
-          <button className={view === "new" ? "cpNavItem cpNavActive" : "cpNavItem"} onClick={() => { onView("new"); pick("all"); }}>
-            <Svg className="cpNavIcon">{UI_ICONS.new}</Svg> New
-          </button>
         </nav>
 
         <div className="cpTopRight">
           <label className="cpSearch">
-            <Svg className="cpSearchIcon" sw={2}>{UI_ICONS.search}</Svg>
-            <input ref={searchRef} type="search" value={query} onChange={(e) => onQuery(e.target.value)} placeholder="Search worksheets" aria-label="Search worksheets" />
+            <Svg className="cpSearchIcon" sw={2}>{UI.search}</Svg>
+            <input ref={searchRef} type="search" value={query} onChange={(e) => onQuery(e.target.value)} placeholder="Search categories and topics" aria-label="Search categories and topics" />
             {!query && <kbd>/</kbd>}
           </label>
           <a href="https://catholicprojects.org" className="cpSiteLink">
-            catholicprojects.org <Svg className="cpExt" sw={2}>{UI_ICONS.external}</Svg>
+            CatholicProjects.org <Svg className="cpExt" sw={2}>{UI.external}</Svg>
           </a>
         </div>
 
         <button className="cpBurger" onClick={() => setMobileOpen((v) => !v)} aria-label={mobileOpen ? "Close menu" : "Open menu"} aria-expanded={mobileOpen}>
-          <Svg sw={2}>{mobileOpen ? UI_ICONS.close : UI_ICONS.menu}</Svg>
+          <Svg sw={2}>{mobileOpen ? UI.close : UI.menu}</Svg>
         </button>
       </div>
+      <div className="cpTopRule" aria-hidden="true" />
 
       {mobileOpen && (
         <div className="cpMobile">
           <label className="cpSearch cpSearchMobile">
-            <Svg className="cpSearchIcon" sw={2}>{UI_ICONS.search}</Svg>
-            <input type="search" value={query} onChange={(e) => onQuery(e.target.value)} placeholder="Search worksheets" aria-label="Search worksheets" />
+            <Svg className="cpSearchIcon" sw={2}>{UI.search}</Svg>
+            <input type="search" value={query} onChange={(e) => onQuery(e.target.value)} placeholder="Search categories and topics" aria-label="Search categories and topics" />
           </label>
-          <button className="cpMobileItem" onClick={() => { onView("library"); pick("all"); }}>
-            <Svg className="cpNavIcon">{UI_ICONS.library}</Svg> Library
-          </button>
-          <button className="cpMobileItem" onClick={() => { onView("new"); pick("all"); }}>
-            <Svg className="cpNavIcon">{UI_ICONS.new}</Svg> New
+          <button className={!active ? "cpMobileItem cpMobileOn" : "cpMobileItem"} onClick={home}>
+            <Svg className="cpNavIcon">{UI.library}</Svg> Library
           </button>
           <span className="cpMobileLabel">Categories</span>
           {CATEGORIES.map((c) => (
-            <button key={c.slug} className={category === c.slug ? "cpMobileItem cpMobileOn" : "cpMobileItem"} onClick={() => { onView("library"); pick(c.slug); }}>
-              <span className="cpMenuIcon cpMenuIconSm"><Svg>{ICONS[c.icon]}</Svg></span> {c.name}
+            <button key={c.slug} style={accentStyle(c)} className={active?.slug === c.slug ? "cpMobileItem cpMobileOn" : "cpMobileItem"} onClick={() => go(c.slug)}>
+              <span className="cpMenuMedal cpMenuMedalSm"><Svg>{ICONS[c.icon]}</Svg></span>
+              <span className="cpMobileText">{c.name}<em>{c.latin}</em></span>
             </button>
           ))}
           <a href="https://catholicprojects.org" className="cpMobileItem">
-            <Svg className="cpNavIcon" sw={2}>{UI_ICONS.external}</Svg> catholicprojects.org
+            <Svg className="cpNavIcon" sw={2}>{UI.external}</Svg> CatholicProjects.org
           </a>
         </div>
       )}
@@ -246,381 +257,313 @@ function TopNav({
   );
 }
 
-/* ── Worksheet paper thumbnail ─────────────────────────────── */
+/* ── Premium category card ─────────────────────────────────── */
 
-function Paper({ w, large }: { w: Worksheet; large?: boolean }) {
-  const cat = catBySlug(w.category);
-  if (w.thumb) {
-    return (
-      <div className={large ? "cpPaper cpPaperLg" : "cpPaper"}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={w.thumb} alt="" className="cpPaperImg" />
-      </div>
-    );
-  }
+function CategoryCard({ c, onOpen }: { c: Category; onOpen: (slug: string) => void }) {
   return (
-    <div className={large ? "cpPaper cpPaperLg" : "cpPaper"} aria-hidden="true">
-      <div className="cpPaperHead">
-        <span>{cat?.name}</span>
-        <span className="cpPaperNm">Name ________</span>
-      </div>
-      <div className="cpPaperTitle">{w.title.split(" — ")[0]}</div>
-      {w.type === "coloring" && (
-        <div className="cpPanels"><span /><span /><span /><span /></div>
-      )}
-      {w.type === "craft" && (
-        <div className="cpCraft">
-          <div className="cpCraftFig"><Svg sw={1.2}>{cat ? ICONS[cat.icon] : null}</Svg></div>
-          <div className="cpFold" />
-          <div className="cpCraftBase" />
-        </div>
-      )}
-      {w.type === "activity" && (
-        <div className="cpBoxes"><span /><span /><span /><span /><span /><span /></div>
-      )}
-      {w.type === "worksheet" && (
-        <div className="cpLines">
-          {[0, 1, 2, 3, 4].map((i) => (<div key={i} className="cpLine"><i />{i % 2 === 0 ? <b /> : <b className="cpShort" />}</div>))}
-        </div>
-      )}
-      <div className="cpPaperFoot">catholicprojects.org</div>
-    </div>
+    <button className="cpCat" style={accentStyle(c)} onClick={() => onOpen(c.slug)} aria-label={`Open ${c.name}`}>
+      <span className="cpCatFrame">
+        <span className="cpWindow">
+          <span className="cpWindowGlass" aria-hidden="true" />
+          <span className="cpWindowLight" aria-hidden="true" />
+          <span className="cpNumeral">{c.numeral}</span>
+          <span className="cpMedal">
+            <span className="cpMedalInner"><Svg className="cpMedalIcon" sw={1.4}>{ICONS[c.icon]}</Svg></span>
+          </span>
+        </span>
+
+        <span className="cpCatBody">
+          <span className="cpLatin">{c.latin}</span>
+          <span className="cpCatName">{c.name}</span>
+          <span className="cpCatRule" aria-hidden="true"><i /><b>✦</b><i /></span>
+          <span className="cpCatDesc">{c.description}</span>
+          <span className="cpTopics">
+            {c.topics.map((t) => <span key={t} className="cpTopic">{t}</span>)}
+          </span>
+        </span>
+
+        <span className="cpCatFoot">
+          <span className="cpStatus">
+            <span className="cpStatusDot" />
+            {c.worksheets > 0 ? `${c.worksheets} worksheet${c.worksheets === 1 ? "" : "s"}` : "Coming soon"}
+          </span>
+          <span className="cpExplore">
+            Explore <Svg className="cpExploreIcon" sw={2}>{UI.arrow}</Svg>
+          </span>
+        </span>
+      </span>
+      <span className="cpShine" aria-hidden="true" />
+    </button>
   );
 }
 
-/* ── Preview modal ─────────────────────────────────────────── */
+/* ── Library home ──────────────────────────────────────────── */
 
-function Preview({ w, onClose, onOpen }: { w: Worksheet; onClose: () => void; onOpen: (w: Worksheet) => void }) {
-  const cat = catBySlug(w.category);
-  const related = WORKSHEETS.filter((x) => x.category === w.category && x.id !== w.id).slice(0, 3);
-
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
-    document.addEventListener("keydown", onKey);
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.removeEventListener("keydown", onKey);
-      document.body.style.overflow = "";
-    };
-  }, [onClose]);
-
-  const printPdf = () => {
-    if (!w.pdf || w.pdf === "#") return;
-    const win = window.open(w.pdf, "_blank");
-    if (win) win.addEventListener("load", () => win.print());
-  };
+function LibraryHome({ query, onOpen, onClear }: { query: string; onOpen: (slug: string) => void; onClear: () => void }) {
+  const results = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return CATEGORIES;
+    return CATEGORIES.filter((c) => [c.name, c.latin, c.description, ...c.topics].join(" ").toLowerCase().includes(q));
+  }, [query]);
 
   return (
-    <div className="cpOverlay" onMouseDown={onClose}>
-      <div className="cpModal" role="dialog" aria-modal="true" aria-label={w.title} onMouseDown={(e) => e.stopPropagation()}>
-        <button className="cpModalClose" onClick={onClose} aria-label="Close preview"><Svg sw={2}>{UI_ICONS.close}</Svg></button>
-        <div className="cpModalPreview"><Paper w={w} large /></div>
-        <div className="cpModalBody">
-          <span className="cpEyebrow">{cat?.name}</span>
-          <h2 className="cpModalTitle">{w.title}</h2>
-          <p className="cpModalDesc">{w.description}</p>
+    <>
+      <section className="cpIntro">
+        <span className="cpEyebrow">The Library · Bibliotheca</span>
+        <h1 className="cpH1">Every worksheet, <em>in its proper place.</em></h1>
+        <p className="cpLead">
+          Free, source-linked resources organized the way the faith is taught. Choose a category to see what it holds, and what is being prepared.
+        </p>
+        <div className="cpFacts">
+          <span><b>{CATEGORIES.length}</b> categories</span>
+          <span className="cpFactSep">✦</span>
+          <span><b>Free</b> forever</span>
+          <span className="cpFactSep">✦</span>
+          <span><b>Source-linked</b></span>
+          <span className="cpFactSep">✦</span>
+          <span><b>Print-ready</b></span>
+        </div>
+        <Ornament />
+      </section>
 
-          <dl className="cpSpecs">
-            <div><dt>Type</dt><dd><Svg className="cpSpecIcon">{UI_ICONS[w.type]}</Svg>{TYPE_LABEL[w.type]}</dd></div>
-            <div><dt>Grades</dt><dd>{w.grade}</dd></div>
-            <div><dt>Pages</dt><dd>{w.pages}</dd></div>
-            <div><dt>Format</dt><dd>PDF · Letter</dd></div>
-          </dl>
+      {query && (
+        <div className="cpSearchNote">
+          {results.length} {results.length === 1 ? "category matches" : "categories match"} “{query}”
+          <button onClick={onClear}>Clear</button>
+        </div>
+      )}
 
-          <div className="cpModalActions">
-            <a className="cpBtn cpBtnPrimary" href={w.pdf || "#"} download target="_blank" rel="noreferrer">
-              <Svg sw={2}>{UI_ICONS.download}</Svg> Download PDF
-            </a>
-            <button className="cpBtn cpBtnGhost" onClick={printPdf}>
-              <Svg sw={1.8}>{UI_ICONS.print}</Svg> Print
-            </button>
-          </div>
+      {results.length === 0 ? (
+        <div className="cpEmpty">
+          <span className="cpEmptyMark">✠</span>
+          <p className="cpEmptyTitle">Nothing matches “{query}” yet.</p>
+          <p>Try a saint, a prayer, a season, or a sacrament.</p>
+          <button className="cpBtn cpBtnGhost" onClick={onClear}>Show all categories</button>
+        </div>
+      ) : (
+        <div className="cpGrid">
+          {results.map((c) => <CategoryCard key={c.slug} c={c} onOpen={onOpen} />)}
+        </div>
+      )}
+    </>
+  );
+}
 
-          <p className="cpSources"><Svg sw={2.2} className="cpSourcesIcon">{UI_ICONS.check}</Svg> Built from linked Catholic sources · Free to print for your classroom</p>
+/* ── Category page ─────────────────────────────────────────── */
 
-          {related.length > 0 && (
-            <div className="cpRelated">
-              <span className="cpRelatedHead">More in {cat?.name}</span>
-              {related.map((r) => (
-                <button key={r.id} className="cpRelatedItem" onClick={() => onOpen(r)}>
-                  <span className="cpRelatedType"><Svg>{UI_ICONS[r.type]}</Svg></span>
-                  <span className="cpRelatedTitle">{r.title}</span>
-                  <span className="cpRelatedMeta">{r.grade}</span>
-                </button>
-              ))}
+function CategoryPage({ c, onHome, onOpen }: { c: Category; onHome: () => void; onOpen: (slug: string) => void }) {
+  const others = CATEGORIES.filter((x) => x.slug !== c.slug);
+  const suggest = `mailto:team@catholicprojects.org?subject=${encodeURIComponent(`Worksheet idea: ${c.name}`)}`;
+
+  return (
+    <div style={accentStyle(c)}>
+      <button className="cpBack" onClick={onHome}>
+        <Svg sw={2}>{UI.back}</Svg> Library
+      </button>
+
+      <section className="cpHero">
+        <div className="cpHeroWindow">
+          <span className="cpWindowGlass" aria-hidden="true" />
+          <span className="cpWindowLight" aria-hidden="true" />
+          <span className="cpNumeral cpNumeralLg">{c.numeral}</span>
+          <span className="cpMedal cpMedalLg">
+            <span className="cpMedalInner"><Svg className="cpMedalIcon" sw={1.3}>{ICONS[c.icon]}</Svg></span>
+          </span>
+        </div>
+        <div className="cpHeroBody">
+          <span className="cpLatin cpLatinLg">{c.latin}</span>
+          <h1 className="cpHeroTitle">{c.name}</h1>
+          <p className="cpHeroDesc">{c.description}</p>
+          <blockquote className="cpVerse">
+            <span className="cpVerseMark" aria-hidden="true">“</span>
+            <p>{c.verse}</p>
+            <cite>{c.reference}</cite>
+          </blockquote>
+        </div>
+      </section>
+
+      <section className="cpSection">
+        <div className="cpSectionHead">
+          <span className="cpEyebrow">In this category</span>
+          <h2 className="cpH2">What you’ll find here</h2>
+        </div>
+        <div className="cpTopicGrid">
+          {c.topics.map((t, i) => (
+            <div key={t} className="cpTopicCard">
+              <span className="cpTopicNum">{String(i + 1).padStart(2, "0")}</span>
+              <span className="cpTopicName">{t}</span>
+              <span className="cpTopicState">In preparation</span>
             </div>
-          )}
+          ))}
         </div>
-      </div>
+      </section>
+
+      <section className="cpPreparing">
+        <span className="cpPrepIcon"><Svg sw={1.5}>{UI.quill}</Svg></span>
+        <div className="cpPrepText">
+          <h3>Worksheets are being prepared.</h3>
+          <p>Each resource is researched from Catholic sources before it’s published. The first {c.name.toLowerCase()} worksheets will appear here as soon as they’re ready.</p>
+        </div>
+        <div className="cpPrepActions">
+          <a className="cpBtn cpBtnPrimary" href={suggest}>
+            <Svg sw={1.8}>{UI.mail}</Svg> Suggest a worksheet
+          </a>
+          <button className="cpBtn cpBtnGhost" onClick={onHome}>Browse all categories</button>
+        </div>
+      </section>
+
+      <section className="cpSection">
+        <Ornament />
+        <div className="cpSectionHead">
+          <span className="cpEyebrow">Continue browsing</span>
+          <h2 className="cpH2">Other categories</h2>
+        </div>
+        <div className="cpMini">
+          {others.map((o) => (
+            <button key={o.slug} className="cpMiniCard" style={accentStyle(o)} onClick={() => onOpen(o.slug)}>
+              <span className="cpMenuMedal"><Svg>{ICONS[o.icon]}</Svg></span>
+              <span className="cpMenuText">
+                <span className="cpMenuName">{o.name}</span>
+                <span className="cpMenuLatin">{o.latin}</span>
+              </span>
+              <Svg className="cpMiniArrow" sw={2}>{UI.arrow}</Svg>
+            </button>
+          ))}
+        </div>
+      </section>
     </div>
   );
 }
 
-/* ── Library ───────────────────────────────────────────────── */
+/* ── App ───────────────────────────────────────────────────── */
 
 export default function HomeClient() {
-  const [view, setView] = useState<View>("library");
-  const [category, setCategory] = useState("all");
+  const [slug, setSlug] = useState<string | null>(null);
   const [query, setQuery] = useState("");
-  const [types, setTypes] = useState<WType[]>([]);
-  const [grade, setGrade] = useState<Grade | "all">("all");
-  const [sort, setSort] = useState<"newest" | "az">("newest");
-  const [layout, setLayout] = useState<"grid" | "list">("grid");
-  const [open, setOpen] = useState<Worksheet | null>(null);
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
     const p = new URLSearchParams(window.location.search);
     const c = p.get("category");
-    if (c && catBySlug(c)) setCategory(c);
-    if (p.get("q")) setQuery(p.get("q") || "");
-    if (p.get("view") === "new") setView("new");
-    const ws = p.get("worksheet");
-    if (ws) setOpen(WORKSHEETS.find((w) => w.id === ws) || null);
+    if (bySlug(c)) setSlug(c);
     setReady(true);
+    const onPop = () => {
+      const q = new URLSearchParams(window.location.search).get("category");
+      setSlug(bySlug(q) ? q : null);
+    };
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
   }, []);
 
-  useEffect(() => {
-    if (!ready) return;
-    const p = new URLSearchParams();
-    if (category !== "all") p.set("category", category);
-    if (query.trim()) p.set("q", query.trim());
-    if (view === "new") p.set("view", "new");
-    if (open) p.set("worksheet", open.id);
-    const qs = p.toString();
-    window.history.replaceState(null, "", qs ? `?${qs}` : window.location.pathname);
-  }, [category, query, view, open, ready]);
-
-  const changeCategory = (slug: string) => {
-    setCategory(slug);
+  const openCategory = (s: string) => {
+    setSlug(s);
+    setQuery("");
+    window.history.pushState(null, "", `?category=${s}`);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const scoped = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    return WORKSHEETS.filter((w) => {
-      if (view === "new" && !isNew(w)) return false;
-      if (category !== "all" && w.category !== category) return false;
-      if (q) {
-        const hay = `${w.title} ${w.description} ${catBySlug(w.category)?.name || ""} ${TYPE_LABEL[w.type]}`.toLowerCase();
-        if (!hay.includes(q)) return false;
-      }
-      return true;
-    });
-  }, [view, category, query]);
+  const goHome = () => {
+    setSlug(null);
+    window.history.pushState(null, "", window.location.pathname);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
-  const results = useMemo(() => {
-    const list = scoped.filter((w) => (types.length === 0 || types.includes(w.type)) && (grade === "all" || w.grade === grade));
-    return [...list].sort((a, b) => (sort === "az" ? a.title.localeCompare(b.title) : b.added.localeCompare(a.added)));
-  }, [scoped, types, grade, sort]);
+  const changeQuery = (q: string) => {
+    setQuery(q);
+    if (slug) {
+      setSlug(null);
+      window.history.pushState(null, "", window.location.pathname);
+    }
+  };
 
-  const typeCount = (t: WType) => scoped.filter((w) => w.type === t && (grade === "all" || w.grade === grade)).length;
-  const catCount = (slug: string) => WORKSHEETS.filter((w) => (slug === "all" || w.category === slug) && (view !== "new" || isNew(w))).length;
-
-  const toggleType = (t: WType) => setTypes((cur) => (cur.includes(t) ? cur.filter((x) => x !== t) : [...cur, t]));
-  const clearFilters = () => { setTypes([]); setGrade("all"); };
-  const hasFilters = types.length > 0 || grade !== "all";
-
-  const activeCat = category !== "all" ? catBySlug(category) : undefined;
-  const heading = view === "new" ? "New this month" : activeCat ? activeCat.name : "All worksheets";
-  const sub = view === "new"
-    ? `Worksheets added in the last ${NEW_DAYS} days.`
-    : activeCat ? activeCat.description : "Every free, source-linked resource in the library, ready to print.";
+  const active = bySlug(slug);
 
   return (
     <div className={`cpRoot ${ui.variable} ${display.variable}`}>
       <style>{CSS}</style>
+      <div className="cpGlow cpGlowA" aria-hidden="true" />
+      <div className="cpGlow cpGlowB" aria-hidden="true" />
 
-      <TopNav view={view} category={category} query={query} onView={setView} onCategory={changeCategory} onQuery={setQuery} />
+      <TopNav active={active} query={query} onHome={goHome} onOpen={openCategory} onQuery={changeQuery} />
 
-      <main className="cpMain">
-        <div className="cpPageHead">
-          <div className="cpCrumbs">
-            <button onClick={() => { setView("library"); changeCategory("all"); }}>Library</button>
-            {(activeCat || view === "new") && <><span>/</span><b>{view === "new" ? "New" : activeCat?.name}</b></>}
-          </div>
-          <div className="cpTitleRow">
-            <div>
-              <h1 className="cpH1">{heading}</h1>
-              <p className="cpSub">{sub}</p>
-            </div>
-            <div className="cpStat">
-              <span className="cpStatNum">{results.length}</span>
-              <span className="cpStatLbl">{results.length === 1 ? "resource" : "resources"}</span>
-            </div>
-          </div>
-        </div>
-
-        <div className="cpTabs" role="tablist" aria-label="Categories">
-          <button role="tab" aria-selected={category === "all"} className={category === "all" ? "cpTab cpTabOn" : "cpTab"} onClick={() => changeCategory("all")}>
-            All <em>{catCount("all")}</em>
-          </button>
-          {CATEGORIES.map((c) => (
-            <button key={c.slug} role="tab" aria-selected={category === c.slug} className={category === c.slug ? "cpTab cpTabOn" : "cpTab"} onClick={() => changeCategory(c.slug)}>
-              <Svg className="cpTabIcon">{ICONS[c.icon]}</Svg>
-              {c.name} <em>{catCount(c.slug)}</em>
-            </button>
-          ))}
-        </div>
-
-        <div className="cpToolbar">
-          <div className="cpFilters">
-            {TYPES.map((t) => {
-              const on = types.includes(t);
-              return (
-                <button key={t} aria-pressed={on} className={on ? "cpChip cpChipOn" : "cpChip"} onClick={() => toggleType(t)}>
-                  <Svg className="cpChipIcon">{UI_ICONS[t]}</Svg>
-                  {TYPE_LABEL[t]} <em>{typeCount(t)}</em>
-                </button>
-              );
-            })}
-          </div>
-
-          <div className="cpControls">
-            <label className="cpSelect">
-              <span>Grade</span>
-              <select value={grade} onChange={(e) => setGrade(e.target.value as Grade | "all")}>
-                <option value="all">All grades</option>
-                {GRADES.map((g) => <option key={g} value={g}>{g}</option>)}
-              </select>
-            </label>
-            <label className="cpSelect">
-              <span>Sort</span>
-              <select value={sort} onChange={(e) => setSort(e.target.value as "newest" | "az")}>
-                <option value="newest">Newest</option>
-                <option value="az">A–Z</option>
-              </select>
-            </label>
-            <div className="cpSeg" role="group" aria-label="Layout">
-              <button aria-pressed={layout === "grid"} className={layout === "grid" ? "cpSegOn" : ""} onClick={() => setLayout("grid")} aria-label="Grid view"><Svg>{UI_ICONS.grid}</Svg></button>
-              <button aria-pressed={layout === "list"} className={layout === "list" ? "cpSegOn" : ""} onClick={() => setLayout("list")} aria-label="List view"><Svg>{UI_ICONS.list}</Svg></button>
-            </div>
-          </div>
-        </div>
-
-        {(hasFilters || query) && (
-          <div className="cpActive">
-            {query && <button className="cpPill" onClick={() => setQuery("")}>“{query}” <Svg sw={2.4}>{UI_ICONS.close}</Svg></button>}
-            {types.map((t) => <button key={t} className="cpPill" onClick={() => toggleType(t)}>{TYPE_LABEL[t]} <Svg sw={2.4}>{UI_ICONS.close}</Svg></button>)}
-            {grade !== "all" && <button className="cpPill" onClick={() => setGrade("all")}>Grades {grade} <Svg sw={2.4}>{UI_ICONS.close}</Svg></button>}
-            <button className="cpClear" onClick={() => { clearFilters(); setQuery(""); }}>Clear all</button>
-          </div>
-        )}
-
-        {results.length === 0 ? (
-          <div className="cpEmpty">
-            <div className="cpEmptyIcon"><Svg>{UI_ICONS.search}</Svg></div>
-            <p className="cpEmptyTitle">No worksheets match yet.</p>
-            <p>Try a different search or remove a filter.</p>
-            <button className="cpBtn cpBtnGhost" onClick={() => { clearFilters(); setQuery(""); changeCategory("all"); setView("library"); }}>Reset library</button>
-          </div>
-        ) : layout === "grid" ? (
-          <div className="cpGrid">
-            {results.map((w) => (
-              <article key={w.id} className="cpCard">
-                <button className="cpCardThumb" onClick={() => setOpen(w)} aria-label={`Preview ${w.title}`}>
-                  <Paper w={w} />
-                  {isNew(w) && <span className="cpNew">New</span>}
-                  <span className="cpHover"><span>Preview</span></span>
-                </button>
-                <div className="cpCardBody">
-                  <span className="cpType"><Svg className="cpTypeIcon">{UI_ICONS[w.type]}</Svg>{TYPE_LABEL[w.type]}</span>
-                  <button className="cpCardTitle" onClick={() => setOpen(w)}>{w.title}</button>
-                  <div className="cpCardFoot">
-                    <span className="cpMeta">{catBySlug(w.category)?.name} · {w.grade}</span>
-                    <a className="cpDl" href={w.pdf || "#"} download target="_blank" rel="noreferrer" aria-label={`Download ${w.title}`}>
-                      <Svg sw={2}>{UI_ICONS.download}</Svg>
-                    </a>
-                  </div>
-                </div>
-              </article>
-            ))}
-          </div>
+      <main className={ready ? "cpMain cpReady" : "cpMain"}>
+        {active ? (
+          <CategoryPage key={active.slug} c={active} onHome={goHome} onOpen={openCategory} />
         ) : (
-          <div className="cpTable" role="table">
-            <div className="cpRow cpRowHead" role="row">
-              <span role="columnheader">Worksheet</span>
-              <span role="columnheader">Category</span>
-              <span role="columnheader">Type</span>
-              <span role="columnheader">Grades</span>
-              <span role="columnheader">Pages</span>
-              <span role="columnheader" />
-            </div>
-            {results.map((w) => (
-              <div key={w.id} className="cpRow" role="row">
-                <button className="cpRowTitle" onClick={() => setOpen(w)}>
-                  <span className="cpRowThumb"><Svg>{UI_ICONS[w.type]}</Svg></span>
-                  <span>{w.title}{isNew(w) && <em className="cpNewInline">New</em>}</span>
-                </button>
-                <span className="cpRowCell">{catBySlug(w.category)?.name}</span>
-                <span className="cpRowCell">{TYPE_LABEL[w.type]}</span>
-                <span className="cpRowCell">{w.grade}</span>
-                <span className="cpRowCell">{w.pages}</span>
-                <a className="cpDl" href={w.pdf || "#"} download target="_blank" rel="noreferrer" aria-label={`Download ${w.title}`}>
-                  <Svg sw={2}>{UI_ICONS.download}</Svg>
-                </a>
-              </div>
-            ))}
-          </div>
+          <LibraryHome query={query} onOpen={openCategory} onClear={() => setQuery("")} />
         )}
       </main>
 
       <footer className="cpFoot">
-        <p>CatholicProjects is an independent supplemental resource and does not claim parish, diocesan, or other ecclesial endorsement unless specifically stated.</p>
-        <p><a href="mailto:team@catholicprojects.org">team@catholicprojects.org</a> · © {new Date().getFullYear()} CatholicProjects.org</p>
+        <div className="cpFootInner">
+          <span className="cpFootMark">✠</span>
+          <p className="cpFootText">Free Catholic resources, built from the sources — for families, parishes, catechists, and educators.</p>
+          <p className="cpFootFine">
+            CatholicProjects is an independent supplemental resource and does not claim parish, diocesan, or other ecclesial endorsement unless specifically stated.
+          </p>
+          <p className="cpFootFine">
+            <a href="https://catholicprojects.org">CatholicProjects.org</a> · <a href="mailto:team@catholicprojects.org">team@catholicprojects.org</a> · © {new Date().getFullYear()}
+          </p>
+        </div>
       </footer>
-
-      {open && <Preview w={open} onClose={() => setOpen(null)} onOpen={setOpen} />}
     </div>
   );
 }
 
 const CSS = `
-.cpRoot{--chestnut:#8a5d3b;--chestnut-deep:#6f4327;--gold:#c8943a;--gold-hi:#d6a349;--ink:#2b211a;--sub:#70645a;--mute:#9a8c7f;--ivory:#fffdf9;--cream:#faf3e7;--line:rgba(111,67,39,.12);--ui:var(--cp-ui),-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;--serif:var(--cp-display),Georgia,serif;
-  min-height:100svh;display:flex;flex-direction:column;font-family:var(--ui);color:var(--ink);background:linear-gradient(180deg,#fffdf9 0%,#fbf6ee 100%);-webkit-font-smoothing:antialiased;}
+.cpRoot{--chestnut:#8a5d3b;--chestnut-deep:#6f4327;--gold:#c8943a;--gold-hi:#d9a84e;--gold-soft:rgba(200,148,58,.28);--ink:#2b211a;--sub:#70645a;--mute:#9a8c7f;--ivory:#fffdf9;--cream:#faf3e7;--parch:#f6ecdb;--line:rgba(111,67,39,.12);
+  --ui:var(--cp-ui),-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;--serif:var(--cp-display),Georgia,"Times New Roman",serif;
+  position:relative;min-height:100svh;display:flex;flex-direction:column;overflow-x:hidden;font-family:var(--ui);color:var(--ink);background:linear-gradient(180deg,#fffdf9 0%,#fdf8f0 40%,#fbf5ea 100%);-webkit-font-smoothing:antialiased;}
 .cpRoot *{box-sizing:border-box;}
 .cpRoot button{font-family:inherit;}
 .cpRoot a{color:inherit;}
-.cpRoot :focus-visible{outline:2px solid var(--gold);outline-offset:2px;border-radius:10px;}
+.cpRoot :focus-visible{outline:2px solid var(--gold);outline-offset:3px;border-radius:12px;}
+.cpGlow{position:absolute;border-radius:999px;pointer-events:none;filter:blur(8px);z-index:0;}
+.cpGlowA{width:900px;height:900px;top:-520px;left:50%;transform:translateX(-50%);background:radial-gradient(circle,rgba(200,148,58,.18),rgba(200,148,58,.05) 45%,transparent 70%);}
+.cpGlowB{width:700px;height:700px;top:900px;right:-360px;background:radial-gradient(circle,rgba(138,93,59,.08),transparent 65%);}
 
-/* Top nav */
-.cpTop{position:sticky;top:0;z-index:50;background:rgba(255,253,249,.82);border-bottom:1px solid var(--line);backdrop-filter:saturate(1.4) blur(18px);-webkit-backdrop-filter:saturate(1.4) blur(18px);transition:box-shadow 200ms ease;}
-.cpTopScrolled{box-shadow:0 8px 28px rgba(46,29,16,.07);}
-.cpTopInner{max-width:1440px;margin:0 auto;height:84px;padding:0 clamp(16px,3vw,40px);display:flex;align-items:center;gap:28px;}
+/* ── Top nav ── */
+.cpTop{position:sticky;top:0;z-index:50;background:rgba(255,253,249,.84);backdrop-filter:saturate(1.4) blur(18px);-webkit-backdrop-filter:saturate(1.4) blur(18px);transition:box-shadow 200ms ease;}
+.cpTopScrolled{box-shadow:0 10px 30px rgba(46,29,16,.07);}
+.cpTopInner{max-width:1400px;margin:0 auto;height:88px;padding:0 clamp(16px,3vw,40px);display:flex;align-items:center;gap:28px;}
+.cpTopRule{height:1px;background:linear-gradient(90deg,transparent,rgba(200,148,58,.55) 20%,rgba(200,148,58,.55) 80%,transparent);}
 .cpBrand{display:flex;align-items:center;padding:0;border:none;background:none;cursor:pointer;flex:0 0 auto;}
-.cpLogo{height:60px;width:auto;display:block;transition:transform 200ms ease;}
+.cpLogo{height:64px;width:auto;display:block;transition:transform 200ms ease;}
 .cpBrand:hover .cpLogo{transform:scale(1.02);}
-.cpNav{display:flex;align-items:center;gap:4px;padding-left:24px;border-left:1px solid var(--line);height:40px;}
-.cpNavItem{display:inline-flex;align-items:center;gap:8px;height:40px;padding:0 14px;border:none;border-radius:12px;background:transparent;cursor:pointer;font-size:15px;font-weight:600;color:#5b4535;white-space:nowrap;transition:background 150ms ease,color 150ms ease;}
+.cpNav{display:flex;align-items:center;gap:4px;padding-left:26px;border-left:1px solid var(--line);height:42px;}
+.cpNavItem{display:inline-flex;align-items:center;gap:8px;height:42px;padding:0 16px;border:none;border-radius:12px;background:transparent;cursor:pointer;font-size:15px;font-weight:600;color:#5b4535;white-space:nowrap;transition:background 150ms ease,color 150ms ease;}
 .cpNavItem:hover{background:rgba(200,148,58,.1);color:var(--ink);}
-.cpNavActive{background:var(--ink);color:#fff8ec;}
-.cpNavActive:hover{background:var(--ink);color:#fff8ec;}
-.cpNavActive .cpNavIcon{color:var(--gold-hi);}
+.cpNavActive,.cpNavActive:hover{background:var(--ink);color:#fff8ec;}
 .cpNavIcon{width:18px;height:18px;color:var(--chestnut);}
+.cpNavActive .cpNavIcon{color:var(--gold-hi);}
 .cpCaret{width:14px;height:14px;opacity:.7;transition:transform 200ms ease;}
 .cpCaretUp{transform:rotate(180deg);}
 
 .cpDrop{position:relative;}
-.cpMenu{position:absolute;top:calc(100% + 12px);left:0;width:620px;padding:10px;display:grid;grid-template-columns:1fr 1fr;gap:2px;background:#fffdf9;border:1px solid var(--line);border-radius:20px;box-shadow:0 34px 80px rgba(46,29,16,.18);animation:cpIn 170ms cubic-bezier(.2,.8,.2,1);}
+.cpMenu{position:absolute;top:calc(100% + 14px);left:0;width:640px;padding:10px;background:#fffdf9;border:1px solid var(--line);border-radius:22px;box-shadow:0 40px 90px rgba(46,29,16,.2);animation:cpIn 180ms cubic-bezier(.2,.8,.2,1);}
 @keyframes cpIn{from{opacity:0;transform:translateY(-6px);}to{opacity:1;transform:none;}}
-.cpMenuItem{display:flex;align-items:flex-start;gap:12px;padding:12px;border:none;border-radius:14px;background:transparent;cursor:pointer;text-align:left;transition:background 140ms ease;}
+.cpMenuHead{display:flex;flex-direction:column;padding:14px 14px 12px;margin-bottom:6px;border-bottom:1px solid var(--line);}
+.cpMenuEyebrow{font-size:10.5px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);}
+.cpMenuTitle{margin-top:4px;font-family:var(--serif);font-size:24px;font-weight:600;color:var(--ink);}
+.cpMenuGrid{display:grid;grid-template-columns:1fr 1fr;gap:2px;}
+.cpMenuItem{display:flex;align-items:center;gap:12px;padding:10px 12px;border:none;border-radius:14px;background:transparent;cursor:pointer;text-align:left;transition:background 140ms ease;}
 .cpMenuItem:hover{background:var(--cream);}
-.cpMenuItemOn{background:var(--cream);box-shadow:inset 0 0 0 1px rgba(200,148,58,.3);}
-.cpMenuIcon{flex:0 0 auto;width:40px;height:40px;display:flex;align-items:center;justify-content:center;border-radius:12px;background:linear-gradient(145deg,#fbeed6,#f1dcb8);color:var(--chestnut-deep);box-shadow:inset 0 0 0 1px rgba(200,148,58,.22);}
-.cpMenuIcon svg{width:21px;height:21px;}
-.cpMenuIconSm{width:32px;height:32px;border-radius:10px;}
-.cpMenuIconSm svg{width:17px;height:17px;}
-.cpMenuText{display:flex;flex-direction:column;min-width:0;}
-.cpMenuName{display:flex;align-items:center;gap:8px;font-size:14.5px;font-weight:650;color:var(--ink);}
-.cpMenuName em{font-style:normal;font-size:11px;font-weight:700;color:var(--chestnut);background:rgba(200,148,58,.14);padding:2px 7px;border-radius:999px;}
-.cpMenuDesc{margin-top:3px;font-size:12.5px;line-height:1.45;color:var(--sub);}
+.cpMenuItemOn{background:var(--cream);box-shadow:inset 0 0 0 1px var(--gold-soft);}
+.cpMenuMedal{flex:0 0 auto;width:40px;height:40px;display:flex;align-items:center;justify-content:center;border-radius:999px;background:radial-gradient(circle at 35% 30%,color-mix(in srgb,var(--accent,#8a5d3b) 70%,#fff),var(--accent,#8a5d3b) 70%);color:#fff6e6;box-shadow:0 0 0 2px #fffdf9,0 0 0 3px rgba(200,148,58,.55),0 6px 14px rgba(46,29,16,.15);}
+.cpMenuMedal svg{width:20px;height:20px;}
+.cpMenuMedalSm{width:32px;height:32px;}
+.cpMenuMedalSm svg{width:16px;height:16px;}
+.cpMenuText{display:flex;flex-direction:column;min-width:0;flex:1;}
+.cpMenuName{font-size:14.5px;font-weight:650;color:var(--ink);}
+.cpMenuLatin{margin-top:1px;font-family:var(--serif);font-style:italic;font-size:14px;color:var(--chestnut);}
+.cpMenuNum{font-family:var(--serif);font-size:15px;font-weight:600;color:rgba(111,67,39,.35);}
 
-.cpTopRight{margin-left:auto;display:flex;align-items:center;gap:16px;}
+.cpTopRight{margin-left:auto;display:flex;align-items:center;gap:18px;}
 .cpSearch{position:relative;display:flex;align-items:center;}
 .cpSearchIcon{position:absolute;left:15px;width:18px;height:18px;color:var(--mute);pointer-events:none;}
-.cpSearch input{width:300px;height:44px;padding:0 44px 0 44px;border:1px solid var(--line);border-radius:14px;background:#fff;color:var(--ink);font-family:var(--ui);font-size:14.5px;outline:none;transition:border-color 150ms ease,box-shadow 150ms ease,width 220ms ease;}
+.cpSearch input{width:300px;height:44px;padding:0 44px;border:1px solid var(--line);border-radius:14px;background:#fff;color:var(--ink);font-family:var(--ui);font-size:14.5px;outline:none;transition:border-color 150ms ease,box-shadow 150ms ease,width 220ms ease;}
 .cpSearch input::placeholder{color:var(--mute);}
-.cpSearch input:focus{width:360px;border-color:rgba(200,148,58,.55);box-shadow:0 0 0 4px rgba(200,148,58,.13);}
+.cpSearch input:focus{width:350px;border-color:rgba(200,148,58,.55);box-shadow:0 0 0 4px rgba(200,148,58,.13);}
 .cpSearch kbd{position:absolute;right:12px;min-width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-family:var(--ui);font-size:12px;font-weight:600;color:var(--mute);border:1px solid var(--line);border-radius:6px;background:var(--cream);pointer-events:none;}
 .cpSiteLink{display:inline-flex;align-items:center;gap:6px;font-size:13.5px;font-weight:600;color:var(--chestnut-deep)!important;text-decoration:none;white-space:nowrap;}
 .cpSiteLink:hover{color:var(--ink)!important;}
@@ -629,208 +572,184 @@ const CSS = `
 .cpBurger svg{width:22px;height:22px;}
 .cpMobile{display:none;}
 
-/* Page */
-.cpMain{flex:1;width:100%;max-width:1440px;margin:0 auto;padding:36px clamp(16px,3vw,40px) 80px;}
-.cpCrumbs{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--mute);}
-.cpCrumbs button{border:none;background:none;padding:0;cursor:pointer;font-size:13px;color:var(--chestnut);font-weight:600;}
-.cpCrumbs b{color:var(--ink);font-weight:600;}
-.cpTitleRow{margin-top:10px;display:flex;align-items:flex-end;justify-content:space-between;gap:24px;}
-.cpH1{margin:0;font-family:var(--serif);font-size:clamp(38px,4.2vw,56px);font-weight:600;line-height:1;letter-spacing:-.015em;color:var(--ink);}
-.cpSub{margin:10px 0 0;font-size:15.5px;color:var(--sub);}
-.cpStat{display:flex;flex-direction:column;align-items:flex-end;padding:12px 18px;border:1px solid var(--line);border-radius:16px;background:#fff;}
-.cpStatNum{font-family:var(--serif);font-size:34px;font-weight:700;line-height:1;color:var(--chestnut);}
-.cpStatLbl{margin-top:4px;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--mute);}
-
-.cpTabs{margin-top:28px;display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none;}
-.cpTabs::-webkit-scrollbar{display:none;}
-.cpTab{flex:0 0 auto;display:inline-flex;align-items:center;gap:8px;height:42px;padding:0 16px;border:1px solid var(--line);border-radius:999px;background:#fff;cursor:pointer;font-size:14px;font-weight:600;color:#5b4535;white-space:nowrap;transition:all 150ms ease;}
-.cpTab:hover{border-color:rgba(200,148,58,.45);color:var(--ink);}
-.cpTab em{font-style:normal;font-size:11.5px;font-weight:700;color:var(--mute);}
-.cpTabIcon{width:17px;height:17px;color:var(--chestnut);}
-.cpTabOn{background:var(--ink);border-color:var(--ink);color:#fff8ec;}
-.cpTabOn:hover{color:#fff8ec;}
-.cpTabOn em{color:var(--gold-hi);}
-.cpTabOn .cpTabIcon{color:var(--gold-hi);}
-
-.cpToolbar{margin-top:14px;padding:12px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;border:1px solid var(--line);border-radius:18px;background:rgba(255,255,255,.7);}
-.cpFilters{display:flex;flex-wrap:wrap;gap:6px;}
-.cpChip{display:inline-flex;align-items:center;gap:7px;height:36px;padding:0 13px;border:1px solid transparent;border-radius:10px;background:var(--cream);cursor:pointer;font-size:13.5px;font-weight:600;color:#5b4535;transition:all 140ms ease;}
-.cpChip:hover{border-color:rgba(200,148,58,.4);}
-.cpChip em{font-style:normal;font-size:11.5px;color:var(--mute);}
-.cpChipIcon{width:16px;height:16px;color:var(--chestnut);}
-.cpChipOn{background:#fff;border-color:var(--gold);color:var(--ink);box-shadow:0 0 0 3px rgba(200,148,58,.14);}
-.cpControls{display:flex;align-items:center;gap:8px;}
-.cpSelect{display:inline-flex;align-items:center;gap:8px;height:36px;padding:0 4px 0 12px;border:1px solid var(--line);border-radius:10px;background:#fff;}
-.cpSelect span{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--mute);}
-.cpSelect select{height:34px;border:none;background:transparent;font-family:var(--ui);font-size:13.5px;font-weight:600;color:var(--ink);outline:none;cursor:pointer;}
-.cpSeg{display:inline-flex;padding:3px;border:1px solid var(--line);border-radius:10px;background:#fff;}
-.cpSeg button{width:32px;height:28px;display:flex;align-items:center;justify-content:center;border:none;border-radius:7px;background:transparent;cursor:pointer;color:var(--mute);}
-.cpSeg button svg{width:17px;height:17px;}
-.cpSeg .cpSegOn{background:var(--ink);color:#fff8ec;}
-
-.cpActive{margin-top:12px;display:flex;flex-wrap:wrap;align-items:center;gap:6px;}
-.cpPill{display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 10px 0 12px;border:1px solid rgba(200,148,58,.35);border-radius:999px;background:rgba(200,148,58,.1);cursor:pointer;font-size:12.5px;font-weight:600;color:var(--chestnut-deep);}
-.cpPill svg{width:12px;height:12px;}
-.cpClear{border:none;background:none;cursor:pointer;font-size:12.5px;font-weight:600;color:var(--mute);text-decoration:underline;}
-
-/* Grid */
-.cpGrid{margin-top:22px;display:grid;grid-template-columns:repeat(auto-fill,minmax(236px,1fr));gap:22px;}
-.cpCard{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:20px;background:#fff;overflow:hidden;transition:transform 200ms cubic-bezier(.2,.8,.2,1),box-shadow 200ms ease,border-color 200ms ease;}
-.cpCard:hover{transform:translateY(-4px);border-color:rgba(200,148,58,.3);box-shadow:0 24px 50px rgba(74,43,22,.1);}
-.cpCardThumb{position:relative;display:block;padding:22px 26px 0;border:none;cursor:pointer;background:linear-gradient(180deg,#f7eddc,#f1e3cc);overflow:hidden;}
-.cpCardThumb .cpPaper{transition:transform 260ms cubic-bezier(.2,.8,.2,1);}
-.cpCard:hover .cpCardThumb .cpPaper{transform:translateY(-4px) rotate(-1deg);}
-.cpNew{position:absolute;top:12px;left:12px;padding:4px 9px;border-radius:999px;background:var(--ink);color:var(--gold-hi);font-size:10.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;}
-.cpHover{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(43,33,26,.28);opacity:0;transition:opacity 180ms ease;}
-.cpHover span{padding:10px 18px;border-radius:999px;background:#fff;color:var(--ink);font-size:13.5px;font-weight:700;box-shadow:0 10px 24px rgba(0,0,0,.18);}
-.cpCardThumb:hover .cpHover,.cpCardThumb:focus-visible .cpHover{opacity:1;}
-.cpCardBody{display:flex;flex-direction:column;flex:1;padding:16px 18px 16px;}
-.cpType{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);}
-.cpTypeIcon{width:14px;height:14px;}
-.cpCardTitle{margin-top:7px;padding:0;border:none;background:none;cursor:pointer;text-align:left;font-size:15.5px;font-weight:650;line-height:1.35;color:var(--ink);}
-.cpCardTitle:hover{color:var(--chestnut);}
-.cpCardFoot{margin-top:auto;padding-top:14px;display:flex;align-items:center;justify-content:space-between;gap:10px;}
-.cpMeta{font-size:12.5px;color:var(--mute);}
-.cpDl{flex:0 0 auto;width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:11px;border:1px solid var(--line);background:#fff;color:var(--chestnut-deep)!important;transition:all 150ms ease;}
-.cpDl svg{width:17px;height:17px;}
-.cpDl:hover{background:var(--gold);border-color:var(--gold);color:#2e1f12!important;}
-
-/* Paper thumbnail */
-.cpPaper{position:relative;aspect-ratio:8.5/11;width:100%;padding:12% 11% 9%;display:flex;flex-direction:column;background:#fff;border-radius:6px 6px 0 0;box-shadow:0 -1px 0 rgba(111,67,39,.06),0 10px 28px rgba(74,43,22,.12);overflow:hidden;}
-.cpPaperLg{border-radius:8px;box-shadow:0 30px 70px rgba(46,29,16,.18);padding:10% 10% 8%;}
-.cpPaperImg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
-.cpPaperHead{display:flex;justify-content:space-between;gap:6px;font-size:7px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);}
-.cpPaperLg .cpPaperHead{font-size:11px;}
-.cpPaperNm{color:rgba(111,67,39,.35);letter-spacing:0;text-transform:none;font-weight:500;}
-.cpPaperTitle{margin-top:8%;font-family:var(--serif);font-size:17px;font-weight:600;line-height:1.05;color:var(--ink);}
-.cpPaperLg .cpPaperTitle{font-size:32px;}
-.cpPanels{margin-top:8%;flex:1;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:6%;}
-.cpPanels span{border:1.5px solid rgba(111,67,39,.35);border-radius:4px;background:repeating-linear-gradient(135deg,transparent 0 9px,rgba(138,93,59,.05) 9px 10px);}
-.cpCraft{margin-top:6%;flex:1;display:flex;flex-direction:column;align-items:center;border:1.5px dashed rgba(138,93,59,.4);border-radius:6px;padding:6%;}
-.cpCraftFig{flex:1;width:70%;display:flex;align-items:center;justify-content:center;color:rgba(111,67,39,.55);}
-.cpCraftFig svg{width:100%;height:100%;max-height:120px;}
-.cpPaperLg .cpCraftFig svg{max-height:240px;}
-.cpFold{width:100%;border-top:1.5px dashed rgba(200,148,58,.7);margin:6% 0;}
-.cpCraftBase{width:80%;height:14%;border:1.5px solid rgba(111,67,39,.3);border-radius:3px;}
-.cpBoxes{margin-top:8%;flex:1;display:grid;grid-template-columns:1fr 1fr 1fr;grid-auto-rows:1fr;gap:6%;}
-.cpBoxes span{border:1.5px dashed rgba(138,93,59,.4);border-radius:4px;}
-.cpLines{margin-top:8%;flex:1;display:flex;flex-direction:column;justify-content:space-around;}
-.cpLine{display:flex;align-items:center;gap:6%;}
-.cpLine i{width:9%;aspect-ratio:1;border:1.5px solid rgba(138,93,59,.45);border-radius:3px;flex:0 0 auto;}
-.cpLine b{flex:1;height:1.5px;background:rgba(111,67,39,.2);}
-.cpLine .cpShort{flex:0 0 60%;}
-.cpPaperFoot{margin-top:6%;font-size:6.5px;color:rgba(111,67,39,.4);}
-.cpPaperLg .cpPaperFoot{font-size:10px;}
-
-/* List */
-.cpTable{margin-top:22px;border:1px solid var(--line);border-radius:18px;background:#fff;overflow:hidden;}
-.cpRow{display:grid;grid-template-columns:minmax(0,2.6fr) 1.2fr 1fr .7fr .5fr 52px;align-items:center;gap:14px;padding:12px 18px;border-top:1px solid var(--line);}
-.cpRow:hover:not(.cpRowHead){background:var(--cream);}
-.cpRowHead{border-top:none;background:#fbf6ee;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);}
-.cpRowTitle{display:flex;align-items:center;gap:12px;padding:0;border:none;background:none;cursor:pointer;text-align:left;font-size:14.5px;font-weight:650;color:var(--ink);min-width:0;}
-.cpRowTitle:hover{color:var(--chestnut);}
-.cpRowThumb{flex:0 0 auto;width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:10px;background:var(--cream);color:var(--chestnut);}
-.cpRowThumb svg{width:18px;height:18px;}
-.cpRowCell{font-size:13.5px;color:var(--sub);}
-.cpNewInline{margin-left:8px;font-style:normal;font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);}
-
-/* Empty */
-.cpEmpty{margin-top:40px;padding:64px 20px;display:flex;flex-direction:column;align-items:center;text-align:center;color:var(--sub);border:1px dashed rgba(111,67,39,.2);border-radius:22px;}
-.cpEmptyIcon{width:56px;height:56px;display:flex;align-items:center;justify-content:center;border-radius:16px;background:var(--cream);color:var(--chestnut);}
-.cpEmptyIcon svg{width:26px;height:26px;}
-.cpEmptyTitle{margin:16px 0 4px;font-family:var(--serif);font-size:28px;font-weight:600;color:var(--ink);}
-.cpEmpty .cpBtn{margin-top:18px;}
-
-/* Buttons */
-.cpBtn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:48px;padding:0 22px;border-radius:14px;font-size:14.5px;font-weight:650;text-decoration:none;cursor:pointer;white-space:nowrap;transition:transform 150ms ease,box-shadow 150ms ease,background 150ms ease;}
-.cpBtn svg{width:18px;height:18px;}
-.cpBtnPrimary{border:none;background:linear-gradient(180deg,var(--gold-hi),var(--gold));color:#2e1f12!important;box-shadow:0 1px 0 rgba(255,255,255,.35) inset,0 8px 20px rgba(168,116,37,.25);}
-.cpBtnPrimary:hover{transform:translateY(-1px);box-shadow:0 1px 0 rgba(255,255,255,.35) inset,0 12px 26px rgba(168,116,37,.32);}
-.cpBtnGhost{border:1px solid var(--line);background:#fff;color:var(--ink);}
-.cpBtnGhost:hover{border-color:rgba(200,148,58,.45);}
-
-/* Modal */
-.cpOverlay{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;padding:24px;background:rgba(31,24,18,.55);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);animation:cpFade 160ms ease;}
+/* ── Main ── */
+.cpMain{position:relative;z-index:1;flex:1;width:100%;max-width:1400px;margin:0 auto;padding:0 clamp(16px,3vw,40px) 96px;}
+.cpReady{animation:cpFade 360ms ease;}
 @keyframes cpFade{from{opacity:0;}to{opacity:1;}}
-.cpModal{position:relative;width:min(1040px,100%);max-height:calc(100svh - 48px);display:grid;grid-template-columns:1fr 1fr;background:var(--ivory);border-radius:26px;overflow:hidden;box-shadow:0 50px 120px rgba(0,0,0,.35);animation:cpIn 220ms cubic-bezier(.2,.8,.2,1);}
-.cpModalClose{position:absolute;top:16px;right:16px;z-index:2;width:40px;height:40px;display:flex;align-items:center;justify-content:center;border:1px solid var(--line);border-radius:12px;background:#fff;cursor:pointer;color:var(--ink);}
-.cpModalClose svg{width:18px;height:18px;}
-.cpModalPreview{display:flex;align-items:center;justify-content:center;padding:44px;background:radial-gradient(90% 70% at 50% 0%,rgba(200,148,58,.22),transparent 70%),linear-gradient(180deg,#f5e9d4,#efdfc4);}
-.cpModalPreview .cpPaper{max-width:380px;}
-.cpModalBody{padding:48px 44px 36px;overflow-y:auto;}
-.cpEyebrow{font-size:11.5px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);}
-.cpModalTitle{margin:12px 0 0;font-family:var(--serif);font-size:38px;font-weight:600;line-height:1.02;color:var(--ink);}
-.cpModalDesc{margin:14px 0 0;font-size:15.5px;line-height:1.65;color:var(--sub);}
-.cpSpecs{margin:24px 0 0;display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:16px;overflow:hidden;}
-.cpSpecs div{padding:14px 16px;background:#fff;}
-.cpSpecs dt{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);}
-.cpSpecs dd{margin:5px 0 0;display:flex;align-items:center;gap:7px;font-size:14.5px;font-weight:650;color:var(--ink);}
-.cpSpecIcon{width:16px;height:16px;color:var(--chestnut);}
-.cpModalActions{margin-top:24px;display:flex;gap:10px;}
-.cpModalActions .cpBtnPrimary{flex:1;}
-.cpSources{margin:16px 0 0;display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--sub);}
-.cpSourcesIcon{width:15px;height:15px;color:#4d9b5f;flex:0 0 auto;}
-.cpRelated{margin-top:28px;padding-top:22px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:4px;}
-.cpRelatedHead{margin-bottom:6px;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--mute);}
-.cpRelatedItem{display:flex;align-items:center;gap:12px;padding:9px 10px;border:none;border-radius:12px;background:transparent;cursor:pointer;text-align:left;}
-.cpRelatedItem:hover{background:var(--cream);}
-.cpRelatedType{flex:0 0 auto;width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:9px;background:var(--cream);color:var(--chestnut);}
-.cpRelatedType svg{width:16px;height:16px;}
-.cpRelatedTitle{flex:1;font-size:13.5px;font-weight:600;color:var(--ink);}
-.cpRelatedMeta{font-size:12px;color:var(--mute);}
 
-/* Footer */
-.cpFoot{border-top:1px solid var(--line);padding:22px clamp(16px,3vw,40px);display:flex;justify-content:space-between;gap:20px;max-width:1440px;width:100%;margin:0 auto;font-size:12px;line-height:1.6;color:var(--mute);}
-.cpFoot p{margin:0;}
-.cpFoot p:first-child{max-width:640px;}
-.cpFoot a{color:var(--chestnut)!important;text-decoration:none;}
+.cpIntro{padding:64px 0 10px;text-align:center;display:flex;flex-direction:column;align-items:center;}
+.cpEyebrow{font-size:11.5px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);}
+.cpH1{margin:16px 0 0;max-width:900px;font-family:var(--serif);font-weight:600;font-size:clamp(44px,5.6vw,80px);line-height:.98;letter-spacing:-.02em;color:var(--ink);text-wrap:balance;}
+.cpH1 em{font-style:italic;font-weight:500;color:var(--chestnut);}
+.cpLead{margin:22px 0 0;max-width:620px;font-size:clamp(15.5px,1.3vw,17.5px);line-height:1.7;color:var(--sub);}
+.cpFacts{margin-top:26px;display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:12px;font-size:13.5px;color:var(--sub);}
+.cpFacts b{color:var(--ink);font-weight:650;}
+.cpFactSep{font-size:10px;color:var(--gold);}
 
-/* Responsive */
-@media (max-width:1200px){
+.cpOrnament{width:100%;max-width:520px;margin:40px auto 44px;display:flex;align-items:center;gap:18px;}
+.cpOrnLine{flex:1;height:1px;background:linear-gradient(90deg,transparent,rgba(200,148,58,.6));}
+.cpOrnLine:last-child{background:linear-gradient(90deg,rgba(200,148,58,.6),transparent);}
+.cpOrnCross{font-size:20px;color:var(--gold);line-height:1;}
+
+.cpSearchNote{margin:-16px 0 24px;display:flex;align-items:center;justify-content:center;gap:12px;font-size:14px;color:var(--sub);}
+.cpSearchNote button{border:none;background:none;cursor:pointer;font-size:14px;font-weight:600;color:var(--chestnut);text-decoration:underline;}
+
+/* ── Premium category cards ── */
+.cpGrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:26px;}
+.cpCat{--accent:#8a5d3b;position:relative;display:block;width:100%;padding:9px;border:1px solid rgba(200,148,58,.32);border-radius:30px 30px 22px 22px;background:linear-gradient(180deg,#fffefb,#fdf7ec);cursor:pointer;text-align:center;overflow:hidden;box-shadow:0 1px 0 rgba(255,255,255,.9) inset,0 18px 44px rgba(74,43,22,.08);transition:transform 320ms cubic-bezier(.2,.8,.2,1),box-shadow 320ms ease,border-color 320ms ease;}
+.cpCat:hover{transform:translateY(-8px);border-color:rgba(200,148,58,.6);box-shadow:0 1px 0 rgba(255,255,255,.9) inset,0 36px 70px rgba(74,43,22,.16),0 0 0 4px rgba(200,148,58,.08);}
+.cpCatFrame{position:relative;display:flex;flex-direction:column;height:100%;min-height:500px;border:1px solid rgba(200,148,58,.28);border-radius:23px 23px 15px 15px;overflow:hidden;}
+
+.cpWindow,.cpHeroWindow{position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden;background:linear-gradient(180deg,color-mix(in srgb,var(--accent) 92%,#140d08) 0%,color-mix(in srgb,var(--accent) 62%,#140d08) 100%);}
+.cpWindow{height:210px;margin:12px 12px 0;border-radius:999px 999px 10px 10px;box-shadow:inset 0 0 0 1px rgba(255,236,200,.18),inset 0 -30px 50px rgba(0,0,0,.22);}
+.cpWindowGlass{position:absolute;inset:0;background:repeating-linear-gradient(60deg,rgba(255,240,210,.075) 0 1px,transparent 1px 26px),repeating-linear-gradient(-60deg,rgba(255,240,210,.075) 0 1px,transparent 1px 26px),repeating-linear-gradient(0deg,rgba(255,240,210,.05) 0 1px,transparent 1px 26px);}
+.cpWindowLight{position:absolute;left:50%;top:-40%;width:140%;height:120%;transform:translateX(-50%);background:radial-gradient(ellipse at 50% 30%,rgba(255,226,170,.55),rgba(255,226,170,.12) 38%,transparent 62%);transition:opacity 320ms ease,transform 400ms ease;opacity:.75;}
+.cpCat:hover .cpWindowLight{opacity:1;transform:translateX(-50%) translateY(6%);}
+.cpNumeral{position:absolute;top:22px;left:50%;transform:translateX(-50%);font-family:var(--serif);font-size:15px;font-weight:600;letter-spacing:.2em;color:rgba(255,238,205,.78);}
+.cpNumeral::before,.cpNumeral::after{content:"";display:inline-block;width:14px;height:1px;margin:0 8px;vertical-align:middle;background:rgba(255,226,170,.55);}
+
+.cpMedal{position:relative;z-index:1;margin-top:26px;width:104px;height:104px;padding:4px;border-radius:999px;background:conic-gradient(from 210deg,#8f6420,#f2d38c,#b98535,#f7df9f,#8f6420);box-shadow:0 0 0 6px rgba(255,240,210,.12),0 16px 34px rgba(0,0,0,.35);transition:transform 420ms cubic-bezier(.2,.8,.2,1);}
+.cpCat:hover .cpMedal{transform:scale(1.06) rotate(-4deg);}
+.cpMedalInner{width:100%;height:100%;display:flex;align-items:center;justify-content:center;border-radius:999px;background:radial-gradient(circle at 38% 30%,#fffdf6,#f5e6c8 70%,#e9d3a9);box-shadow:inset 0 2px 6px rgba(111,67,39,.25);color:color-mix(in srgb,var(--accent) 85%,#1a120c);}
+.cpMedalIcon{width:50px;height:50px;}
+
+.cpCatBody{display:flex;flex-direction:column;align-items:center;padding:24px 22px 0;}
+.cpLatin{font-family:var(--serif);font-style:italic;font-size:17px;font-weight:500;color:var(--gold);letter-spacing:.01em;}
+.cpCatName{margin-top:4px;font-family:var(--serif);font-size:31px;font-weight:600;line-height:1.04;letter-spacing:-.01em;color:var(--ink);text-wrap:balance;}
+.cpCatRule{margin:14px 0 0;display:flex;align-items:center;gap:10px;width:120px;}
+.cpCatRule i{flex:1;height:1px;background:rgba(200,148,58,.5);}
+.cpCatRule b{font-size:9px;color:var(--gold);font-weight:400;}
+.cpCatDesc{margin-top:14px;font-size:14px;line-height:1.6;color:var(--sub);text-wrap:pretty;}
+.cpTopics{margin-top:16px;display:flex;flex-wrap:wrap;justify-content:center;gap:6px;}
+.cpTopic{padding:5px 10px;border-radius:999px;background:color-mix(in srgb,var(--accent) 9%,#fff);border:1px solid color-mix(in srgb,var(--accent) 18%,transparent);font-size:11.5px;font-weight:600;color:color-mix(in srgb,var(--accent) 80%,#1a120c);}
+
+.cpCatFoot{margin-top:auto;padding:22px 20px 18px;display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.cpCatFoot{border-top:1px dashed rgba(200,148,58,.3);margin-left:14px;margin-right:14px;padding-left:4px;padding-right:4px;margin-top:22px;}
+.cpStatus{display:inline-flex;align-items:center;gap:8px;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--mute);}
+.cpStatusDot{width:7px;height:7px;border-radius:999px;background:var(--gold);box-shadow:0 0 0 0 rgba(200,148,58,.5);animation:cpPulse 2.4s ease-out infinite;}
+@keyframes cpPulse{0%{box-shadow:0 0 0 0 rgba(200,148,58,.5);}70%{box-shadow:0 0 0 8px rgba(200,148,58,0);}100%{box-shadow:0 0 0 0 rgba(200,148,58,0);}}
+.cpExplore{display:inline-flex;align-items:center;gap:6px;font-size:13.5px;font-weight:700;color:var(--chestnut);}
+.cpExploreIcon{width:16px;height:16px;color:var(--gold);transition:transform 220ms ease;}
+.cpCat:hover .cpExploreIcon{transform:translateX(4px);}
+
+.cpShine{position:absolute;inset:0;pointer-events:none;background:linear-gradient(115deg,transparent 30%,rgba(255,244,220,.55) 48%,transparent 62%);transform:translateX(-120%);}
+.cpCat:hover .cpShine{transform:translateX(120%);transition:transform 1100ms cubic-bezier(.2,.8,.2,1);}
+
+.cpEmpty{margin:10px auto 0;max-width:560px;padding:56px 24px;display:flex;flex-direction:column;align-items:center;text-align:center;color:var(--sub);border:1px solid var(--line);border-radius:26px;background:rgba(255,255,255,.7);}
+.cpEmptyMark{font-size:28px;color:var(--gold);}
+.cpEmptyTitle{margin:12px 0 4px;font-family:var(--serif);font-size:30px;font-weight:600;color:var(--ink);}
+.cpEmpty .cpBtn{margin-top:20px;}
+
+/* ── Buttons ── */
+.cpBtn{display:inline-flex;align-items:center;justify-content:center;gap:9px;height:50px;padding:0 24px;border-radius:14px;font-size:14.5px;font-weight:650;text-decoration:none;cursor:pointer;white-space:nowrap;transition:transform 150ms ease,box-shadow 150ms ease,background 150ms ease,border-color 150ms ease;}
+.cpBtn svg{width:18px;height:18px;}
+.cpBtnPrimary{border:none;background:linear-gradient(180deg,var(--gold-hi),var(--gold));color:#2e1f12!important;box-shadow:0 1px 0 rgba(255,255,255,.35) inset,0 10px 24px rgba(168,116,37,.28);}
+.cpBtnPrimary:hover{transform:translateY(-1px);box-shadow:0 1px 0 rgba(255,255,255,.35) inset,0 14px 30px rgba(168,116,37,.34);}
+.cpBtnGhost{border:1px solid rgba(111,67,39,.18);background:#fff;color:var(--ink);}
+.cpBtnGhost:hover{border-color:rgba(200,148,58,.5);}
+
+/* ── Category page ── */
+.cpBack{margin:34px 0 18px;display:inline-flex;align-items:center;gap:8px;height:38px;padding:0 14px 0 10px;border:1px solid var(--line);border-radius:999px;background:#fff;cursor:pointer;font-size:13.5px;font-weight:650;color:var(--chestnut-deep);}
+.cpBack svg{width:16px;height:16px;}
+.cpBack:hover{border-color:rgba(200,148,58,.5);}
+
+.cpHero{display:grid;grid-template-columns:400px 1fr;gap:56px;align-items:center;padding:14px;border:1px solid rgba(200,148,58,.32);border-radius:36px;background:linear-gradient(180deg,#fffefb,#fdf7ec);box-shadow:0 30px 70px rgba(74,43,22,.1);}
+.cpHeroWindow{height:480px;border-radius:999px 999px 20px 20px;box-shadow:inset 0 0 0 1px rgba(255,236,200,.2),inset 0 -40px 70px rgba(0,0,0,.25);}
+.cpNumeralLg{top:44px;font-size:19px;}
+.cpMedalLg{width:168px;height:168px;padding:6px;margin-top:30px;}
+.cpMedalLg .cpMedalIcon{width:80px;height:80px;}
+.cpHeroBody{padding:20px 40px 20px 0;}
+.cpLatinLg{font-size:24px;}
+.cpHeroTitle{margin:6px 0 0;font-family:var(--serif);font-size:clamp(48px,5.4vw,78px);font-weight:600;line-height:.98;letter-spacing:-.02em;color:var(--ink);}
+.cpHeroDesc{margin:18px 0 0;max-width:560px;font-size:17px;line-height:1.7;color:var(--sub);}
+.cpVerse{position:relative;margin:30px 0 0;padding:22px 26px 20px 28px;border-left:3px solid var(--accent);border-radius:0 18px 18px 0;background:color-mix(in srgb,var(--accent) 6%,#fff);}
+.cpVerseMark{position:absolute;top:-6px;right:18px;font-family:var(--serif);font-size:88px;line-height:1;color:color-mix(in srgb,var(--accent) 22%,transparent);}
+.cpVerse p{margin:0;font-family:var(--serif);font-style:italic;font-size:24px;line-height:1.3;color:var(--ink);}
+.cpVerse cite{display:block;margin-top:10px;font-style:normal;font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);}
+
+.cpSection{margin-top:72px;}
+.cpSectionHead{margin-bottom:26px;text-align:center;}
+.cpH2{margin:10px 0 0;font-family:var(--serif);font-size:clamp(34px,3.6vw,46px);font-weight:600;line-height:1.05;color:var(--ink);}
+.cpTopicGrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px;}
+.cpTopicCard{position:relative;display:flex;flex-direction:column;padding:26px 24px 22px;border:1px solid var(--line);border-radius:22px;background:#fff;overflow:hidden;}
+.cpTopicCard::before{content:"";position:absolute;inset:0 0 auto;height:3px;background:linear-gradient(90deg,var(--accent),var(--gold));}
+.cpTopicNum{font-family:var(--serif);font-size:30px;font-weight:600;color:color-mix(in srgb,var(--accent) 45%,transparent);line-height:1;}
+.cpTopicName{margin-top:14px;font-family:var(--serif);font-size:25px;font-weight:600;line-height:1.1;color:var(--ink);}
+.cpTopicState{margin-top:16px;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--mute);}
+
+.cpPreparing{margin-top:28px;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:26px;padding:30px 34px;border-radius:26px;background:radial-gradient(80% 140% at 0% 0%,color-mix(in srgb,var(--accent) 45%,transparent),transparent 60%),var(--ink);color:#efe3cf;}
+.cpPrepIcon{width:62px;height:62px;display:flex;align-items:center;justify-content:center;border-radius:18px;background:rgba(214,163,73,.14);color:var(--gold-hi);box-shadow:inset 0 0 0 1px rgba(214,163,73,.3);}
+.cpPrepIcon svg{width:30px;height:30px;}
+.cpPrepText h3{margin:0;font-family:var(--serif);font-size:30px;font-weight:600;color:#fff8ec;}
+.cpPrepText p{margin:8px 0 0;max-width:560px;font-size:14.5px;line-height:1.65;color:#cdbfa9;}
+.cpPrepActions{display:flex;gap:10px;}
+.cpPreparing .cpBtnGhost{background:transparent;border-color:rgba(239,227,207,.25);color:#efe3cf;}
+.cpPreparing .cpBtnGhost:hover{border-color:var(--gold-hi);}
+
+.cpMini{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;}
+.cpMiniCard{display:flex;align-items:center;gap:12px;padding:14px 16px;border:1px solid var(--line);border-radius:18px;background:#fff;cursor:pointer;text-align:left;transition:transform 200ms ease,box-shadow 200ms ease,border-color 200ms ease;}
+.cpMiniCard:hover{transform:translateY(-3px);border-color:rgba(200,148,58,.45);box-shadow:0 16px 34px rgba(74,43,22,.1);}
+.cpMiniArrow{width:16px;height:16px;color:var(--gold);flex:0 0 auto;}
+
+/* ── Footer ── */
+.cpFoot{position:relative;z-index:1;border-top:1px solid var(--line);background:rgba(255,253,249,.7);}
+.cpFootInner{max-width:760px;margin:0 auto;padding:40px clamp(16px,3vw,40px) 44px;text-align:center;}
+.cpFootMark{font-size:20px;color:var(--gold);}
+.cpFootText{margin:10px 0 0;font-family:var(--serif);font-size:21px;font-style:italic;color:var(--chestnut-deep);}
+.cpFootFine{margin:12px 0 0;font-size:12px;line-height:1.65;color:var(--mute);}
+.cpFootFine a{color:var(--chestnut)!important;text-decoration:none;}
+.cpFootFine a:hover{text-decoration:underline;}
+
+/* ── Responsive ── */
+@media (max-width:1280px){
+  .cpGrid{grid-template-columns:repeat(3,minmax(0,1fr));}
   .cpSiteLink{display:none;}
-  .cpSearch input{width:240px;}
-  .cpSearch input:focus{width:280px;}
+  .cpHero{grid-template-columns:340px 1fr;gap:40px;}
+  .cpHeroWindow{height:420px;}
+  .cpPreparing{grid-template-columns:auto 1fr;}
+  .cpPrepActions{grid-column:1 / -1;}
+  .cpMini{grid-template-columns:repeat(3,minmax(0,1fr));}
 }
-@media (max-width:980px){
+@media (max-width:1024px){
   .cpNav,.cpTopRight{display:none;}
   .cpBurger{display:inline-flex;}
-  .cpTopInner{height:72px;}
-  .cpLogo{height:50px;}
-  .cpMobile{display:flex;flex-direction:column;gap:2px;max-height:calc(100svh - 72px);overflow-y:auto;padding:14px clamp(16px,3vw,40px) 24px;border-top:1px solid var(--line);background:var(--ivory);animation:cpIn 180ms ease;}
+  .cpTopInner{height:76px;}
+  .cpLogo{height:52px;}
+  .cpMobile{display:flex;flex-direction:column;gap:2px;max-height:calc(100svh - 77px);overflow-y:auto;padding:14px clamp(16px,3vw,40px) 24px;border-top:1px solid var(--line);background:var(--ivory);animation:cpIn 180ms ease;}
   .cpSearchMobile{margin-bottom:10px;}
-  .cpSearchMobile input,.cpSearchMobile input:focus{width:100%;height:48px;font-size:16px;}
-  .cpMobileItem{display:flex;align-items:center;gap:12px;padding:11px 8px;border:none;border-radius:12px;background:transparent;cursor:pointer;font-size:16px;font-weight:600;color:var(--ink);text-align:left;text-decoration:none;}
+  .cpSearchMobile input,.cpSearchMobile input:focus{width:100%;height:50px;font-size:16px;}
+  .cpMobileItem{display:flex;align-items:center;gap:12px;padding:10px 8px;border:none;border-radius:14px;background:transparent;cursor:pointer;font-size:16px;font-weight:600;color:var(--ink);text-align:left;text-decoration:none;}
   .cpMobileItem:hover,.cpMobileOn{background:var(--cream);}
-  .cpMobileLabel{margin:14px 8px 4px;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);}
-  .cpModal{grid-template-columns:1fr;overflow-y:auto;}
-  .cpModalPreview{padding:32px 32px 24px;}
-  .cpModalPreview .cpPaper{max-width:260px;}
-  .cpModalBody{padding:28px 26px 30px;overflow:visible;}
-  .cpRow{grid-template-columns:minmax(0,1fr) 44px;}
-  .cpRow > .cpRowCell,.cpRowHead > span:not(:first-child):not(:last-child){display:none;}
+  .cpMobileText{display:flex;flex-direction:column;}
+  .cpMobileText em{font-family:var(--serif);font-size:14px;font-weight:500;color:var(--chestnut);}
+  .cpMobileLabel{margin:14px 8px 4px;font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);}
+  .cpGrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;}
+  .cpHero{grid-template-columns:1fr;gap:0;padding:12px;}
+  .cpHeroWindow{height:340px;}
+  .cpMedalLg{width:140px;height:140px;}
+  .cpHeroBody{padding:30px 22px 22px;text-align:center;}
+  .cpHeroDesc{margin-left:auto;margin-right:auto;}
+  .cpVerse{text-align:left;}
+  .cpTopicGrid{grid-template-columns:repeat(2,minmax(0,1fr));}
+  .cpMini{grid-template-columns:repeat(2,minmax(0,1fr));}
 }
 @media (max-width:640px){
-  .cpMain{padding-top:24px;}
-  .cpTitleRow{align-items:flex-start;}
-  .cpStat{padding:8px 12px;}
-  .cpStatNum{font-size:26px;}
-  .cpToolbar{padding:10px;}
-  .cpFilters{flex-wrap:nowrap;overflow-x:auto;width:100%;scrollbar-width:none;}
-  .cpFilters::-webkit-scrollbar{display:none;}
-  .cpChip{flex:0 0 auto;}
-  .cpControls{width:100%;}
-  .cpSelect{flex:1;}
-  .cpSelect select{flex:1;}
-  .cpGrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;}
-  .cpCardThumb{padding:14px 16px 0;}
-  .cpCardBody{padding:12px 12px 12px;}
-  .cpCardTitle{font-size:14px;}
-  .cpMeta{display:none;}
-  .cpOverlay{padding:0;align-items:flex-end;}
-  .cpModal{max-height:92svh;border-radius:24px 24px 0 0;}
-  .cpModalTitle{font-size:30px;}
-  .cpModalActions{flex-direction:column;}
-  .cpFoot{flex-direction:column;}
+  .cpIntro{padding-top:40px;}
+  .cpFacts{gap:8px;font-size:12.5px;}
+  .cpOrnament{margin:30px auto 32px;}
+  .cpGrid{grid-template-columns:1fr;gap:18px;}
+  .cpCatFrame{min-height:0;}
+  .cpWindow{height:190px;}
+  .cpHeroWindow{height:280px;}
+  .cpMedalLg{width:118px;height:118px;margin-top:22px;}
+  .cpMedalLg .cpMedalIcon{width:58px;height:58px;}
+  .cpVerse p{font-size:20px;}
+  .cpTopicGrid{grid-template-columns:1fr 1fr;gap:12px;}
+  .cpTopicCard{padding:20px 18px 18px;}
+  .cpTopicName{font-size:21px;}
+  .cpPreparing{grid-template-columns:1fr;padding:26px 22px;text-align:left;}
+  .cpPrepActions{flex-direction:column;}
+  .cpMini{grid-template-columns:1fr;}
 }
 @media (prefers-reduced-motion:reduce){.cpRoot *{animation:none!important;transition:none!important;}}
 `;
