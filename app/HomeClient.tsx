@@ -376,31 +376,47 @@ function LibraryHome({ query, onQuery, band, onBand, onOpen }: {
   return (
     <>
       <section className="cpIntro">
-        <span className="cpWelcome"><Svg className="cpWelcomeIcon" sw={1.8}>{UI.heart}</Svg> Welcome, teachers, parents, and catechists</span>
-        <h1 className="cpH1">Everything you need for <em>your next class.</em></h1>
-        <p className="cpLead">Free, print-ready Catholic activities for children, made by a catechist for catechists.</p>
+        <div className="cpIntroCopy">
+          <span className="cpWelcome"><span className="cpWelcomeCross" aria-hidden="true">✠</span> Catholic Parish Activities &amp; Worksheet Hub</span>
+          <h1 className="cpH1">Faithful resources for <em>your next class.</em></h1>
+          <p className="cpLead">Print-ready Catholic activities for catechists, teachers, and parents—organized by topic and grade so lesson planning feels simple, beautiful, and focused on the faith.</p>
 
-        <div className="cpFinder" id="finder">
-          <label className="cpFinderSearch">
-            <Svg className="cpFinderIcon">{UI.search}</Svg>
-            <input id="cp-search" type="search" value={query} onChange={(e) => onQuery(e.target.value)} placeholder="What are you teaching? Try “Advent” or “Hail Mary”" aria-label="Search topics" autoComplete="off" />
-          </label>
-          <div className="cpFinderGrades" role="group" aria-label="Grade level">
-            <span className="cpFinderLabel">Grade</span>
-            <button className={!band ? "cpPill cpPillOn" : "cpPill"} onClick={() => onBand(null)}>All</button>
-            {BANDS.map((b) => (
-              <button key={b.key} className={band === b.key ? "cpPill cpPillOn" : "cpPill"} aria-pressed={band === b.key} onClick={() => onBand(band === b.key ? null : b.key)}>
-                {b.short}
-              </button>
-            ))}
-          </div>
+          <ul className="cpPromises" aria-label="Resource benefits">
+            <li><span className="cpPromiseIcon"><Svg sw={2}>{UI.check}</Svg></span><span><b>Free to use</b><small>Made for Catholic classrooms</small></span></li>
+            <li><span className="cpPromiseIcon"><Svg sw={2}>{UI.print}</Svg></span><span><b>Ready to print</b><small>Designed for standard paper</small></span></li>
+            <li><span className="cpPromiseIcon"><Svg sw={2}>{UI.book}</Svg></span><span><b>Faithful by design</b><small>Built from Catholic sources</small></span></li>
+          </ul>
         </div>
 
-        <ul className="cpPromises">
-          <li><Svg sw={2}>{UI.check}</Svg> Free forever</li>
-          <li><Svg sw={2}>{UI.print}</Svg> Print-ready</li>
-          <li><Svg sw={2}>{UI.book}</Svg> Built from Catholic sources</li>
-        </ul>
+        <div className="cpFinderWrap">
+          <div className="cpFinder" id="finder">
+            <div className="cpFinderTop">
+              <span className="cpFinderEyebrow">Resource finder</span>
+              <h2 className="cpFinderTitle">What are you teaching?</h2>
+              <p className="cpFinderSub">Search the library, then narrow it to the grade level you need.</p>
+            </div>
+
+            <label className="cpFinderSearch">
+              <Svg className="cpFinderIcon">{UI.search}</Svg>
+              <input id="cp-search" type="search" value={query} onChange={(e) => onQuery(e.target.value)} placeholder="Try “Advent,” “Hail Mary,” or “First Communion”" aria-label="Search topics" autoComplete="off" />
+              <span className="cpFinderKey" aria-hidden="true">/</span>
+            </label>
+
+            <div className="cpFinderDivider" />
+            <div className="cpFinderGrades" role="group" aria-label="Grade level">
+              <span className="cpFinderLabel">Choose a grade</span>
+              <div className="cpGradePills">
+                <button className={!band ? "cpPill cpPillOn" : "cpPill"} onClick={() => onBand(null)}>All</button>
+                {BANDS.map((b) => (
+                  <button key={b.key} className={band === b.key ? "cpPill cpPillOn" : "cpPill"} aria-pressed={band === b.key} onClick={() => onBand(band === b.key ? null : b.key)}>
+                    {b.short}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+          <p className="cpFinderNote"><span aria-hidden="true">✦</span> New resources are being added as the library grows.</p>
+        </div>
       </section>
 
       <section className="cpTopics" id="topics">
@@ -706,28 +722,47 @@ const CSS = `
 .cpH2 em{font-style:italic;font-weight:500;color:var(--chestnut);}
 
 /* Intro */
-.cpIntro{padding:44px 0 0;display:flex;flex-direction:column;align-items:center;text-align:center;}
-.cpWelcome{display:inline-flex;align-items:center;gap:9px;padding:8px 16px;border:1px solid var(--line-strong);border-radius:999px;background:rgba(255,255,255,.8);font-size:13.5px;font-weight:650;color:var(--chestnut-deep);}
-.cpWelcomeIcon{width:16px;height:16px;color:var(--gold);fill:rgba(200,148,58,.28);}
-.cpH1{margin:20px 0 0;max-width:980px;font-family:var(--serif);font-weight:600;font-size:clamp(38px,4.8vw,66px);line-height:1;letter-spacing:-.02em;color:var(--ink);text-wrap:balance;}
-.cpH1 em{font-style:italic;font-weight:500;color:var(--chestnut);}
-.cpLead{margin:16px 0 0;max-width:600px;font-size:clamp(16px,1.3vw,18px);line-height:1.6;color:var(--sub);}
+.cpIntro{position:relative;padding:68px 0 22px;display:grid;grid-template-columns:minmax(0,1.08fr) minmax(430px,.92fr);gap:clamp(48px,6vw,92px);align-items:center;}
+.cpIntro::before{content:"";position:absolute;left:-120px;top:20px;width:440px;height:440px;border-radius:999px;background:radial-gradient(circle,rgba(200,148,58,.11),rgba(200,148,58,.035) 46%,transparent 70%);filter:blur(2px);pointer-events:none;}
+.cpIntroCopy{position:relative;z-index:1;max-width:720px;}
+.cpWelcome{display:inline-flex;align-items:center;gap:10px;padding:8px 13px 8px 10px;border:1px solid rgba(200,148,58,.36);border-radius:999px;background:rgba(255,255,255,.68);box-shadow:0 1px 0 rgba(255,255,255,.9) inset;font-size:11.5px;font-weight:750;letter-spacing:.11em;text-transform:uppercase;color:var(--chestnut-deep);}
+.cpWelcomeCross{width:27px;height:27px;display:inline-flex;align-items:center;justify-content:center;border-radius:999px;background:linear-gradient(180deg,#dfb35c,#c8943a);box-shadow:0 5px 14px rgba(168,116,37,.2);font-family:Georgia,serif;font-size:15px;line-height:1;color:#3b2817;}
+.cpH1{margin:25px 0 0;max-width:760px;font-family:var(--serif);font-weight:600;font-size:clamp(48px,5.6vw,78px);line-height:.94;letter-spacing:-.035em;color:var(--ink);text-wrap:balance;}
+.cpH1 em{position:relative;font-style:italic;font-weight:500;color:var(--chestnut);white-space:nowrap;}
+.cpH1 em::after{content:"";position:absolute;left:3%;right:0;bottom:-7px;height:7px;border-bottom:2px solid rgba(200,148,58,.55);border-radius:50%;transform:rotate(-1deg);}
+.cpLead{margin:24px 0 0;max-width:660px;font-size:clamp(16.5px,1.35vw,19px);line-height:1.7;color:var(--sub);text-wrap:pretty;}
 
-.cpFinder{width:min(100%,760px);margin-top:28px;padding:10px;display:flex;flex-direction:column;gap:6px;border:1px solid var(--line-strong);border-radius:32px;background:#fff;box-shadow:var(--sh-2);}
+.cpPromises{margin:30px 0 0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;}
+.cpPromises li{min-width:0;display:flex;align-items:center;gap:11px;padding:13px 12px 13px 0;border-top:1px solid rgba(111,67,39,.13);}
+.cpPromiseIcon{width:34px;height:34px;flex:0 0 auto;display:flex;align-items:center;justify-content:center;border-radius:10px;background:rgba(248,236,211,.72);color:var(--chestnut);}
+.cpPromiseIcon svg{width:17px;height:17px;}
+.cpPromises li>span:last-child{display:flex;flex-direction:column;gap:2px;min-width:0;}
+.cpPromises b{font-size:13.5px;font-weight:750;color:var(--ink);}
+.cpPromises small{font-size:11.5px;line-height:1.35;color:var(--mute);}
+
+.cpFinderWrap{position:relative;}
+.cpFinderWrap::before{content:"";position:absolute;inset:24px -20px -20px 30px;border-radius:36px;background:linear-gradient(135deg,rgba(200,148,58,.16),rgba(138,93,59,.055));filter:blur(.2px);transform:rotate(1.2deg);}
+.cpFinder{position:relative;width:100%;margin:0;padding:28px;border:1px solid rgba(111,67,39,.14);border-radius:30px;background:linear-gradient(180deg,rgba(255,255,255,.97),rgba(255,252,246,.97));box-shadow:0 2px 4px rgba(74,43,22,.035),0 24px 56px rgba(74,43,22,.11),0 1px 0 #fff inset;overflow:hidden;}
+.cpFinder::before{content:"";position:absolute;right:-84px;top:-88px;width:230px;height:230px;border-radius:999px;background:radial-gradient(circle,rgba(217,168,78,.19),rgba(217,168,78,0) 68%);pointer-events:none;}
+.cpFinderTop{position:relative;z-index:1;margin-bottom:22px;}
+.cpFinderEyebrow{display:block;font-size:10.5px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);}
+.cpFinderTitle{margin:8px 0 0;font-family:var(--serif);font-size:32px;font-weight:600;line-height:1.02;letter-spacing:-.01em;color:var(--ink);}
+.cpFinderSub{margin:8px 0 0;max-width:420px;font-size:13.5px;line-height:1.55;color:var(--sub);}
 .cpFinderSearch{position:relative;display:flex;align-items:center;}
-.cpFinderIcon{position:absolute;left:20px;width:22px;height:22px;color:var(--chestnut);pointer-events:none;}
-.cpFinderSearch input{width:100%;height:56px;padding:0 20px 0 54px;border:none;border-radius:24px;background:var(--cream);color:var(--ink);font-family:var(--ui);font-size:16.5px;outline:none;transition:box-shadow 150ms ease,background 150ms ease;}
-.cpFinderSearch input::placeholder{color:var(--mute);}
-.cpFinderSearch input:focus{background:#fff;box-shadow:inset 0 0 0 2px var(--gold);}
-.cpFinderGrades{display:flex;align-items:center;flex-wrap:wrap;gap:6px;padding:6px 8px 4px;}
-.cpFinderLabel{margin-right:6px;font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);}
-.cpPill{height:38px;padding:0 18px;border:1px solid var(--line);border-radius:999px;background:#fff;cursor:pointer;font-size:14.5px;font-weight:650;color:#5b4535;transition:background 150ms ease,border-color 150ms ease,color 150ms ease;}
-.cpPill:hover{border-color:var(--line-strong);background:var(--cream);}
-.cpPillOn,.cpPillOn:hover{background:var(--ink);border-color:var(--ink);color:#fff8ec;}
-
-.cpPromises{margin:20px 0 0;padding:0;list-style:none;display:flex;flex-wrap:wrap;justify-content:center;gap:8px 24px;font-size:14px;font-weight:600;color:var(--sub);}
-.cpPromises li{display:inline-flex;align-items:center;gap:7px;}
-.cpPromises svg{width:17px;height:17px;color:var(--gold);}
+.cpFinderIcon{position:absolute;left:17px;width:20px;height:20px;color:var(--chestnut);pointer-events:none;z-index:2;}
+.cpFinderSearch input{width:100%;height:58px;padding:0 50px 0 50px;border:1px solid rgba(111,67,39,.14);border-radius:17px;background:#fff;color:var(--ink);font-family:var(--ui);font-size:15.5px;outline:none;box-shadow:0 7px 20px rgba(74,43,22,.055);transition:border-color 150ms ease,box-shadow 150ms ease,transform 150ms ease;}
+.cpFinderSearch input::placeholder{color:#9c8f83;}
+.cpFinderSearch input:focus{border-color:rgba(200,148,58,.7);box-shadow:0 0 0 4px rgba(200,148,58,.11),0 12px 26px rgba(74,43,22,.07);}
+.cpFinderKey{position:absolute;right:16px;width:27px;height:27px;display:flex;align-items:center;justify-content:center;border:1px solid var(--line);border-radius:8px;background:var(--cream);font-size:12px;font-weight:700;color:var(--mute);pointer-events:none;}
+.cpFinderDivider{height:1px;margin:20px 0 17px;background:linear-gradient(90deg,var(--line),rgba(111,67,39,.035));}
+.cpFinderGrades{display:flex;flex-direction:column;align-items:flex-start;gap:10px;padding:0;}
+.cpFinderLabel{margin:0;font-size:10.5px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--mute);}
+.cpGradePills{display:flex;flex-wrap:wrap;gap:7px;}
+.cpPill{height:37px;padding:0 15px;border:1px solid rgba(111,67,39,.13);border-radius:999px;background:rgba(255,255,255,.82);cursor:pointer;font-size:13px;font-weight:700;color:#5b4535;transition:transform 150ms ease,background 150ms ease,border-color 150ms ease,color 150ms ease,box-shadow 150ms ease;}
+.cpPill:hover{transform:translateY(-1px);border-color:rgba(200,148,58,.5);background:#fffaf1;}
+.cpPillOn,.cpPillOn:hover{background:var(--ink);border-color:var(--ink);color:#fff8ec;box-shadow:0 7px 16px rgba(43,33,26,.13);}
+.cpFinderNote{position:relative;margin:15px 0 0;text-align:center;font-size:11.5px;font-weight:600;color:var(--mute);}
+.cpFinderNote span{margin-right:6px;color:var(--gold);}
 
 /* Topics */
 .cpTopics{margin-top:56px;scroll-margin-top:96px;}
@@ -839,6 +874,12 @@ const CSS = `
 }
 @media (max-width:1040px){
   .cpNav{display:none;}
+  .cpIntro{grid-template-columns:1fr;gap:40px;padding-top:50px;}
+  .cpIntroCopy{max-width:800px;}
+  .cpH1{max-width:850px;}
+  .cpLead{max-width:720px;}
+  .cpFinderWrap{width:min(100%,760px);}
+  .cpPromises{max-width:760px;}
   .cpBurger{display:inline-flex;}
   .cpBar{height:68px;}
   .cpLogo{height:46px;}
@@ -856,10 +897,22 @@ const CSS = `
   .cpTopicGrid,.cpMini{grid-template-columns:repeat(2,minmax(0,1fr));}
 }
 @media (max-width:640px){
-  .cpIntro{padding-top:30px;}
-  .cpFinder{border-radius:26px;}
-  .cpFinderSearch input{height:52px;font-size:16px;}
-  .cpFinderLabel{width:100%;margin-bottom:2px;}
+  .cpIntro{padding-top:34px;gap:32px;}
+  .cpWelcome{font-size:9.5px;letter-spacing:.08em;padding-right:10px;}
+  .cpWelcomeCross{width:25px;height:25px;}
+  .cpH1{margin-top:20px;font-size:clamp(43px,13vw,58px);line-height:.96;}
+  .cpH1 em{white-space:normal;}
+  .cpLead{margin-top:20px;font-size:16px;line-height:1.62;}
+  .cpPromises{grid-template-columns:1fr;margin-top:24px;gap:0;}
+  .cpPromises li{padding:12px 0;}
+  .cpFinderWrap::before{inset:16px -8px -12px 12px;border-radius:28px;}
+  .cpFinder{padding:22px 18px;border-radius:24px;}
+  .cpFinderTitle{font-size:29px;}
+  .cpFinderSearch input{height:54px;font-size:15px;padding-left:46px;}
+  .cpFinderIcon{left:15px;width:18px;height:18px;}
+  .cpFinderGrades{gap:9px;}
+  .cpGradePills{gap:6px;}
+  .cpPill{height:36px;padding:0 13px;font-size:12.5px;}
   .cpTopicsHead{flex-direction:column;align-items:flex-start;}
   .cpGrid{grid-template-columns:1fr;gap:18px;}
   .cpAsk{grid-template-columns:1fr;padding:26px 22px;}
