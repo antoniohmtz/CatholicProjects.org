@@ -1,30 +1,115 @@
 "use client";
 
-import { useState } from "react";
-import { Inter } from "next/font/google";
-import SiteNav from "../../../components/SiteNav";
+import { Inter, Cormorant_Garamond } from "next/font/google";
 import type { ReactNode } from "react";
 
-const ui = Inter({ subsets: ["latin"], variable: "--cp-ui", display: "swap" });
+const ui = Inter({ subsets: ["latin"], variable: "--cst-ui", display: "swap" });
+const serif = Cormorant_Garamond({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  style: ["normal", "italic"],
+  variable: "--cst-serif",
+  display: "swap",
+});
 
-const T = {
-  gold: "#C8943A",
-  goldDark: "#A87425",
-  goldSoft: "#E8C77E",
-  espresso: "#4A2B16",
-  ink: "#211A14",
-  sub: "#5E5349",
-  ivory: "#FFFDF9",
-  cream: "#FAF7F0",
-  line: "rgba(74,43,22,.11)",
-  goldLine: "rgba(200,148,58,.22)",
-};
+/* -----------------------------------------------------------
+   Catholic Saint Stories — Support
+   Cinematic dark theme drawn from the brand itself:
+   gold on near-black, serif display, film grain, vignette.
+
+   REAL SAINTS. TRUE STORIES. ETERNAL INSPIRATION.
+
+   This page is intentionally self-contained (no SiteNav):
+   it is a film-series landing page, not a library page.
+------------------------------------------------------------ */
 
 const CONTACT = "team@catholicprojects.org";
-const STRIPE_LINK = "https://buy.stripe.com/your-stripe-link";
-const PAYPAL_LINK = "https://paypal.me/catholicsaintstories";
+const STRIPE_LINK = "https://buy.stripe.com/your-stripe-link"; // TODO: real link
+const PAYPAL_LINK = "https://paypal.me/catholicsaintstories"; // TODO: real link
+const FACEBOOK_URL = "https://www.facebook.com/people/Catholicsaintstories/61592672761916/";
+const INSTAGRAM_URL = "https://instagram.com/catholicsaintstories";
 
-function Svg({ children, className, sw = 1.8 }: { children: ReactNode; className?: string; sw?: number }) {
+/* Real films, real links, real numbers. Drop film stills into
+   /public/saint-stories/ (e.g. damian.jpg) — the gradient
+   poster underneath remains as the fallback until you do. */
+const FILMS = [
+  {
+    title: "San Damián de Molokai",
+    lang: "Español",
+    logline:
+      "Eligió vivir con los enviados lejos por la lepra — sabiendo que quizá nunca volvería.",
+    proof: "56K+ views across platforms",
+    href: "https://www.facebook.com/reel/2563206477478130",
+    still: "/saint-stories/damian.jpg",
+    hue: "160deg",
+  },
+  {
+    title: "Saint Vincent de Paul",
+    lang: "English",
+    logline:
+      "He wanted to rise above poverty — then God led him back to the poor.",
+    proof: "3.5K reactions · 600+ shares",
+    href: "https://www.facebook.com/reel/958525383998552",
+    still: "/saint-stories/vincent.jpg",
+    hue: "20deg",
+  },
+  {
+    title: "The Sacred Heart",
+    lang: "Español",
+    logline:
+      "Jesús le mostró Su Corazón ardiendo de amor — y le confió una misión para toda la Iglesia.",
+    proof: "3.6K reactions · 400+ shares",
+    href: FACEBOOK_URL,
+    still: "/saint-stories/sacred-heart.jpg",
+    hue: "320deg",
+  },
+];
+
+const SLATE = [
+  { name: "St. Thérèse of Lisieux", epithet: "The Little Way", status: "Coming soon" },
+  { name: "St. Francis of Assisi", epithet: "The Poverello", status: "In production" },
+  { name: "St. Joan of Arc", epithet: "The Maid of Orléans", status: "In research" },
+  { name: "St. Benedict", epithet: "Father of Western Monasticism", status: "In research" },
+  { name: "St. Catherine of Siena", epithet: "Mystic & Doctor of the Church", status: "In research" },
+  { name: "St. Augustine", epithet: "Doctor of Grace", status: "In research" },
+];
+
+const LEDGER = [
+  {
+    n: "01",
+    title: "Research",
+    text: "Every story begins in trusted Catholic sources — hagiographies, letters, papal writings — so the saints are portrayed faithfully.",
+  },
+  {
+    n: "02",
+    title: "Script & Production",
+    text: "Cinematic visuals, careful writing, and editing worthy of the lives being told. We don't cut corners on beauty.",
+  },
+  {
+    n: "03",
+    title: "Narration",
+    text: "Voice performances in English and Spanish that carry reverence, not noise.",
+  },
+  {
+    n: "04",
+    title: "Translation & Captions",
+    text: "Every story crosses languages — subtitled, translated, and accessible.",
+  },
+  {
+    n: "05",
+    title: "Distribution",
+    text: "Published where people actually are: Instagram, Facebook, TikTok, YouTube — in everyday feeds, pointing hearts toward Christ.",
+  },
+];
+
+const TIERS = [
+  { amount: 5, name: "Friend", line: "Keeps the research going." },
+  { amount: 15, name: "Patron", line: "Helps carry a story through production.", featured: true },
+  { amount: 25, name: "Benefactor", line: "Funds narration and translation — both languages." },
+  { amount: 50, name: "Founding Patron", line: "Sustains the whole slate, month after month." },
+];
+
+function Svg({ children, sw = 1.6, className }: { children: ReactNode; sw?: number; className?: string }) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       {children}
@@ -32,547 +117,477 @@ function Svg({ children, className, sw = 1.8 }: { children: ReactNode; className
   );
 }
 
-const UI: Record<string, ReactNode> = {
-  check: (<><path d="m5 12 4.5 4.5L19 7" /></>),
+const I = {
   arrow: (<><path d="M5 12h14" /><path d="m13 6 6 6-6 6" /></>),
-  arrowDown: (<><path d="M12 5v14" /><path d="m6 13 6 6 6-6" /></>),
-  play: (<><polygon points="5 3 19 12 5 21 5 3" /></>),
+  play: (<><polygon points="6 4 20 12 6 20 6 4" /></>),
   mail: (<><rect x="3.5" y="5.5" width="17" height="13" rx="2" /><path d="m4 7 8 6 8-6" /></>),
-  book: (<><path d="M5 4.5h9.5A2.5 2.5 0 0 1 17 7v13H7.5A2.5 2.5 0 0 1 5 17.5Z" /><path d="M5 17.5A2.5 2.5 0 0 1 7.5 15H17" /></>),
-  spark: (<><path d="M13 2 L15.46 8.54 L22 10.46 L17.23 15.23 L18.46 22 L13 18.54 L7.54 22 L8.77 15.23 L4 10.46 L10.54 8.54 Z" /></>),
-  heart: (<><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" /></>),
 };
 
-const UPCOMING_SAINTS = [
-  { name: "St. Thérèse of Lisieux", status: "coming-soon" as const, desc: "The Little Way" },
-  { name: "St. Francis of Assisi", status: "in-progress" as const, desc: "Mystic of Creation" },
-  { name: "St. Joan of Arc", status: "research" as const, desc: "The Fearless Maid" },
-  { name: "St. Benedict", status: "research" as const, desc: "Father of Western Monks" },
-  { name: "St. Catherine of Siena", status: "research" as const, desc: "Mystic & Scholar" },
-  { name: "St. Augustine", status: "research" as const, desc: "Doctor of Grace" },
-];
-
-const SUPPORT_TIERS = [
-  {
-    amount: "$5",
-    period: "/month",
-    title: "Believer",
-    description: "Help us research and discover the saints",
-    includes: ["Access to the supporter community", "Monthly behind-the-scenes update"]
-  },
-  {
-    amount: "$15",
-    period: "/month",
-    title: "Advocate",
-    description: "Fund production and bring stories to life",
-    includes: ["Early access to new episodes", "Monthly production update", "Your name in credits (if you'd like)"]
-  },
-  {
-    amount: "$25",
-    period: "/month",
-    title: "Champion",
-    description: "Support narration, translation, and reach",
-    includes: ["All Advocate benefits", "Exclusive quarterly call", "Vote on which saint comes next"]
-  },
-  {
-    amount: "$50+",
-    period: "/month",
-    title: "Partner",
-    description: "Build this mission together",
-    includes: ["All Champion benefits", "Monthly one-on-one update", "Your name in series intro"]
-  },
-];
-
-const TESTIMONIALS = [
-  {
-    quote: "These videos have reawakened my faith. Finally, stories told the way my kids actually watch—beautiful, reverent, and true.",
-    author: "Maria, Texas",
-  },
-  {
-    quote: "I use these in my catechism class every week. My students ask about the saints now instead of scrolling.",
-    author: "Fr. Michael, California",
-  },
-  {
-    quote: "My teenage daughter watched one and it sparked the deepest faith conversation we've had in years.",
-    author: "James, Michigan",
-  },
-];
-
 export default function SupportPage() {
-  const [activeTab, setActiveTab] = useState<"mission" | "impact">("mission");
-
   return (
-    <div className={`cp ${ui.variable}`}>
+    <div className={`cst ${ui.variable} ${serif.variable}`}>
       <style>{CSS}</style>
-      <div className="cp-bg" aria-hidden="true" />
+      <div className="cst-grain" aria-hidden="true" />
 
-      <SiteNav onHome={() => (window.location.href = "/")} onSearch={() => {}} onJump={() => {}} />
+      {/* ───────── top bar ───────── */}
+      <header className="cst-bar">
+        <a className="cst-mark" href={FACEBOOK_URL} target="_blank" rel="noopener noreferrer">
+          <span className="cst-markCross" aria-hidden="true">✠</span>
+          <span className="cst-markText">Catholic Saint Stories</span>
+        </a>
+        <nav className="cst-barNav">
+          <a className="cst-barLink" href="https://catholicprojects.org">CatholicProjects.org</a>
+          <a className="cst-barCta" href="#support">Support</a>
+        </nav>
+      </header>
 
-      <main className="cp-main">
-        {/* HERO */}
-        <div className="support-hero">
-          <div className="support-heroContent">
-            <div className="support-eyebrow">
-              <span aria-hidden="true">✝️</span> A Growing Movement
-            </div>
-            <h1 className="support-title">
-              The saints<br />belong in every feed.
-            </h1>
-            <p className="support-desc">
-              Catholic Saint Stories are reaching people where they actually are—on Instagram, TikTok, YouTube. Cinematic. Faithful. Designed for a generation that encounters faith in everyday feeds, not just sanctuaries.
+      <main>
+        {/* ───────── hero ───────── */}
+        <section className="cst-hero">
+          <div className="cst-heroGlow" aria-hidden="true" />
+          <p className="cst-kicker">Real saints · True stories · Eternal inspiration</p>
+          <h1 className="cst-h1">
+            Stories of the Saints.
+            <em>Made for a new generation.</em>
+          </h1>
+          <p className="cst-heroSub">
+            Cinematic films about the men and women who gave everything to Christ —
+            released free, every week, in English and Spanish, on the feeds where
+            this generation actually lives.
+          </p>
+          <div className="cst-heroCtas">
+            <a className="cst-cta" href="#support">
+              Help bring the next story to life
+              <Svg sw={2}>{I.arrow}</Svg>
+            </a>
+            <a className="cst-ghost" href={FACEBOOK_URL} target="_blank" rel="noopener noreferrer">
+              <Svg sw={2} className="cst-ghostPlay">{I.play}</Svg>
+              Watch the stories
+            </a>
+          </div>
+
+          <dl className="cst-band">
+            <div><dt>435K</dt><dd>monthly views</dd></div>
+            <div><dt>14K</dt><dd>followers</dd></div>
+            <div><dt>102</dt><dd>stories released</dd></div>
+            <div><dt>EN · ES</dt><dd>two languages</dd></div>
+          </dl>
+        </section>
+
+        {/* ───────── now showing ───────── */}
+        <section className="cst-section">
+          <div className="cst-head">
+            <p className="cst-eyebrow">Now showing</p>
+            <h2 className="cst-h2">Stories people can't stop sharing</h2>
+            <p className="cst-lede">
+              Every film is free to watch. These are the ones traveling furthest right now.
             </p>
-            <p className="support-desc support-descSmall">
-              Every story takes weeks of research in trusted Catholic sources, professional production, narration in English and Spanish, and careful translation. That work costs money. Your support keeps it happening.
-            </p>
+          </div>
 
-            <div className="support-ctas">
-              <a href="#support" className="support-cta">
-                Support the Mission
-                <Svg sw={2.2}>{UI.arrow}</Svg>
+          <div className="cst-films">
+            {FILMS.map((f) => (
+              <a key={f.title} className="cst-film" href={f.href} target="_blank" rel="noopener noreferrer" style={{ "--hue": f.hue } as React.CSSProperties}>
+                <span
+                  className="cst-poster"
+                  style={{ backgroundImage: `linear-gradient(170deg, rgba(13,10,7,0) 38%, rgba(13,10,7,.92) 86%), url(${f.still})` }}
+                >
+                  <span className="cst-posterCross" aria-hidden="true">✠</span>
+                  <span className="cst-lang">{f.lang}</span>
+                  <span className="cst-playBtn" aria-hidden="true"><Svg sw={1.8}>{I.play}</Svg></span>
+                </span>
+                <span className="cst-filmBody">
+                  <span className="cst-filmTitle">{f.title}</span>
+                  <span className="cst-filmLogline">{f.logline}</span>
+                  <span className="cst-filmFoot">
+                    <span className="cst-filmProof">{f.proof}</span>
+                    <span className="cst-filmWatch">Watch <Svg sw={2.2}>{I.arrow}</Svg></span>
+                  </span>
+                </span>
               </a>
-              <button className="support-secondary" onClick={() => setActiveTab("impact")}>
-                See the Impact
-              </button>
-            </div>
-
-            <div className="support-lang">
-              <span className="support-langItem">🇺🇸 English</span>
-              <span className="support-langItem">🇪🇸 Español</span>
-              <span className="support-langItem">New stories every week</span>
-            </div>
-          </div>
-
-          <div className="support-stats">
-            <div className="support-stat">
-              <span className="support-statValue">14K</span>
-              <span className="support-statLabel">Followers</span>
-              <span className="support-statSub">Growing weekly</span>
-            </div>
-            <div className="support-stat">
-              <span className="support-statValue">435K</span>
-              <span className="support-statLabel">Monthly views</span>
-              <span className="support-statSub">Real engagement</span>
-            </div>
-            <div className="support-stat">
-              <span className="support-statValue">102</span>
-              <span className="support-statLabel">Episodes</span>
-              <span className="support-statSub">Since July 2026</span>
-            </div>
-          </div>
-        </div>
-
-        {/* TABS */}
-        <div className="support-section">
-          <div className="support-tabs" role="tablist">
-            <button
-              role="tab"
-              aria-selected={activeTab === "mission"}
-              onClick={() => setActiveTab("mission")}
-              className={`support-tab ${activeTab === "mission" ? "support-tabActive" : ""}`}
-            >
-              The Mission
-            </button>
-            <button
-              role="tab"
-              aria-selected={activeTab === "impact"}
-              onClick={() => setActiveTab("impact")}
-              className={`support-tab ${activeTab === "impact" ? "support-tabActive" : ""}`}
-            >
-              What We're Building
-            </button>
-          </div>
-
-          {activeTab === "mission" && (
-            <div className="support-tabContent">
-              <div className="support-statement">
-                <div className="support-statementIcon"><Svg sw={1.8}>{UI.heart}</Svg></div>
-                <div className="support-statementText">
-                  <h3>Why This Work Matters</h3>
-                  <p>
-                    The lives of the saints—their sacrifice, their courage, their encounter with Christ—teach us what it means to truly follow. But most people never hear these stories. They're lost in a sea of other voices, other feeds, other narratives about what matters.
-                  </p>
-                  <p>
-                    We make stories of the saints for the platforms where faith actually happens today. Not instead of the Church, but *alongside* it. Instagram, TikTok, YouTube—where young people, lapsed Catholics, and curious seekers actually spend their time. We meet them there with beauty, fidelity, and the witness of people who gave everything to Christ.
-                  </p>
-                </div>
-              </div>
-
-              <div className="support-subsection">
-                <h4 className="support-subheading">Every Dollar Funds</h4>
-                <div className="support-fundingGrid">
-                  <div className="support-fundingItem">
-                    <div className="support-fundingIcon">📚</div>
-                    <div className="support-fundingText">
-                      <strong>Research</strong>
-                      <span>Deep dives into Tier 1 Catholic sources—everything from papal documents to hagiographies.</span>
-                    </div>
-                  </div>
-                  <div className="support-fundingItem">
-                    <div className="support-fundingIcon">🎬</div>
-                    <div className="support-fundingText">
-                      <strong>Production</strong>
-                      <span>Professional cinematography, scriptwriting, editing. We don't cut corners on quality.</span>
-                    </div>
-                  </div>
-                  <div className="support-fundingItem">
-                    <div className="support-fundingIcon">🎙️</div>
-                    <div className="support-fundingText">
-                      <strong>Narration</strong>
-                      <span>English and Spanish voiceovers that bring reverence and life to each story.</span>
-                    </div>
-                  </div>
-                  <div className="support-fundingItem">
-                    <div className="support-fundingIcon">🌐</div>
-                    <div className="support-fundingText">
-                      <strong>Translation & Distribution</strong>
-                      <span>Captions, translations, and platform optimization so stories reach more hearts.</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="support-pipeline">
-                <h4 className="support-subheading">What's Coming</h4>
-                <p className="support-pipelineDesc">The saints we're preparing stories about. This is just the beginning.</p>
-                <div className="support-saintsList">
-                  {UPCOMING_SAINTS.map((saint, i) => (
-                    <div key={saint.name} className="support-saint">
-                      <div className="support-saintNumber">{i + 1}</div>
-                      <div className="support-saintInfo">
-                        <span className="support-saintName">{saint.name}</span>
-                        <span className="support-saintDesc">{saint.desc}</span>
-                        <span className={`support-saintStatus support-status-${saint.status}`}>
-                          {saint.status === "coming-soon" && "Coming soon"}
-                          {saint.status === "in-progress" && "In production"}
-                          {saint.status === "research" && "In research"}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {activeTab === "impact" && (
-            <div className="support-tabContent">
-              <div className="support-impactStatement">
-                <h3>What Supporters Are Telling Us</h3>
-                <p>These are real messages from people your support reaches.</p>
-              </div>
-
-              <div className="support-testimonials">
-                {TESTIMONIALS.map((t, i) => (
-                  <div key={i} className="support-testimonial">
-                    <Svg className="support-testimonialIcon" sw={2}>{UI.spark}</Svg>
-                    <p className="support-testimonialQuote">"{t.quote}"</p>
-                    <span className="support-testimonialAuthor">— {t.author}</span>
-                  </div>
-                ))}
-              </div>
-
-              <div className="support-impactMetrics">
-                <h4 className="support-subheading">The Work So Far</h4>
-                <div className="support-metrics">
-                  <div className="support-metric">
-                    <span className="support-metricNumber">435K</span>
-                    <span className="support-metricLabel">Views in 3 months</span>
-                  </div>
-                  <div className="support-metric">
-                    <span className="support-metricNumber">14K</span>
-                    <span className="support-metricLabel">People watching weekly</span>
-                  </div>
-                  <div className="support-metric">
-                    <span className="support-metricNumber">6</span>
-                    <span className="support-metricLabel">Videos above 30K views</span>
-                  </div>
-                  <div className="support-metric">
-                    <span className="support-metricNumber">2</span>
-                    <span className="support-metricLabel">Languages</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* SUPPORT TIERS */}
-        <div className="support-section" id="support">
-          <div className="support-tierHeader">
-            <h3 className="support-sectionTitle">Join This Mission</h3>
-            <p className="support-sectionDesc">
-              Choose how you want to help. Every level makes a real difference.
-            </p>
-          </div>
-
-          <div className="support-tiers">
-            {SUPPORT_TIERS.map((tier, i) => (
-              <div key={tier.amount} className={`support-tier ${i >= 2 ? "support-tierHighlight" : ""}`}>
-                <div className="support-tierBadge">{tier.title}</div>
-                <div className="support-tierAmount">
-                  {tier.amount}
-                  <span className="support-tierPeriod">{tier.period}</span>
-                </div>
-                <p className="support-tierDesc">{tier.description}</p>
-
-                <div className="support-tierIncludes">
-                  <span className="support-includesLabel">You get:</span>
-                  <ul className="support-includesList">
-                    {tier.includes.map((item) => (
-                      <li key={item}>
-                        <Svg sw={2}>{UI.check}</Svg>
-                        <span>{item}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                <a href={STRIPE_LINK} className={`support-tierCta ${i >= 2 ? "support-tierCtaPrimary" : ""}`}>
-                  Support at ${tier.amount.slice(1)}
-                  <Svg sw={2.2}>{UI.arrow}</Svg>
-                </a>
-              </div>
             ))}
           </div>
 
-          <div className="support-altOptions">
-            <h4>Other ways to support</h4>
-            <div className="support-altButtons">
-              <a href={STRIPE_LINK} className="support-altBtn">
-                One-time gift
-              </a>
-              <a href={PAYPAL_LINK} className="support-altBtn">
-                PayPal
-              </a>
-              <a href={`mailto:${CONTACT}`} className="support-altBtn">
-                Ask about other ways
-              </a>
-            </div>
-          </div>
-        </div>
+          <p className="cst-seeAll">
+            <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer">All 102 stories, free, on Instagram & Facebook →</a>
+          </p>
+        </section>
 
-        {/* TAX CLARITY */}
-        <div className="support-clarity">
-          <div className="support-clarityIcon">
-            <Svg sw={1.8}>{UI.book}</Svg>
+        {/* ───────── quote ───────── */}
+        <figure className="cst-quote">
+          <blockquote>
+            “I make myself a leper with the lepers, to gain all to Jesus&nbsp;Christ.”
+          </blockquote>
+          <figcaption>— St. Damien of Molokai</figcaption>
+        </figure>
+
+        {/* ───────── mission ───────── */}
+        <section className="cst-section cst-mission">
+          <div className="cst-head">
+            <p className="cst-eyebrow">The mission</p>
+            <h2 className="cst-h2">The saints belong in every feed</h2>
           </div>
-          <div className="support-clarityContent">
-            <h4>Transparency About Your Gift</h4>
+          <div className="cst-missionCols">
             <p>
-              <strong>Your support is not tax-deductible.</strong> You're funding a creator's work, not a charitable organization. CatholicProjects.org is not currently a tax-exempt nonprofit. That said, we handle every contribution with integrity, report it properly, and make sure every dollar reaches the mission it funds. No overhead, no middleman. Just the work.
+              The lives of the saints — their courage, their sacrifice, their encounter
+              with Christ — are the greatest stories the Church has. But most people
+              will never open a hagiography. They're on Instagram at midnight. They're
+              scrolling TikTok on the bus.
+            </p>
+            <p>
+              So we bring the saints there. Not instead of the Church — <em>toward</em> it.
+              Every film is researched in trusted Catholic sources, told with reverence,
+              and released free, so that a lapsed Catholic, a curious seeker, or a kid
+              who has never heard of Molokai might stop scrolling — and meet a saint.
             </p>
           </div>
-        </div>
+        </section>
 
-        {/* CTA SECTION */}
-        <div className="support-section support-sectionAsk">
-          <span className="support-askIcon">
-            <Svg sw={1.7}>{UI.mail}</Svg>
-          </span>
-          <div className="support-askText">
-            <h3>Let's Talk</h3>
-            <p>Questions about what you're funding? Want to understand the work better? We read every message.</p>
+        {/* ───────── ledger ───────── */}
+        <section className="cst-section">
+          <div className="cst-head">
+            <p className="cst-eyebrow">Where every dollar goes</p>
+            <h2 className="cst-h2">What your support pays for</h2>
+            <p className="cst-lede">
+              Each story costs real money to make — roughly $500–700 of production every
+              month. Support goes to the work. No overhead, no middlemen.
+            </p>
           </div>
-          <a className="support-askCta" href={`mailto:${CONTACT}`}>
-            Get in touch
-            <Svg sw={2.2}>{UI.arrow}</Svg>
-          </a>
-        </div>
+          <ol className="cst-ledger">
+            {LEDGER.map((row) => (
+              <li key={row.n} className="cst-row">
+                <span className="cst-rowN">{row.n}</span>
+                <span className="cst-rowTitle">{row.title}</span>
+                <span className="cst-rowText">{row.text}</span>
+              </li>
+            ))}
+          </ol>
+        </section>
+
+        {/* ───────── slate ───────── */}
+        <section className="cst-section">
+          <div className="cst-head">
+            <p className="cst-eyebrow">On the slate</p>
+            <h2 className="cst-h2">The stories we're preparing</h2>
+            <p className="cst-lede">Six saints in the pipeline. Your support decides how fast they arrive.</p>
+          </div>
+          <ul className="cst-slate">
+            {SLATE.map((s, idx) => (
+              <li key={s.name} className="cst-saint">
+                <span className="cst-saintN">{String(idx + 1).padStart(2, "0")}</span>
+                <span className="cst-saintBody">
+                  <span className="cst-saintName">{s.name}</span>
+                  <span className="cst-saintEpithet">{s.epithet}</span>
+                </span>
+                <span className={`cst-status ${s.status === "In production" ? "is-active" : s.status === "Coming soon" ? "is-next" : ""}`}>
+                  {s.status}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        {/* ───────── support ───────── */}
+        <section className="cst-section cst-support" id="support">
+          <div className="cst-head cst-headCenter">
+            <p className="cst-eyebrow">Become a patron</p>
+            <h2 className="cst-h2">Help bring the next saint story to life</h2>
+            <p className="cst-lede">
+              If these films have moved you, you can help make the next one. Monthly
+              support is what lets this work continue — about forty patrons covers an
+              entire month of production.
+            </p>
+          </div>
+
+          <div className="cst-tiers">
+            {TIERS.map((t) => (
+              <a
+                key={t.amount}
+                className={`cst-tier ${t.featured ? "is-featured" : ""}`}
+                href={STRIPE_LINK}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {t.featured && <span className="cst-tierFlag">Most common</span>}
+                <span className="cst-tierName">{t.name}</span>
+                <span className="cst-tierAmt">
+                  <sup>$</sup>{t.amount}
+                  <span className="cst-tierPer">/mo{t.amount === 50 ? "+" : ""}</span>
+                </span>
+                <span className="cst-tierLine">{t.line}</span>
+                <span className="cst-tierGo">Support <Svg sw={2.2}>{I.arrow}</Svg></span>
+              </a>
+            ))}
+          </div>
+
+          <p className="cst-noPerks">
+            Support is a voluntary gift to the creator of this work. It earns our deep
+            gratitude and our prayers — but no rewards, ownership, or exclusive access.
+            The films themselves remain free, for everyone, always.
+          </p>
+
+          <div className="cst-alt">
+            <a className="cst-altBtn" href={STRIPE_LINK} target="_blank" rel="noopener noreferrer">Give once</a>
+            <a className="cst-altBtn" href={PAYPAL_LINK} target="_blank" rel="noopener noreferrer">PayPal</a>
+            <a className="cst-altBtn" href={`mailto:${CONTACT}`}>Questions? Write to us</a>
+          </div>
+
+          <div className="cst-fine">
+            <h3>Transparency about your gift</h3>
+            <p>
+              CatholicProjects is not a tax-exempt charitable organization, and
+              contributions are <strong>not tax-deductible</strong>. Your support is
+              voluntary creator support — it is received as ordinary income, reported
+              properly, and spent on the work described above. No contribution funds a
+              specific film, and no outcome is promised beyond this: more stories of
+              the saints, made well, released free.
+            </p>
+          </div>
+        </section>
       </main>
 
-      <footer className="cp-foot">
-        <div className="cp-footInner">
-          <span className="cp-footMark" aria-hidden="true">✠</span>
-          <p className="cp-footText">Stories of the saints. For a new generation.</p>
-          <p className="cp-footFine">
-            Made with faith and precision. Learn more at <a href="https://catholicprojects.org">CatholicProjects.org</a> · <a href={`mailto:${CONTACT}`}>{CONTACT}</a> · © {new Date().getFullYear()}
-          </p>
-        </div>
+      {/* ───────── footer ───────── */}
+      <footer className="cst-foot">
+        <span className="cst-footCross" aria-hidden="true">✠</span>
+        <p className="cst-footLine">Ad maiorem Dei gloriam.</p>
+        <p className="cst-footMeta">
+          A project of <a href="https://catholicprojects.org">CatholicProjects.org</a> ·{" "}
+          <a href={`mailto:${CONTACT}`}>{CONTACT}</a> · © {new Date().getFullYear()}
+        </p>
+        <p className="cst-footFine">
+          CatholicProjects is an independent Catholic project and does not imply parish,
+          diocesan, or ecclesial endorsement unless specifically stated.
+        </p>
       </footer>
     </div>
   );
 }
 
+/* -----------------------------------------------------------
+   Styles — scoped under .cst
+------------------------------------------------------------ */
+
 const CSS = `
-.cp{
-  --cp-gold:${T.gold};--cp-gold-dark:${T.goldDark};--cp-gold-soft:${T.goldSoft};
-  --cp-espresso:${T.espresso};--cp-ink:${T.ink};--cp-sub:${T.sub};
-  --cp-ivory:${T.ivory};--cp-cream:${T.cream};--cp-line:${T.line};--cp-gold-line:${T.goldLine};
+.cst{
+  --bg:#0D0A07;
+  --bg2:#15100A;
+  --panel:#1A140C;
+  --panel2:#201810;
+  --gold:#C9A356;
+  --gold-bright:#E3C57E;
+  --gold-dim:rgba(201,163,86,.38);
+  --hairline:rgba(201,163,86,.18);
+  --hairline-soft:rgba(243,234,218,.08);
+  --text:#F3EADA;
+  --muted:#B5A58E;
+  --faint:#8A7B64;
+  --serif:var(--cst-serif),Cormorant Garamond,Georgia,"Times New Roman",serif;
+  --sans:var(--cst-ui),Inter,system-ui,-apple-system,"Segoe UI",sans-serif;
   position:relative;isolation:isolate;min-height:100svh;display:flex;flex-direction:column;overflow-x:clip;
-  color:var(--cp-ink);background:linear-gradient(180deg,#FFFDF9 0%,#FCF8F0 100%);
-  font-family:var(--cp-ui),Inter,system-ui,-apple-system,"Segoe UI",sans-serif;font-size:16px;-webkit-font-smoothing:antialiased;
+  background:var(--bg);color:var(--text);
+  font-family:var(--sans);font-size:16px;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
 }
-.cp,.cp *,.cp *::before,.cp *::after{box-sizing:border-box;}
-.cp :where(button){font-family:inherit;color:inherit;}
-.cp :where(a){color:inherit;}
-.cp a:focus-visible,.cp button:focus-visible,.cp input:focus-visible{outline:2px solid var(--cp-gold-dark);outline-offset:3px;}
-.cp-main{flex:1;}
-.cp-bg{position:absolute;inset:0;z-index:-1;pointer-events:none;height:1000px;background:radial-gradient(720px 430px at 80% 24%,rgba(200,148,58,.14),transparent 67%),radial-gradient(520px 300px at 7% 17%,rgba(200,148,58,.055),transparent 72%);}
+.cst,.cst *,.cst *::before,.cst *::after{box-sizing:border-box;}
+.cst :where(a){color:inherit;text-decoration:none;}
+.cst a:focus-visible,.cst button:focus-visible{outline:2px solid var(--gold);outline-offset:3px;border-radius:4px;}
+.cst ::selection{background:rgba(201,163,86,.3);}
 
-.support-hero{width:min(1180px,calc(100% - 40px));margin:64px auto 72px;display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center;}
-.support-heroContent{position:relative;z-index:2;}
-.support-eyebrow{width:fit-content;margin-bottom:18px;padding:8px 14px;display:inline-flex;align-items:center;gap:8px;border:1px solid var(--cp-gold-line);border-radius:999px;background:rgba(255,255,255,.7);box-shadow:0 4px 16px rgba(74,43,22,.035);color:var(--cp-gold-dark);font-size:12px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;}
-.support-title{max-width:640px;margin:0 0 16px;color:var(--cp-ink);font-family:Georgia,"Times New Roman",serif;font-size:clamp(3rem,5.5vw,4.5rem);line-height:1.08;letter-spacing:-.04em;font-weight:600;}
-.support-desc{max-width:560px;margin:0 0 20px;color:var(--cp-sub);font-size:clamp(1rem,1.4vw,1.125rem);line-height:1.7;font-weight:450;}
-.support-descSmall{font-size:15px;color:var(--cp-sub);line-height:1.65;}
+/* film grain */
+.cst-grain{position:fixed;inset:0;z-index:40;pointer-events:none;opacity:.05;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");}
 
-.support-ctas{margin:28px 0 24px;display:flex;align-items:center;flex-wrap:wrap;gap:12px;}
-.support-cta{min-height:52px;padding:13px 22px;display:inline-flex;align-items:center;justify-content:center;gap:9px;border:1px solid rgba(168,116,37,.2);border-radius:13px;background:linear-gradient(135deg,#D7A94F 0%,#C8943A 55%,#B88029 100%);box-shadow:0 8px 24px rgba(168,116,37,.18);color:#2E1E10;text-decoration:none;font-size:16px;font-weight:800;cursor:pointer;transition:transform 160ms ease,box-shadow 160ms ease;}
-.support-cta:hover{transform:translateY(-2px);box-shadow:0 12px 30px rgba(168,116,37,.24);}
-.support-cta svg{width:18px;height:18px;}
-.support-secondary{min-height:52px;padding:12px 18px;display:inline-flex;align-items:center;justify-content:center;gap:9px;border:1px solid rgba(74,43,22,.1);border-radius:13px;background:rgba(255,255,255,.64);color:var(--cp-espresso);font-size:15px;font-weight:700;cursor:pointer;transition:background 150ms ease,border-color 150ms ease;}
-.support-secondary:hover{background:#fff;border-color:rgba(200,148,58,.25);}
+/* ───── top bar ───── */
+.cst-bar{position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-content:space-between;gap:16px;
+  padding:14px clamp(20px,4vw,44px);border-bottom:1px solid var(--hairline-soft);
+  background:rgba(13,10,7,.78);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);}
+.cst-mark{display:inline-flex;align-items:center;gap:10px;}
+.cst-markCross{color:var(--gold);font-size:17px;}
+.cst-markText{font-family:var(--serif);font-weight:600;font-size:17px;letter-spacing:.14em;text-transform:uppercase;color:var(--text);}
+.cst-barNav{display:flex;align-items:center;gap:22px;}
+.cst-barLink{color:var(--muted);font-size:13px;font-weight:600;letter-spacing:.02em;transition:color 150ms ease;}
+.cst-barLink:hover{color:var(--text);}
+.cst-barCta{padding:9px 18px;border:1px solid var(--gold-dim);border-radius:999px;color:var(--gold-bright);font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;transition:background 160ms ease,border-color 160ms ease,color 160ms ease;}
+.cst-barCta:hover{background:var(--gold);border-color:var(--gold);color:#17110A;}
 
-.support-lang{display:flex;gap:12px;flex-wrap:wrap;margin-top:20px;}
-.support-langItem{padding:6px 12px;border-radius:8px;background:rgba(200,148,58,.1);color:var(--cp-gold-dark);font-size:12px;font-weight:700;}
+/* ───── hero ───── */
+.cst-hero{position:relative;max-width:980px;margin:0 auto;padding:clamp(84px,12vh,150px) 20px 72px;text-align:center;}
+.cst-heroGlow{position:absolute;inset:-40% -30% auto;height:150%;z-index:-1;pointer-events:none;
+  background:
+    radial-gradient(52% 44% at 50% 30%, rgba(201,163,86,.17), transparent 70%),
+    radial-gradient(30% 26% at 50% 16%, rgba(227,197,126,.12), transparent 70%);}
+.cst-kicker{margin:0 0 26px;color:var(--gold);font-size:12px;font-weight:700;letter-spacing:.34em;text-transform:uppercase;}
+.cst-h1{margin:0 auto 24px;max-width:17ch;font-family:var(--serif);font-weight:600;color:var(--text);
+  font-size:clamp(2.9rem,7.2vw,5.4rem);line-height:1.04;letter-spacing:-.015em;}
+.cst-h1 em{display:block;margin-top:10px;font-style:italic;font-weight:500;font-size:.58em;letter-spacing:0;
+  background:linear-gradient(100deg,var(--gold) 10%,var(--gold-bright) 45%,var(--gold) 90%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;}
+.cst-heroSub{margin:0 auto;max-width:56ch;color:var(--muted);font-size:clamp(1rem,1.5vw,1.14rem);line-height:1.75;}
+.cst-heroCtas{margin:38px auto 0;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:14px;}
+.cst-cta{display:inline-flex;align-items:center;gap:10px;min-height:54px;padding:15px 26px;border-radius:999px;
+  background:linear-gradient(135deg,#E3C57E 0%,#C9A356 55%,#A8823C 100%);color:#17110A;
+  font-size:15px;font-weight:800;letter-spacing:.01em;box-shadow:0 10px 36px -10px rgba(201,163,86,.5);
+  transition:transform 160ms ease,box-shadow 160ms ease;}
+.cst-cta:hover{transform:translateY(-2px);box-shadow:0 16px 44px -10px rgba(201,163,86,.62);}
+.cst-cta svg{width:17px;height:17px;}
+.cst-ghost{display:inline-flex;align-items:center;gap:10px;min-height:54px;padding:15px 24px;border:1px solid var(--hairline);border-radius:999px;
+  color:var(--text);font-size:15px;font-weight:700;transition:border-color 160ms ease,background 160ms ease;}
+.cst-ghost:hover{border-color:var(--gold-dim);background:rgba(201,163,86,.07);}
+.cst-ghostPlay{width:15px;height:15px;color:var(--gold-bright);}
 
-.support-stats{display:flex;flex-direction:column;gap:24px;}
-.support-stat{display:flex;flex-direction:column;}
-.support-statValue{display:block;color:var(--cp-espresso);font-size:32px;font-weight:900;letter-spacing:-.01em;}
-.support-statLabel{display:block;margin-top:4px;color:var(--cp-sub);font-size:13px;font-weight:650;}
-.support-statSub{display:block;margin-top:2px;font-size:12px;color:#9B8F83;font-weight:500;}
+.cst-band{margin:64px auto 0;max-width:760px;display:grid;grid-template-columns:repeat(4,1fr);
+  border-top:1px solid var(--hairline);border-bottom:1px solid var(--hairline);}
+.cst-band>div{padding:22px 10px;display:flex;flex-direction:column;gap:5px;}
+.cst-band>div+div{border-left:1px solid var(--hairline-soft);}
+.cst-band dt{margin:0;font-family:var(--serif);font-weight:600;font-size:clamp(1.5rem,2.6vw,2rem);color:var(--gold-bright);line-height:1;}
+.cst-band dd{margin:0;color:var(--faint);font-size:11.5px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;}
 
-.support-section{width:min(1180px,calc(100% - 40px));margin:0 auto 64px;}
-.support-tabs{display:flex;gap:0;border-bottom:1px solid var(--cp-line);margin-bottom:32px;padding:0;}
-.support-tab{padding:14px 0;margin-right:40px;border:0;background:none;cursor:pointer;color:var(--cp-sub);font-size:15px;font-weight:700;position:relative;transition:color 150ms ease;}
-.support-tab:hover{color:var(--cp-espresso);}
-.support-tab.support-tabActive{color:var(--cp-espresso);}
-.support-tab.support-tabActive::after{content:"";position:absolute;bottom:-1px;left:0;right:0;height:3px;background:var(--cp-gold-dark);}
-.support-tabContent{animation:fadeIn 200ms ease;}
-@keyframes fadeIn{from{opacity:.6}to{opacity:1}}
+/* ───── sections ───── */
+.cst-section{width:min(1120px,calc(100% - 40px));margin:0 auto;padding:clamp(56px,9vh,104px) 0 0;}
+.cst-head{max-width:640px;margin-bottom:clamp(32px,5vh,48px);}
+.cst-headCenter{margin-left:auto;margin-right:auto;text-align:center;}
+.cst-eyebrow{margin:0 0 14px;color:var(--gold);font-size:11.5px;font-weight:700;letter-spacing:.3em;text-transform:uppercase;}
+.cst-h2{margin:0;font-family:var(--serif);font-weight:600;color:var(--text);font-size:clamp(2rem,4vw,3rem);line-height:1.1;letter-spacing:-.01em;}
+.cst-lede{margin:16px 0 0;color:var(--muted);font-size:16px;line-height:1.7;}
 
-.support-statement{display:flex;gap:20px;padding:28px;border:1px solid rgba(200,148,58,.18);border-radius:20px;background:linear-gradient(135deg,rgba(200,148,58,.04),rgba(200,148,58,.02));}
-.support-statementIcon{flex:0 0 auto;width:48px;height:48px;display:flex;align-items:center;justify-content:center;border-radius:14px;background:rgba(200,148,58,.15);color:var(--cp-gold-dark);}
-.support-statementIcon svg{width:24px;height:24px;}
-.support-statementText h3{margin:0 0 12px;color:var(--cp-espresso);font-family:Georgia,serif;font-size:24px;font-weight:600;}
-.support-statementText p{margin:0 0 12px;color:var(--cp-sub);font-size:15.5px;line-height:1.7;}
-.support-statementText p:last-child{margin-bottom:0;}
+/* ───── films ───── */
+.cst-films{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;}
+.cst-film{display:flex;flex-direction:column;border:1px solid var(--hairline-soft);border-radius:18px;overflow:hidden;background:var(--panel);
+  transition:transform 200ms ease,border-color 200ms ease,box-shadow 200ms ease;}
+.cst-film:hover{transform:translateY(-5px);border-color:var(--gold-dim);box-shadow:0 30px 60px -30px rgba(0,0,0,.9),0 0 0 1px rgba(201,163,86,.08);}
+.cst-poster{position:relative;display:block;aspect-ratio:4/5;background-size:cover;background-position:center 20%;
+  background-color:var(--panel2);}
+.cst-poster::before{content:"";position:absolute;inset:0;z-index:0;
+  background:
+    radial-gradient(90% 70% at 50% 24%, hsl(var(--hue,40deg) 28% 24% / .55), transparent 72%),
+    radial-gradient(120% 90% at 50% 110%, rgba(13,10,7,.95), transparent 60%);}
+.cst-posterCross{position:absolute;top:50%;left:50%;transform:translate(-50%,-62%);z-index:0;
+  font-family:var(--serif);font-size:72px;color:rgba(201,163,86,.2);}
+.cst-lang{position:absolute;top:14px;left:14px;z-index:2;padding:5px 11px;border:1px solid rgba(227,197,126,.4);border-radius:999px;
+  background:rgba(13,10,7,.55);backdrop-filter:blur(6px);color:var(--gold-bright);font-size:10.5px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;}
+.cst-playBtn{position:absolute;right:16px;bottom:16px;z-index:2;width:46px;height:46px;display:flex;align-items:center;justify-content:center;
+  border:1px solid rgba(227,197,126,.5);border-radius:50%;background:rgba(13,10,7,.6);backdrop-filter:blur(6px);color:var(--gold-bright);
+  transition:background 180ms ease,color 180ms ease,transform 180ms ease;}
+.cst-playBtn svg{width:16px;height:16px;margin-left:2px;}
+.cst-film:hover .cst-playBtn{background:var(--gold);color:#17110A;transform:scale(1.06);}
+.cst-filmBody{display:flex;flex-direction:column;flex:1;padding:20px 20px 18px;}
+.cst-filmTitle{font-family:var(--serif);font-weight:600;font-size:24px;line-height:1.15;color:var(--text);}
+.cst-filmLogline{margin-top:9px;color:var(--muted);font-size:14px;line-height:1.6;font-style:italic;font-family:var(--serif);font-size:16.5px;}
+.cst-filmFoot{margin-top:auto;padding-top:16px;display:flex;align-items:center;justify-content:space-between;gap:12px;border-top:1px solid var(--hairline-soft);margin-top:18px;}
+.cst-filmProof{color:var(--faint);font-size:11.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;}
+.cst-filmWatch{display:inline-flex;align-items:center;gap:6px;color:var(--gold-bright);font-size:13px;font-weight:700;}
+.cst-filmWatch svg{width:14px;height:14px;transition:transform 160ms ease;}
+.cst-film:hover .cst-filmWatch svg{transform:translateX(3px);}
+.cst-seeAll{margin:26px 0 0;text-align:center;}
+.cst-seeAll a{color:var(--muted);font-size:14px;font-weight:600;border-bottom:1px solid var(--hairline);padding-bottom:3px;transition:color 150ms ease,border-color 150ms ease;}
+.cst-seeAll a:hover{color:var(--gold-bright);border-color:var(--gold-dim);}
 
-.support-subsection{margin-top:40px;padding-top:40px;border-top:1px solid var(--cp-line);}
-.support-subheading{margin:0 0 20px;color:var(--cp-espresso);font-family:Georgia,serif;font-size:22px;line-height:1.1;letter-spacing:-.01em;font-weight:600;}
+/* ───── quote ───── */
+.cst-quote{width:min(820px,calc(100% - 40px));margin:clamp(72px,11vh,120px) auto 0;text-align:center;}
+.cst-quote blockquote{margin:0;font-family:var(--serif);font-style:italic;font-weight:500;color:var(--gold-bright);
+  font-size:clamp(1.6rem,3.4vw,2.5rem);line-height:1.35;}
+.cst-quote figcaption{margin-top:18px;color:var(--faint);font-size:12px;font-weight:700;letter-spacing:.26em;text-transform:uppercase;}
+.cst-quote::before{content:"";display:block;width:52px;height:1px;margin:0 auto 34px;background:var(--gold-dim);}
+.cst-quote::after{content:"";display:block;width:52px;height:1px;margin:34px auto 0;background:var(--gold-dim);}
 
-.support-fundingGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px;}
-.support-fundingItem{padding:20px;border:1px solid rgba(74,43,22,.08);border-radius:16px;background:#fff;display:flex;gap:14px;}
-.support-fundingIcon{flex:0 0 auto;font-size:28px;}
-.support-fundingText{flex:1;}
-.support-fundingText strong{display:block;color:var(--cp-espresso);font-size:15px;font-weight:800;margin-bottom:6px;}
-.support-fundingText span{display:block;color:var(--cp-sub);font-size:14px;line-height:1.55;}
+/* ───── mission ───── */
+.cst-missionCols{display:grid;grid-template-columns:1fr 1fr;gap:clamp(24px,4vw,56px);}
+.cst-missionCols p{margin:0;color:var(--muted);font-size:16.5px;line-height:1.85;}
+.cst-missionCols em{color:var(--text);font-style:italic;}
+.cst-missionCols p::first-letter{color:var(--gold-bright);}
 
-.support-pipeline{margin-top:36px;}
-.support-pipelineDesc{color:var(--cp-sub);font-size:15px;margin:0 0 18px;}
-.support-saintsList{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:14px;margin-top:16px;}
-.support-saint{display:flex;align-items:center;gap:16px;padding:18px 18px;border:1px solid rgba(74,43,22,.08);border-radius:16px;background:#fff;transition:background 150ms ease,border-color 150ms ease;}
-.support-saint:hover{background:rgba(200,148,58,.02);border-color:rgba(200,148,58,.15);}
-.support-saintNumber{flex:0 0 auto;width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:999px;background:rgba(200,148,58,.15);color:var(--cp-gold-dark);font-weight:900;font-size:14px;}
-.support-saintInfo{flex:1;min-width:0;}
-.support-saintName{display:block;color:var(--cp-espresso);font-size:15px;font-weight:700;line-height:1.3;}
-.support-saintDesc{display:block;font-size:13px;color:var(--cp-gold-dark);font-weight:600;margin:3px 0 6px;}
-.support-saintStatus{display:inline-block;padding:4px 8px;border-radius:6px;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;}
-.support-status-coming-soon{background:rgba(200,148,58,.2);color:var(--cp-gold-dark);}
-.support-status-in-progress{background:rgba(79,143,184,.2);color:#3B5A7D;}
-.support-status-research{background:rgba(123,94,167,.2);color:#5B4080;}
+/* ───── ledger ───── */
+.cst-ledger{margin:0;padding:0;list-style:none;border-top:1px solid var(--hairline);}
+.cst-row{display:grid;grid-template-columns:72px 240px 1fr;gap:20px;align-items:baseline;
+  padding:26px 6px;border-bottom:1px solid var(--hairline-soft);transition:background 160ms ease;}
+.cst-row:hover{background:rgba(201,163,86,.03);}
+.cst-rowN{font-family:var(--serif);font-size:15px;color:var(--gold);letter-spacing:.1em;}
+.cst-rowTitle{font-family:var(--serif);font-weight:600;font-size:23px;color:var(--text);}
+.cst-rowText{color:var(--muted);font-size:14.5px;line-height:1.7;max-width:56ch;}
 
-.support-impactStatement{margin-bottom:28px;}
-.support-impactStatement h3{margin:0 0 8px;color:var(--cp-espresso);font-family:Georgia,serif;font-size:28px;font-weight:600;}
-.support-impactStatement p{margin:0;color:var(--cp-sub);font-size:15px;}
+/* ───── slate ───── */
+.cst-slate{margin:0;padding:0;list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:0 clamp(28px,5vw,72px);border-top:1px solid var(--hairline);}
+.cst-saint{display:flex;align-items:center;gap:18px;padding:20px 6px;border-bottom:1px solid var(--hairline-soft);}
+.cst-saintN{font-family:var(--serif);font-size:14px;color:var(--gold);letter-spacing:.08em;}
+.cst-saintBody{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;}
+.cst-saintName{font-family:var(--serif);font-weight:600;font-size:19px;color:var(--text);line-height:1.2;}
+.cst-saintEpithet{color:var(--faint);font-size:12.5px;font-style:italic;font-family:var(--serif);font-size:14px;}
+.cst-status{flex:0 0 auto;padding:5px 11px;border:1px solid var(--hairline-soft);border-radius:999px;color:var(--faint);
+  font-size:10px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;white-space:nowrap;}
+.cst-status.is-active{border-color:var(--gold-dim);color:var(--gold-bright);background:rgba(201,163,86,.08);}
+.cst-status.is-next{border-color:rgba(243,234,218,.22);color:var(--muted);}
 
-.support-testimonials{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px;margin-bottom:40px;}
-.support-testimonial{padding:24px;border:1px solid rgba(200,148,58,.2);border-radius:18px;background:linear-gradient(135deg,rgba(200,148,58,.06),rgba(200,148,58,.02));position:relative;}
-.support-testimonialIcon{color:var(--cp-gold);margin-bottom:12px;opacity:.7;}
-.support-testimonialQuote{margin:0 0 12px;color:var(--cp-ink);font-size:15.5px;line-height:1.7;font-style:italic;}
-.support-testimonialAuthor{display:block;color:var(--cp-gold-dark);font-size:13px;font-weight:700;}
+/* ───── support ───── */
+.cst-support{padding-bottom:clamp(64px,10vh,110px);}
+.cst-tiers{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;}
+.cst-tier{position:relative;display:flex;flex-direction:column;gap:10px;padding:28px 24px 24px;border:1px solid var(--hairline-soft);border-radius:18px;
+  background:linear-gradient(180deg,var(--panel) 0%,var(--bg2) 100%);
+  transition:transform 180ms ease,border-color 180ms ease,box-shadow 180ms ease;}
+.cst-tier:hover{transform:translateY(-4px);border-color:var(--gold-dim);box-shadow:0 26px 54px -28px rgba(0,0,0,.9);}
+.cst-tier.is-featured{border-color:var(--gold-dim);background:linear-gradient(180deg,rgba(201,163,86,.12) 0%,var(--panel) 60%);}
+.cst-tierFlag{position:absolute;top:-11px;left:50%;transform:translateX(-50%);padding:4px 12px;border-radius:999px;
+  background:var(--gold);color:#17110A;font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;white-space:nowrap;}
+.cst-tierName{color:var(--gold-bright);font-size:11.5px;font-weight:800;letter-spacing:.22em;text-transform:uppercase;}
+.cst-tierAmt{font-family:var(--serif);font-weight:600;font-size:44px;line-height:1;color:var(--text);}
+.cst-tierAmt sup{font-size:.45em;vertical-align:.7em;margin-right:2px;color:var(--gold-bright);}
+.cst-tierPer{margin-left:4px;font-family:var(--sans);font-size:13px;font-weight:500;color:var(--faint);}
+.cst-tierLine{color:var(--muted);font-size:13.5px;line-height:1.55;min-height:3.1em;}
+.cst-tierGo{margin-top:auto;display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:11px 14px;border:1px solid var(--gold-dim);border-radius:999px;
+  color:var(--gold-bright);font-size:13px;font-weight:800;letter-spacing:.04em;transition:background 160ms ease,color 160ms ease;}
+.cst-tier:hover .cst-tierGo{background:var(--gold);color:#17110A;border-color:var(--gold);}
+.cst-tierGo svg{width:14px;height:14px;}
+.cst-tier.is-featured .cst-tierGo{background:var(--gold);color:#17110A;border-color:var(--gold);}
+.cst-tier.is-featured:hover .cst-tierGo{background:var(--gold-bright);border-color:var(--gold-bright);}
 
-.support-impactMetrics{margin-top:32px;padding-top:32px;border-top:1px solid var(--cp-line);}
-.support-metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;}
-.support-metric{padding:18px;text-align:center;border:1px solid rgba(74,43,22,.08);border-radius:14px;background:#fff;}
-.support-metricNumber{display:block;color:var(--cp-espresso);font-size:28px;font-weight:900;margin-bottom:4px;}
-.support-metricLabel{display:block;color:var(--cp-sub);font-size:13px;font-weight:650;}
+.cst-noPerks{max-width:62ch;margin:30px auto 0;text-align:center;color:var(--faint);font-size:13px;line-height:1.7;}
+.cst-alt{margin:26px auto 0;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:10px;}
+.cst-altBtn{padding:10px 18px;border:1px solid var(--hairline-soft);border-radius:999px;color:var(--muted);font-size:13px;font-weight:700;
+  transition:border-color 150ms ease,color 150ms ease,background 150ms ease;}
+.cst-altBtn:hover{border-color:var(--gold-dim);color:var(--gold-bright);background:rgba(201,163,86,.05);}
 
-.support-tierHeader{margin-bottom:36px;}
-.support-sectionTitle{margin:0 0 12px;color:var(--cp-ink);font-family:Georgia,serif;font-size:36px;line-height:1.1;letter-spacing:-.02em;font-weight:600;}
-.support-sectionDesc{margin:0;color:var(--cp-sub);font-size:17px;line-height:1.6;max-width:680px;}
+.cst-fine{max-width:720px;margin:56px auto 0;padding:26px 28px;border:1px solid var(--hairline-soft);border-radius:16px;background:rgba(243,234,218,.025);}
+.cst-fine h3{margin:0 0 10px;color:var(--text);font-size:13px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;}
+.cst-fine p{margin:0;color:var(--faint);font-size:13.5px;line-height:1.75;}
+.cst-fine strong{color:var(--muted);font-weight:700;}
 
-.support-tiers{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px;margin-bottom:44px;}
-.support-tier{padding:26px;border:1px solid rgba(200,148,58,.2);border-radius:18px;background:linear-gradient(135deg,rgba(200,148,58,.04),rgba(200,148,58,.01));display:flex;flex-direction:column;gap:16px;transition:transform 150ms ease,box-shadow 150ms ease,border-color 150ms ease;}
-.support-tier:hover{transform:translateY(-3px);border-color:rgba(200,148,58,.35);box-shadow:0 12px 32px rgba(200,148,58,.12);}
-.support-tierHighlight{border-color:rgba(200,148,58,.4);background:linear-gradient(135deg,rgba(200,148,58,.08),rgba(200,148,58,.04));box-shadow:0 8px 24px rgba(200,148,58,.08);}
-.support-tierBadge{display:inline-flex;align-items:center;justify-content:center;width:fit-content;padding:6px 12px;border-radius:8px;background:rgba(200,148,58,.15);color:var(--cp-gold-dark);font-size:12px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;}
-.support-tierAmount{color:var(--cp-espresso);font-family:Georgia,serif;font-size:32px;font-weight:600;line-height:1;}
-.support-tierPeriod{display:block;font-size:14px;color:var(--cp-sub);font-family:var(--cp-ui),Inter;font-weight:500;margin-top:2px;}
-.support-tierDesc{margin:0;color:var(--cp-sub);font-size:15px;line-height:1.55;}
-.support-tierIncludes{padding:16px 0;border-top:1px solid rgba(74,43,22,.08);border-bottom:1px solid rgba(74,43,22,.08);}
-.support-includesLabel{display:block;color:var(--cp-espresso);font-size:12px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;margin-bottom:10px;}
-.support-includesList{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px;}
-.support-includesList li{display:flex;align-items:flex-start;gap:8px;color:var(--cp-sub);font-size:14px;line-height:1.5;}
-.support-includesList svg{width:16px;height:16px;color:var(--cp-gold-dark);flex:0 0 auto;margin-top:2px;}
+/* ───── footer ───── */
+.cst-foot{margin-top:auto;padding:52px 20px 58px;border-top:1px solid var(--hairline-soft);text-align:center;background:linear-gradient(180deg,transparent,rgba(201,163,86,.04));}
+.cst-footCross{display:block;color:var(--gold);font-size:22px;margin-bottom:12px;}
+.cst-footLine{margin:0 0 14px;font-family:var(--serif);font-style:italic;font-size:19px;color:var(--muted);}
+.cst-footMeta{margin:0 0 8px;color:var(--faint);font-size:13px;}
+.cst-footMeta a{color:var(--muted);font-weight:650;border-bottom:1px solid transparent;transition:color 150ms,border-color 150ms;}
+.cst-footMeta a:hover{color:var(--gold-bright);border-color:var(--gold-dim);}
+.cst-footFine{margin:0 auto;max-width:60ch;color:#6A5E4C;font-size:11.5px;line-height:1.6;}
 
-.support-tierCta{margin-top:auto;padding:12px 16px;display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid rgba(200,148,58,.3);border-radius:12px;background:linear-gradient(135deg,rgba(200,148,58,.08),rgba(200,148,58,.04));color:var(--cp-espresso);font-size:14px;font-weight:800;text-decoration:none;transition:transform 150ms ease,box-shadow 150ms ease,background 150ms ease;}
-.support-tierCta:hover{transform:translateY(-1px);background:linear-gradient(135deg,rgba(200,148,58,.15),rgba(200,148,58,.08));}
-.support-tierCtaPrimary{background:linear-gradient(135deg,#D7A94F 0%,#C8943A 55%,#B88029 100%);color:#2E1E10;border:none;box-shadow:0 4px 12px rgba(168,116,37,.15);}
-.support-tierCtaPrimary:hover{box-shadow:0 6px 16px rgba(168,116,37,.2);}
-.support-tierCta svg{width:16px;height:16px;}
-
-.support-altOptions{margin-top:28px;padding-top:28px;border-top:1px solid var(--cp-line);text-align:center;}
-.support-altOptions h4{margin:0 0 14px;color:var(--cp-sub);font-size:13px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;}
-.support-altButtons{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
-.support-altBtn{padding:10px 16px;border:1px solid rgba(74,43,22,.15);border-radius:10px;background:#fff;text-decoration:none;font-size:13px;font-weight:700;color:var(--cp-espresso);transition:background 150ms ease,border-color 150ms ease;}
-.support-altBtn:hover{background:rgba(200,148,58,.08);border-color:rgba(200,148,58,.35);}
-
-.support-clarity{width:min(820px,calc(100% - 40px));margin:0 auto 64px;padding:24px 28px;border:1px solid rgba(200,148,58,.25);border-radius:20px;background:linear-gradient(135deg,rgba(200,148,58,.06),rgba(200,148,58,.03));display:flex;align-items:flex-start;gap:18px;}
-.support-clarityIcon{flex:0 0 auto;width:44px;height:44px;display:flex;align-items:center;justify-content:center;border-radius:12px;background:rgba(200,148,58,.12);color:var(--cp-gold-dark);}
-.support-clarityIcon svg{width:20px;height:20px;}
-.support-clarityContent h4{margin:0 0 8px;color:var(--cp-espresso);font-size:16px;font-weight:800;}
-.support-clarityContent p{margin:0;color:var(--cp-sub);font-size:14.5px;line-height:1.6;}
-.support-clarityContent strong{color:var(--cp-espresso);font-weight:700;}
-
-.support-sectionAsk{width:min(1080px,calc(100% - 40px));margin:0 auto 64px;padding:26px 30px;display:flex;align-items:center;gap:22px;border:1px solid rgba(200,148,58,.28);border-radius:24px;background:linear-gradient(135deg,#FFF9EC 0%,#FBF0D8 100%);box-shadow:0 24px 50px -32px rgba(74,43,22,.45);}
-.support-askIcon{flex:0 0 auto;width:56px;height:56px;display:flex;align-items:center;justify-content:center;border-radius:16px;background:#fff;color:var(--cp-gold-dark);box-shadow:0 8px 18px -10px rgba(74,43,22,.4);}
-.support-askIcon svg{width:26px;height:26px;}
-.support-askText{flex:1;min-width:0;}
-.support-askText h3{margin:0;color:var(--cp-espresso);font-family:Georgia,serif;font-size:24px;line-height:1.1;font-weight:600;}
-.support-askText p{margin:6px 0 0;color:var(--cp-sub);font-size:15px;line-height:1.5;}
-.support-askCta{flex:0 0 auto;padding:13px 22px;display:inline-flex;align-items:center;justify-content:center;gap:9px;border:1px solid rgba(168,116,37,.2);border-radius:13px;background:linear-gradient(135deg,#D7A94F 0%,#C8943A 55%,#B88029 100%);box-shadow:0 8px 24px rgba(168,116,37,.18);color:#2E1E10;text-decoration:none;font-size:14px;font-weight:800;transition:transform 160ms ease,box-shadow 160ms ease;}
-.support-askCta:hover{transform:translateY(-2px);box-shadow:0 12px 30px rgba(168,116,37,.24);}
-.support-askCta svg{width:16px;height:16px;}
-
-.cp-foot{border-top:1px solid var(--cp-line);background:rgba(255,255,255,.55);}
-.cp-footInner{width:min(760px,calc(100% - 40px));margin:0 auto;padding:38px 0 44px;text-align:center;}
-.cp-footMark{color:var(--cp-gold);font-size:22px;}
-.cp-footText{margin:8px 0 12px;color:var(--cp-espresso);font-family:Georgia,serif;font-size:20px;font-weight:600;}
-.cp-footFine{margin:0 0 6px;color:#8A7867;font-size:13px;line-height:1.55;}
-.cp-footFine a{color:var(--cp-espresso);font-weight:650;text-decoration:none;}
-.cp-footFine a:hover{text-decoration:underline;}
-
-@media (max-width:940px){
-  .support-hero{grid-template-columns:1fr;gap:36px;}
-  .support-stats{flex-direction:row;gap:20px;flex-wrap:wrap;}
-  .support-section{width:calc(100% - 32px);}
-  .support-tiers{grid-template-columns:repeat(2,1fr);gap:14px;}
-  .support-sectionAsk{flex-direction:column;text-align:center;}
-  .support-askCta{width:100%;}
-  .support-statement{flex-direction:column;text-align:center;}
-  .support-statementIcon{margin:0 auto;}
+/* ───── responsive ───── */
+@media (max-width:1000px){
+  .cst-films{grid-template-columns:repeat(2,1fr);}
+  .cst-film:last-child{display:none;}
+  .cst-tiers{grid-template-columns:repeat(2,1fr);}
+  .cst-row{grid-template-columns:52px 1fr;grid-template-rows:auto auto;}
+  .cst-rowText{grid-column:2;}
 }
-@media (max-width:620px){
-  .support-hero{width:calc(100% - 32px);margin:40px auto 52px;}
-  .support-title{font-size:clamp(2.5rem,10vw,3.2rem);}
-  .support-desc{font-size:15px;margin:0 0 14px;}
-  .support-ctas{flex-direction:column;gap:10px;width:100%;}
-  .support-cta,.support-secondary{width:100%;}
-  .support-section{width:calc(100% - 32px);margin:0 auto 52px;}
-  .support-sectionTitle{font-size:28px;}
-  .support-tabs{margin-bottom:20px;}
-  .support-tab{margin-right:20px;padding:12px 0;font-size:14px;}
-  .support-fundingGrid{grid-template-columns:1fr;}
-  .support-tiers{grid-template-columns:1fr;gap:12px;}
-  .support-testimonials{grid-template-columns:1fr;}
-  .support-metrics{grid-template-columns:repeat(2,1fr);}
-  .support-clarity{gap:14px;padding:18px;flex-direction:column;text-align:center;}
-  .support-clarityIcon{width:40px;height:40px;}
-  .support-saintsList{grid-template-columns:1fr;}
+@media (max-width:780px){
+  .cst-missionCols{grid-template-columns:1fr;}
+  .cst-slate{grid-template-columns:1fr;}
+  .cst-band{grid-template-columns:repeat(2,1fr);}
+  .cst-band>div:nth-child(3){border-left:0;}
+  .cst-band>div:nth-child(n+3){border-top:1px solid var(--hairline-soft);}
+}
+@media (max-width:600px){
+  .cst-barLink{display:none;}
+  .cst-markText{font-size:14px;letter-spacing:.1em;}
+  .cst-hero{padding-top:64px;}
+  .cst-kicker{letter-spacing:.22em;font-size:11px;}
+  .cst-heroCtas{flex-direction:column;align-items:stretch;}
+  .cst-cta,.cst-ghost{justify-content:center;width:100%;}
+  .cst-films{grid-template-columns:1fr;}
+  .cst-film:last-child{display:flex;}
+  .cst-tiers{grid-template-columns:1fr;gap:14px;}
+  .cst-tierLine{min-height:0;}
+  .cst-row{padding:20px 2px;}
+  .cst-fine{padding:20px;}
 }
 @media (prefers-reduced-motion:reduce){
-  .support-tabContent,.support-tier,.support-tierCta,.support-askCta{transition:none;}
-  .support-tier:hover{transform:none;}
+  .cst *{transition:none!important;}
+  .cst-film:hover,.cst-tier:hover,.cst-cta:hover{transform:none;}
 }
 `;
