@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Inter } from "next/font/google";
-import SiteNav from "../../components/SiteNav";
+import SiteNav from "../../../components/SiteNav";
 import type { ReactNode } from "react";
 
 const ui = Inter({ subsets: ["latin"], variable: "--cp-ui", display: "swap" });
