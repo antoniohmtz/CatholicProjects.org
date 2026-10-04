@@ -43,36 +43,37 @@ type Lang = "en" | "es";
    FEATURED (4): autoplaying players. Keep this at four — each one is
    a live Facebook player and more gets heavy.
    MORE: as many as you like — lightweight rows, no players.
-   Stats are strings so you can write "56.1K", "1.2M", "—". Combine
-   platforms however you count them (TODO: fill in real numbers). */
-type Stats = { views: string; likes: string; shares: string };
+   Stats are what Facebook shows under the post: likes · comments · shares.
+   Strings, so "1.8K", "716", "—" all work. */
+type Stats = { likes: string; comments: string; shares: string };
 type Film = { slug: string; title: string; lang: "English" | "Español"; logline: string; stats: Stats; ig: string; fb: string };
 
 const FEATURED: Film[] = [
   {
     slug: "sebastian", title: "Saint Sebastian", lang: "English",
     logline: "A captain of the Emperor's guard who served another King — and would not deny Him, even under the arrows.",
-    stats: { views: "", likes: "", shares: "" }, // TODO: real numbers
+    stats: { likes: "1.8K", comments: "134", shares: "243" },
     ig: "https://www.instagram.com/reel/DdmraoEBnF8/",
     fb: "https://fb.watch/v/79fkexHl-/",
   },
   {
     slug: "sheen", title: "Blessed Fulton Sheen", lang: "English",
     logline: "A bishop, a chalkboard, and a television camera — and thirty million people listening.",
-    stats: { views: "19.5K", likes: "—", shares: "—" },
+    stats: { likes: "1.9K", comments: "61", shares: "245" },
     ig: "https://www.instagram.com/reel/DduZyldBW9M/", fb: "https://fb.watch/v/6tDwOkXld/",
   },
   {
     slug: "alacoque", title: "Santa Margarita María de Alacoque", lang: "Español",
     logline: "Jesús le mostró Su Corazón ardiendo de amor — y le confió una misión para toda la Iglesia.",
-    stats: { views: "31.7K", likes: "3.6K", shares: "418" },
+    stats: { likes: "3.6K", comments: "269", shares: "418" },
     ig: "https://www.instagram.com/reel/Dd4tluZBbbc/", fb: "https://fb.watch/v/84XezVsW2/",
   },
   {
-    slug: "gines", title: "San Ginés de Roma", lang: "Español",
-    logline: "Un actor que se burlaba de los cristianos en escena — hasta que, a mitad de la obra, creyó.",
-    stats: { views: "—", likes: "—", shares: "—" },
-    ig: INSTAGRAM_URL, fb: "https://fb.watch/v/7WGZBbZ1Q/", // TODO: direct Instagram reel
+    slug: "vicente", title: "San Vicente de Paúl", lang: "Español",
+    logline: "Quiso dejar atrás la pobreza — pero Dios lo llevó de nuevo hacia los pobres.",
+    stats: { likes: "3.8K", comments: "82", shares: "653" },
+    ig: INSTAGRAM_URL, // TODO: direct Instagram reel link
+    fb: "https://fb.watch/v/8TdVcu_P_/",
   },
 ];
 
@@ -80,14 +81,15 @@ const FEATURED: Film[] = [
    they load lazily as people scroll. Each needs a Facebook link. */
 const MORE: Film[] = [
   // Empty = the "More stories" row doesn't render. Uncomment to add a second row:
-  // { slug: "vincent", title: "Saint Vincent de Paul", lang: "English", logline: "He wanted to rise above poverty — then God led him back to the poor.", stats: { views: "53.3K", likes: "3.5K", shares: "607" }, ig: INSTAGRAM_URL, fb: "https://www.facebook.com/reel/958525383998552" },
-  // { slug: "damian-es", title: "San Damián de Molokai", lang: "Español", logline: "Eligió vivir con los enviados lejos por la lepra — sabiendo que quizá nunca volvería.", stats: { views: "56.1K", likes: "748", shares: "100" }, ig: "https://www.instagram.com/reel/DeAb99UBwNT/", fb: "https://www.facebook.com/reel/2563206477478130" },
+  // { slug: "vincent", title: "Saint Vincent de Paul", lang: "English", logline: "He wanted to rise above poverty — then God led him back to the poor.", stats: { likes: "3.5K", comments: "77", shares: "607" }, ig: INSTAGRAM_URL, fb: "https://www.facebook.com/reel/958525383998552" },
+  // { slug: "damian-es", title: "San Damián de Molokai", lang: "Español", logline: "Eligió vivir con los enviados lejos por la lepra — sabiendo que quizá nunca volvería.", stats: { likes: "4.8K", comments: "179", shares: "716" }, ig: "https://www.instagram.com/reel/DeAb99UBwNT/", fb: "https://www.facebook.com/reel/2563206477478130" },
+  // { slug: "gines", title: "San Ginés de Roma", lang: "Español", logline: "Un actor que se burlaba de los cristianos en escena — hasta que, a mitad de la obra, creyó.", stats: { likes: "", comments: "", shares: "" }, ig: INSTAGRAM_URL, fb: "https://fb.watch/v/7WGZBbZ1Q/" },
 ];
 
 /* Mission section plays this reel (no image needed). */
 const MISSION_REEL: Film = {
   slug: "damian-es", title: "San Damián de Molokai", lang: "Español", logline: "",
-  stats: { views: "", likes: "", shares: "" },
+  stats: { likes: "4.8K", comments: "179", shares: "716" },
   ig: "https://www.instagram.com/reel/DeAb99UBwNT/", fb: "https://www.facebook.com/reel/2563206477478130",
 };
 
@@ -115,7 +117,7 @@ const COPY = {
     showingLede: "Every film is free to watch. These are the ones traveling furthest right now.",
     watch: "Watch on Instagram",
     watchFb: "Watch on Facebook",
-    views: "views", likes: "likes", shares: "shares",
+    likes: "likes", comments: "comments", shares: "shares",
     moreH3: "More stories",
     seeAll: "All 102 stories, free, on Instagram & Facebook →",
     quote: "Verso l'alto — To the heights.",
@@ -216,7 +218,7 @@ const COPY = {
     showingLede: "Todas las películas son gratis. Estas son las que más lejos están llegando ahora.",
     watch: "Ver en Instagram",
     watchFb: "Ver en Facebook",
-    views: "vistas", likes: "me gusta", shares: "compartidos",
+    likes: "me gusta", comments: "comentarios", shares: "compartidos",
     moreH3: "Más historias",
     seeAll: "Las 102 historias, gratis, en Instagram y Facebook →",
     quote: "Verso l'alto — Hacia lo alto.",
@@ -405,8 +407,8 @@ function FilmCard({ film, t, lang }: { film: Film; t: (typeof COPY)[Lang]; lang:
         <h3 className="cst-filmTitle">{film.title}</h3>
         {film.logline && <p className="cst-filmLogline">{film.logline}</p>}
         <dl className="cst-stats">
-          <div><dt>{film.stats.views || "—"}</dt><dd>{t.views}</dd></div>
           <div><dt>{film.stats.likes || "—"}</dt><dd>{t.likes}</dd></div>
+          <div><dt>{film.stats.comments || "—"}</dt><dd>{t.comments}</dd></div>
           <div><dt>{film.stats.shares || "—"}</dt><dd>{t.shares}</dd></div>
         </dl>
         <a className="cst-filmWatch" href={film.ig || film.fb} target="_blank" rel="noopener noreferrer">
