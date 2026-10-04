@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect } from "react";
 import { Inter, Cormorant_Garamond } from "next/font/google";
 import type { ReactNode } from "react";
 
@@ -14,19 +14,20 @@ const serif = Cormorant_Garamond({
 });
 
 /* -----------------------------------------------------------
-   Catholic Saint Stories — Support  (v4, cinematic)
+   Catholic Saint Stories — Support  (v5, cinematic, no video hosting)
 
-   Assets live in /public/saint-stories/  — see ASSETS below.
-   Every video is muted + looping; the Facebook reel plays
-   with sound only when someone clicks Watch (lightbox).
-   Everything degrades gracefully until the files exist.
+   Videos play straight from Facebook (muted autoplay) — nothing
+   to upload. Only three small images live in /public/saint-stories/:
+     banner.jpg    your Facebook cover art (hero + story break)
+     damian.jpg    one still from the Damián film (mission section)
+     antonio.jpg   your photo (creator note)
+   Keep each under ~2MB. Everything degrades gracefully if missing.
 ------------------------------------------------------------ */
 
 const A = "/saint-stories";
 const ASSETS = {
-  heroVideo: `${A}/hero.mp4`,
-  heroPoster: `${A}/banner.jpg`,
   banner: `${A}/banner.jpg`,
+  still: `${A}/damian.jpg`,
   creator: `${A}/antonio.jpg`,
 };
 
@@ -111,9 +112,6 @@ const I = {
   arrow: (<><path d="M5 12h14" /><path d="m13 6 6 6-6 6" /></>),
   down: (<><path d="M12 5v14" /><path d="m6 13 6 6 6-6" /></>),
   play: (<><polygon points="6 4 20 12 6 20 6 4" /></>),
-  close: (<><path d="M18 6 6 18M6 6l12 12" /></>),
-  mute: (<><path d="M11 5 6 9H3v6h3l5 4z" /><path d="m22 9-6 6M16 9l6 6" /></>),
-  sound: (<><path d="M11 5 6 9H3v6h3l5 4z" /><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13" /></>),
 };
 
 /* ── scroll reveal ── */
@@ -130,68 +128,41 @@ function useReveal() {
   }, []);
 }
 
-/* ── film card: still → loops on hover / tap ── */
-function FilmCard({ film, onWatch }: { film: Film; onWatch: (f: Film) => void }) {
-  const vid = useRef<HTMLVideoElement>(null);
-  const [live, setLive] = useState(false);
-  const play = () => { const v = vid.current; if (!v) return; v.play().then(() => setLive(true)).catch(() => {}); };
-  const stop = () => { const v = vid.current; if (!v) return; v.pause(); v.currentTime = 0; setLive(false); };
+/* ── film card: the Facebook reel itself, autoplaying muted ── */
+function fbEmbed(url: string) {
+  return `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&autoplay=true&mute=true&show_text=false&allowfullscreen=true`;
+}
 
+function FilmCard({ film }: { film: Film }) {
   return (
-    <article className={`cst-film ${live ? "is-live" : ""}`} data-reveal onMouseEnter={play} onMouseLeave={stop} onFocus={play} onBlur={stop}>
-      <button className="cst-poster" onClick={() => onWatch(film)} aria-label={`Watch ${film.title}`}
-        style={{ backgroundImage: `url(${A}/${film.slug}.jpg)` }}>
-        <video ref={vid} className="cst-posterVideo" muted loop playsInline preload="metadata" poster={`${A}/${film.slug}.jpg`}>
-          <source src={`${A}/${film.slug}.mp4`} type="video/mp4" />
-        </video>
-        <span className="cst-posterShade" aria-hidden="true" />
-        <span className="cst-posterCross" aria-hidden="true">✠</span>
+    <article className="cst-film" data-reveal>
+      <div className="cst-poster">
+        <iframe
+          className="cst-posterFrame"
+          src={fbEmbed(film.fb)}
+          title={film.title}
+          loading="lazy"
+          allow="autoplay; encrypted-media; picture-in-picture; web-share"
+          allowFullScreen
+        />
         <span className="cst-lang">{film.lang}</span>
-        <span className="cst-playBtn" aria-hidden="true"><Svg sw={1.8}>{I.play}</Svg></span>
-      </button>
+      </div>
       <div className="cst-filmBody">
         <h3 className="cst-filmTitle">{film.title}</h3>
         <p className="cst-filmLogline">{film.logline}</p>
         <div className="cst-filmFoot">
           <span className="cst-filmProof">{film.proof}</span>
-          <button className="cst-filmWatch" onClick={() => onWatch(film)}>Watch <Svg sw={2.2}>{I.arrow}</Svg></button>
+          <a className="cst-filmWatch" href={film.fb} target="_blank" rel="noopener noreferrer">
+            Watch with sound <Svg sw={2.2}>{I.arrow}</Svg>
+          </a>
         </div>
       </div>
     </article>
   );
 }
 
-/* ── lightbox: the Facebook reel, with sound, on demand ── */
-function Lightbox({ film, onClose }: { film: Film | null; onClose: () => void }) {
-  useEffect(() => {
-    if (!film) return;
-    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
-    document.addEventListener("keydown", onKey);
-    document.body.style.overflow = "hidden";
-    return () => { document.removeEventListener("keydown", onKey); document.body.style.overflow = ""; };
-  }, [film, onClose]);
-  if (!film) return null;
-  const src = `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(film.fb)}&autoplay=true&show_text=false&width=476`;
-  return (
-    <div className="cst-lb" role="dialog" aria-modal="true" aria-label={film.title} onClick={onClose}>
-      <div className="cst-lbInner" onClick={(e) => e.stopPropagation()}>
-        <button className="cst-lbClose" onClick={onClose} aria-label="Close"><Svg sw={2}>{I.close}</Svg></button>
-        <div className="cst-lbFrame">
-          <iframe src={src} title={film.title} allow="autoplay; encrypted-media; picture-in-picture; web-share" allowFullScreen />
-        </div>
-        <p className="cst-lbMeta"><span>{film.title}</span><a href={film.fb} target="_blank" rel="noopener noreferrer">Open on Facebook <Svg sw={2.2}>{I.arrow}</Svg></a></p>
-      </div>
-    </div>
-  );
-}
-
 export default function SupportPage() {
   useReveal();
-  const [watching, setWatching] = useState<Film | null>(null);
-  const closeWatch = useCallback(() => setWatching(null), []);
-  const heroVid = useRef<HTMLVideoElement>(null);
-  const [muted, setMuted] = useState(true);
-  const toggleMute = () => { const v = heroVid.current; if (!v) return; v.muted = !v.muted; setMuted(v.muted); };
 
   const pct = Math.min(100, Math.round((GOAL.patrons / GOAL.target) * 100));
 
@@ -214,12 +185,10 @@ export default function SupportPage() {
       <main>
         {/* ═══════════ HERO ═══════════ */}
         <section className="cst-hero">
-          <video ref={heroVid} className="cst-heroVideo" autoPlay muted loop playsInline poster={ASSETS.heroPoster} aria-hidden="true">
-            <source src={ASSETS.heroVideo} type="video/mp4" />
-          </video>
+          <div className="cst-heroArt" style={{ backgroundImage: `url(${ASSETS.banner})` }} aria-hidden="true" />
+          <div className="cst-heroDawn" aria-hidden="true" />
+          <div className="cst-heroRays" aria-hidden="true" />
           <div className="cst-heroShade" aria-hidden="true" />
-          <div className="cst-letterbox cst-letterboxTop" aria-hidden="true" />
-          <div className="cst-letterbox cst-letterboxBot" aria-hidden="true" />
 
           <div className="cst-heroInner">
             <p className="cst-kicker">Real saints · True stories · Eternal inspiration</p>
@@ -238,9 +207,6 @@ export default function SupportPage() {
             </div>
           </div>
 
-          <button className="cst-muteBtn" onClick={toggleMute} aria-label={muted ? "Unmute" : "Mute"}>
-            <Svg sw={1.8}>{muted ? I.mute : I.sound}</Svg>
-          </button>
           <a className="cst-scrollCue" href="#films" aria-label="Scroll"><Svg sw={1.6}>{I.down}</Svg></a>
         </section>
 
@@ -260,7 +226,7 @@ export default function SupportPage() {
             <p className="cst-lede">Every film is free to watch. These are the ones traveling furthest right now.</p>
           </div>
           <div className="cst-films">
-            {FILMS.map((f) => <FilmCard key={f.slug} film={f} onWatch={setWatching} />)}
+            {FILMS.map((f) => <FilmCard key={f.slug} film={f} />)}
           </div>
           <p className="cst-seeAll" data-reveal>
             <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer">All 102 stories, free, on Instagram & Facebook →</a>
@@ -278,7 +244,7 @@ export default function SupportPage() {
 
         {/* ═══════════ MISSION (split) ═══════════ */}
         <section className="cst-section cst-mission">
-          <div className="cst-missionStill" data-reveal style={{ backgroundImage: `url(${A}/damian.jpg)` }}>
+          <div className="cst-missionStill" data-reveal style={{ backgroundImage: `url(${ASSETS.still})` }}>
             <span className="cst-missionCap">San Damián de Molokai — from the film</span>
           </div>
           <div className="cst-missionCopy" data-reveal>
@@ -416,8 +382,6 @@ export default function SupportPage() {
         </p>
         <p className="cst-footFine">CatholicProjects is an independent Catholic project and does not imply parish, diocesan, or ecclesial endorsement unless specifically stated.</p>
       </footer>
-
-      <Lightbox film={watching} onClose={closeWatch} />
     </div>
   );
 }
@@ -460,24 +424,39 @@ const CSS = `
 .cst-barCta{padding:9px 18px;border:1px solid var(--gold-dim);border-radius:999px;color:var(--gold-bright);font-size:12.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;transition:background 160ms,color 160ms;}
 .cst-barCta:hover{background:var(--gold);color:#17110A;}
 
-/* hero */
+/* hero — golden dawn: light pours in from above, like the sky in the banner */
 .cst-hero{position:relative;min-height:100svh;display:flex;align-items:center;justify-content:center;overflow:hidden;
-  background:radial-gradient(60% 50% at 50% 35%,rgba(201,163,86,.14),transparent 70%),var(--bg);}
-.cst-heroVideo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 30%;z-index:0;
-  animation:cst-kb 28s ease-in-out infinite alternate;filter:saturate(.92) contrast(1.04);}
+  background:linear-gradient(180deg,#3A2A14 0%,#24190F 45%,var(--bg) 100%);}
+.cst-heroArt{position:absolute;inset:-4%;z-index:0;background-size:cover;background-position:center 28%;
+  filter:saturate(1.05) brightness(.95);animation:cst-kb 36s ease-in-out infinite alternate;}
 @keyframes cst-kb{from{transform:scale(1)}to{transform:scale(1.07)}}
-.cst-heroShade{position:absolute;inset:0;z-index:1;
+.cst-heroDawn{position:absolute;inset:0;z-index:1;mix-blend-mode:screen;
   background:
-    radial-gradient(70% 60% at 50% 45%,rgba(18,13,9,.1),rgba(18,13,9,.78) 100%),
-    linear-gradient(180deg,rgba(18,13,9,.55) 0%,rgba(18,13,9,.15) 35%,rgba(18,13,9,.35) 70%,var(--bg) 100%);}
-.cst-letterbox{position:absolute;left:0;right:0;height:clamp(18px,3vh,36px);background:var(--bg);z-index:2;}
-.cst-letterboxTop{top:0}.cst-letterboxBot{bottom:0}
-.cst-heroInner{position:relative;z-index:3;max-width:900px;padding:120px 20px 110px;text-align:center;}
-.cst-kicker{margin:0 0 26px;color:var(--gold-bright);font-size:12px;font-weight:700;letter-spacing:.34em;text-transform:uppercase;text-shadow:0 2px 24px rgba(0,0,0,.6);}
-.cst-h1{margin:0 auto 24px;font-family:var(--serif);font-weight:600;font-size:clamp(3rem,7.6vw,5.8rem);line-height:1.02;letter-spacing:-.015em;text-shadow:0 4px 40px rgba(0,0,0,.6);}
+    radial-gradient(55% 48% at 50% 0%,rgba(255,220,140,.55),rgba(230,180,90,.22) 40%,transparent 72%),
+    radial-gradient(35% 30% at 50% 8%,rgba(255,240,200,.45),transparent 70%);
+  animation:cst-breathe 9s ease-in-out infinite alternate;}
+@keyframes cst-breathe{from{opacity:.85}to{opacity:1}}
+.cst-heroRays{position:absolute;inset:-20% 0 0;z-index:1;mix-blend-mode:screen;opacity:.35;pointer-events:none;
+  background:conic-gradient(from 180deg at 50% 0%,
+    transparent 0 8%, rgba(255,225,160,.18) 10%, transparent 12%,
+    transparent 20%, rgba(255,225,160,.14) 22%, transparent 24%,
+    transparent 30%, rgba(255,225,160,.2) 32%, transparent 34%,
+    transparent 40%, rgba(255,225,160,.12) 42%, transparent 44%,
+    transparent 56%, rgba(255,225,160,.12) 58%, transparent 60%,
+    transparent 66%, rgba(255,225,160,.2) 68%, transparent 70%,
+    transparent 76%, rgba(255,225,160,.14) 78%, transparent 80%,
+    transparent 88%, rgba(255,225,160,.18) 90%, transparent 92%);
+  -webkit-mask-image:radial-gradient(70% 90% at 50% 0%,#000 30%,transparent 100%);mask-image:radial-gradient(70% 90% at 50% 0%,#000 30%,transparent 100%);}
+.cst-heroShade{position:absolute;inset:0;z-index:2;
+  background:
+    radial-gradient(60% 55% at 50% 60%,rgba(18,13,9,.35),rgba(18,13,9,.55) 100%),
+    linear-gradient(180deg,rgba(18,13,9,.05) 0%,rgba(18,13,9,.2) 45%,rgba(18,13,9,.6) 80%,var(--bg) 100%);}
+.cst-heroInner{position:relative;z-index:3;max-width:900px;padding:140px 20px 120px;text-align:center;}
+.cst-kicker{margin:0 0 26px;color:var(--gold-bright);font-size:12px;font-weight:700;letter-spacing:.34em;text-transform:uppercase;text-shadow:0 2px 24px rgba(0,0,0,.7);}
+.cst-h1{margin:0 auto 24px;font-family:var(--serif);font-weight:600;font-size:clamp(3rem,7.6vw,5.8rem);line-height:1.02;letter-spacing:-.015em;color:#FBF4E6;text-shadow:0 2px 6px rgba(0,0,0,.35),0 10px 50px rgba(0,0,0,.7);}
 .cst-h1 em{display:block;margin-top:10px;font-style:italic;font-weight:500;font-size:.56em;
-  background:linear-gradient(100deg,var(--gold) 10%,var(--gold-bright) 45%,var(--gold) 90%);-webkit-background-clip:text;background-clip:text;color:transparent;}
-.cst-heroSub{margin:0 auto;max-width:56ch;color:#D9CDB8;font-size:clamp(1rem,1.5vw,1.15rem);line-height:1.75;text-shadow:0 2px 20px rgba(0,0,0,.7);}
+  background:linear-gradient(100deg,#E6C97F 10%,#FFF0C8 45%,#E6C97F 90%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 2px 14px rgba(0,0,0,.55));}
+.cst-heroSub{margin:0 auto;max-width:56ch;color:#E9DEC8;font-size:clamp(1rem,1.5vw,1.15rem);line-height:1.75;text-shadow:0 2px 20px rgba(0,0,0,.8);}
 .cst-heroCtas{margin:38px auto 0;display:flex;justify-content:center;flex-wrap:wrap;gap:14px;}
 .cst-cta{display:inline-flex;align-items:center;gap:10px;min-height:54px;padding:15px 26px;border-radius:999px;
   background:linear-gradient(135deg,#E6C97F,#C9A356 55%,#A8823C);color:#17110A;font-size:15px;font-weight:800;box-shadow:0 10px 36px -10px rgba(201,163,86,.6);transition:transform 160ms,box-shadow 160ms;}
@@ -487,10 +466,6 @@ const CSS = `
   background:rgba(18,13,9,.35);backdrop-filter:blur(8px);font-size:15px;font-weight:700;transition:border-color 160ms,background 160ms;}
 .cst-ghost:hover{border-color:var(--gold-dim);background:rgba(201,163,86,.12);}
 .cst-ghostIcon{width:14px;height:14px;color:var(--gold-bright);}
-.cst-muteBtn{position:absolute;right:clamp(20px,4vw,44px);bottom:clamp(44px,7vh,64px);z-index:4;width:42px;height:42px;display:flex;align-items:center;justify-content:center;
-  border:1px solid rgba(243,234,218,.25);border-radius:50%;background:rgba(18,13,9,.5);backdrop-filter:blur(8px);color:var(--text);transition:border-color 150ms,background 150ms;}
-.cst-muteBtn:hover{border-color:var(--gold-dim);background:rgba(201,163,86,.15);}
-.cst-muteBtn svg{width:18px;height:18px;}
 .cst-scrollCue{position:absolute;left:50%;bottom:clamp(44px,7vh,64px);transform:translateX(-50%);z-index:4;color:var(--gold-bright);opacity:.7;animation:cst-cue 2.4s ease-in-out infinite;}
 .cst-scrollCue svg{width:22px;height:22px;}
 @keyframes cst-cue{0%,100%{transform:translate(-50%,0)}50%{transform:translate(-50%,8px)}}
@@ -513,16 +488,10 @@ const CSS = `
 /* films */
 .cst-films{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;}
 .cst-film{display:flex;flex-direction:column;border:1px solid var(--hair-soft);border-radius:20px;overflow:hidden;background:var(--panel);transition:transform 260ms ease,border-color 260ms,box-shadow 260ms;}
-.cst-film:hover,.cst-film.is-live{transform:translateY(-6px);border-color:var(--gold-dim);box-shadow:0 36px 70px -34px rgba(0,0,0,.95),0 0 0 1px rgba(201,163,86,.08);}
-.cst-poster{position:relative;display:block;width:100%;aspect-ratio:4/5;padding:0;background-size:cover;background-position:center 20%;background-color:var(--panel2);overflow:hidden;}
-.cst-posterVideo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 20%;opacity:0;transition:opacity 500ms ease;}
-.cst-film.is-live .cst-posterVideo{opacity:1;}
-.cst-posterShade{position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,rgba(18,13,9,.25) 0%,transparent 30%,transparent 55%,rgba(18,13,9,.9) 100%);}
-.cst-posterCross{position:absolute;top:50%;left:50%;transform:translate(-50%,-62%);z-index:0;font-family:var(--serif);font-size:72px;color:rgba(201,163,86,.16);}
-.cst-lang{position:absolute;top:14px;left:14px;z-index:2;padding:5px 11px;border:1px solid rgba(230,201,127,.4);border-radius:999px;background:rgba(18,13,9,.55);backdrop-filter:blur(6px);color:var(--gold-bright);font-size:10.5px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;}
-.cst-playBtn{position:absolute;right:16px;bottom:16px;z-index:2;width:48px;height:48px;display:flex;align-items:center;justify-content:center;border:1px solid rgba(230,201,127,.5);border-radius:50%;background:rgba(18,13,9,.6);backdrop-filter:blur(6px);color:var(--gold-bright);transition:background 180ms,color 180ms,transform 180ms;}
-.cst-playBtn svg{width:16px;height:16px;margin-left:2px;}
-.cst-film:hover .cst-playBtn{background:var(--gold);color:#17110A;transform:scale(1.06);}
+.cst-film:hover{transform:translateY(-6px);border-color:var(--gold-dim);box-shadow:0 36px 70px -34px rgba(0,0,0,.95),0 0 0 1px rgba(201,163,86,.08);}
+.cst-poster{position:relative;display:block;width:100%;aspect-ratio:9/16;background:#000;overflow:hidden;}
+.cst-posterFrame{position:absolute;inset:0;width:100%;height:100%;border:0;display:block;background:#000;}
+.cst-lang{position:absolute;top:14px;left:14px;z-index:2;pointer-events:none;padding:5px 11px;border:1px solid rgba(230,201,127,.4);border-radius:999px;background:rgba(18,13,9,.6);backdrop-filter:blur(6px);color:var(--gold-bright);font-size:10.5px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;}
 .cst-filmBody{display:flex;flex-direction:column;flex:1;padding:20px 22px 18px;}
 .cst-filmTitle{margin:0;font-family:var(--serif);font-weight:600;font-size:25px;line-height:1.15;}
 .cst-filmLogline{margin:9px 0 0;color:var(--muted);font-family:var(--serif);font-style:italic;font-size:17px;line-height:1.55;}
@@ -611,19 +580,6 @@ const CSS = `
 .cst-fine p{margin:0;color:var(--faint);font-size:13.5px;line-height:1.75;}
 .cst-fine strong{color:var(--muted);}
 
-/* lightbox */
-.cst-lb{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(10,7,5,.92);backdrop-filter:blur(10px);animation:cst-fade 200ms ease;}
-@keyframes cst-fade{from{opacity:0}to{opacity:1}}
-.cst-lbInner{position:relative;width:min(480px,100%);}
-.cst-lbClose{position:absolute;top:-48px;right:0;width:40px;height:40px;display:flex;align-items:center;justify-content:center;border:1px solid rgba(243,234,218,.25);border-radius:50%;color:var(--text);transition:background 150ms;}
-.cst-lbClose:hover{background:rgba(201,163,86,.15);}
-.cst-lbClose svg{width:18px;height:18px;}
-.cst-lbFrame{aspect-ratio:9/16;max-height:78svh;border-radius:16px;overflow:hidden;background:#000;border:1px solid var(--hair);}
-.cst-lbFrame iframe{width:100%;height:100%;border:0;display:block;}
-.cst-lbMeta{margin:14px 0 0;display:flex;justify-content:space-between;align-items:center;gap:12px;font-family:var(--serif);font-size:18px;}
-.cst-lbMeta a{display:inline-flex;align-items:center;gap:6px;font-family:var(--sans);font-size:12.5px;font-weight:700;color:var(--gold-bright);}
-.cst-lbMeta a svg{width:13px;height:13px;}
-
 /* footer */
 .cst-foot{margin-top:auto;padding:56px 20px 60px;border-top:1px solid var(--hair-soft);text-align:center;background:linear-gradient(180deg,transparent,rgba(201,163,86,.05));}
 .cst-footCross{display:block;color:var(--gold);font-size:22px;margin-bottom:12px;}
@@ -666,12 +622,9 @@ const CSS = `
   .cst-tierLine{min-height:0;}
   .cst-row{padding:20px 2px;}
   .cst-fine,.cst-creator{padding:20px;}
-  .cst-lbClose{top:-46px;}
 }
-@media (hover:none){ .cst-posterVideo{display:none;} }
 @media (prefers-reduced-motion:reduce){
   .cst *{transition:none!important;animation:none!important;}
   [data-reveal]{opacity:1;transform:none;}
-  .cst-heroVideo{animation:none;}
 }
 `;
