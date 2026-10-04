@@ -16,11 +16,10 @@ const serif = Cormorant_Garamond({
 /* -----------------------------------------------------------
    Catholic Saint Stories — Support  (v5, cinematic, no video hosting)
 
-   Videos play straight from Facebook (muted autoplay) — nothing
-   to upload. Only three small images live in /public/saint-stories/:
+   Videos play straight from Facebook/Instagram — nothing to upload.
+   Only two small images live in /public/saint-stories/:
      banner.jpg    your Facebook cover art (hero + story break)
      damian.jpg    one still from the Damián film (mission section)
-     antonio.jpg   your photo (creator note)
    Keep each under ~2MB. Everything degrades gracefully if missing.
 ------------------------------------------------------------ */
 
@@ -28,7 +27,6 @@ const A = "/saint-stories";
 const ASSETS = {
   banner: `${A}/banner.jpg`,
   still: `${A}/damian.jpg`,
-  creator: `${A}/antonio.jpg`,
 };
 
 const CONTACT = "team@catholicprojects.org";
@@ -37,16 +35,17 @@ const PAYPAL_LINK = "https://paypal.me/catholicsaintstories"; // TODO
 const FACEBOOK_URL = "https://www.facebook.com/people/Catholicsaintstories/61592672761916/";
 const INSTAGRAM_URL = "https://instagram.com/catholicsaintstories";
 
-/* Monthly goal — update by hand for now; wire to Stripe later. */
-const GOAL = { patrons: 0, target: 40, monthlyCost: "$500–700" };
-
+/* Films.  `fb` = Facebook reel URL → autoplays muted in the card.
+   No `fb` yet → the Instagram embed is used instead (thumbnail, click to play).
+   Paste the Facebook reel URL for each as you have it. */
 type Film = {
   slug: string;
   title: string;
   lang: "English" | "Español";
   logline: string;
   proof: string;
-  fb: string;
+  ig: string;
+  fb?: string;
 };
 
 const FILMS: Film[] = [
@@ -56,23 +55,26 @@ const FILMS: Film[] = [
     lang: "Español",
     logline: "Eligió vivir con los enviados lejos por la lepra — sabiendo que quizá nunca volvería.",
     proof: "56K+ views",
+    ig: "https://www.instagram.com/reel/DeAb99UBwNT/",
     fb: "https://www.facebook.com/reel/2563206477478130",
   },
   {
-    slug: "vincent",
-    title: "Saint Vincent de Paul",
+    slug: "sheen",
+    title: "Blessed Fulton Sheen",
     lang: "English",
-    logline: "He wanted to rise above poverty — then God led him back to the poor.",
-    proof: "3.5K reactions · 600+ shares",
-    fb: "https://www.facebook.com/reel/958525383998552",
+    logline: "A bishop, a chalkboard, and a television camera — and thirty million people listening.",
+    proof: "19K+ views",
+    ig: "https://www.instagram.com/reel/DduZyldBW9M/",
+    // fb: "https://www.facebook.com/reel/…",  ← TODO
   },
   {
-    slug: "sacred-heart",
-    title: "The Sacred Heart",
+    slug: "alacoque",
+    title: "Santa Margarita María de Alacoque",
     lang: "Español",
     logline: "Jesús le mostró Su Corazón ardiendo de amor — y le confió una misión para toda la Iglesia.",
     proof: "3.6K reactions · 400+ shares",
-    fb: FACEBOOK_URL, // TODO: direct reel link
+    ig: "https://www.instagram.com/reel/Dd4tluZBbbc/",
+    // fb: "https://www.facebook.com/reel/…",  ← TODO
   },
 ];
 
@@ -128,18 +130,22 @@ function useReveal() {
   }, []);
 }
 
-/* ── film card: the Facebook reel itself, autoplaying muted ── */
-function fbEmbed(url: string) {
-  return `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&autoplay=true&mute=true&show_text=false&allowfullscreen=true`;
+/* ── film card: Facebook reel autoplaying muted, or Instagram embed as fallback ── */
+function embedSrc(film: Film) {
+  if (film.fb) {
+    return `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(film.fb)}&autoplay=true&mute=true&show_text=false&allowfullscreen=true`;
+  }
+  const id = film.ig.match(/\/(?:reel|p)\/([^/?#]+)/)?.[1] ?? "";
+  return `https://www.instagram.com/reel/${id}/embed/`;
 }
 
 function FilmCard({ film }: { film: Film }) {
   return (
     <article className="cst-film" data-reveal>
-      <div className="cst-poster">
+      <div className={`cst-poster ${film.fb ? "" : "is-ig"}`}>
         <iframe
           className="cst-posterFrame"
-          src={fbEmbed(film.fb)}
+          src={embedSrc(film)}
           title={film.title}
           loading="lazy"
           allow="autoplay; encrypted-media; picture-in-picture; web-share"
@@ -152,8 +158,8 @@ function FilmCard({ film }: { film: Film }) {
         <p className="cst-filmLogline">{film.logline}</p>
         <div className="cst-filmFoot">
           <span className="cst-filmProof">{film.proof}</span>
-          <a className="cst-filmWatch" href={film.fb} target="_blank" rel="noopener noreferrer">
-            Watch with sound <Svg sw={2.2}>{I.arrow}</Svg>
+          <a className="cst-filmWatch" href={film.ig} target="_blank" rel="noopener noreferrer">
+            Watch on Instagram <Svg sw={2.2}>{I.arrow}</Svg>
           </a>
         </div>
       </div>
@@ -163,8 +169,6 @@ function FilmCard({ film }: { film: Film }) {
 
 export default function SupportPage() {
   useReveal();
-
-  const pct = Math.min(100, Math.round((GOAL.patrons / GOAL.target) * 100));
 
   return (
     <div className={`cst ${ui.variable} ${serif.variable}`}>
@@ -262,25 +266,8 @@ export default function SupportPage() {
               released free, so that a lapsed Catholic, a curious seeker, or a kid who has
               never heard of Molokai might stop scrolling — and meet a saint.
             </p>
-          </div>
-        </section>
-
-        {/* ═══════════ FROM THE CREATOR ═══════════ */}
-        <section className="cst-section">
-          <div className="cst-creator" data-reveal>
-            <div className="cst-creatorPhoto" style={{ backgroundImage: `url(${ASSETS.creator})` }} aria-hidden="true" />
-            <div className="cst-creatorBody">
-              <p className="cst-eyebrow">A note from the creator</p>
-              {/* TODO: replace with your own words — 3–4 sentences, first person. */}
-              <p className="cst-creatorText">
-                I'm a catechist in a small parish in California. I started making these
-                because the kids in my classes had never heard of the saints — but they had
-                all heard of whatever was in their feed that morning. So I decided the saints
-                should be in the feed too. Every film so far has been paid for out of my own
-                paycheck. If they've moved you, I'd be grateful for your help making the next one.
-              </p>
-              <p className="cst-creatorSig">— Antonio, <span>founder, CatholicProjects.org</span></p>
-            </div>
+            {/* Optional — delete this line if you'd rather stay unnamed. */}
+            <p className="cst-missionSig">— Antonio, <span>catechist · founder, CatholicProjects.org</span></p>
           </div>
         </section>
 
@@ -289,7 +276,7 @@ export default function SupportPage() {
           <div className="cst-head" data-reveal>
             <p className="cst-eyebrow">Where every dollar goes</p>
             <h2 className="cst-h2">What your support pays for</h2>
-            <p className="cst-lede">Each story costs real money to make — roughly {GOAL.monthlyCost} of production every month. Support goes to the work. No overhead, no middlemen.</p>
+            <p className="cst-lede">Each story costs real money to make. Support goes to the work — no overhead, no middlemen.</p>
           </div>
           <ol className="cst-ledger">
             {LEDGER.map((r) => (
@@ -328,16 +315,7 @@ export default function SupportPage() {
           <div className="cst-head cst-headCenter" data-reveal>
             <p className="cst-eyebrow">Become a patron</p>
             <h2 className="cst-h2">Help bring the next saint story to life</h2>
-            <p className="cst-lede">If these films have moved you, you can help make the next one. About forty monthly patrons covers an entire month of production.</p>
-          </div>
-
-          <div className="cst-goal" data-reveal>
-            <div className="cst-goalTop">
-              <span><strong>{GOAL.patrons}</strong> of {GOAL.target} patrons this month</span>
-              <span>{pct}%</span>
-            </div>
-            <div className="cst-goalBar"><span style={{ width: `${pct}%` }} /></div>
-            <p className="cst-goalNote">Updated monthly. When we reach {GOAL.target}, production is fully covered.</p>
+            <p className="cst-lede">If these films have moved you, you can help make the next one.</p>
           </div>
 
           <div className="cst-tiers">
@@ -425,7 +403,7 @@ const CSS = `
 .cst-barCta:hover{background:var(--gold);color:#17110A;}
 
 /* hero — golden dawn: light pours in from above, like the sky in the banner */
-.cst-hero{position:relative;min-height:100svh;display:flex;align-items:center;justify-content:center;overflow:hidden;
+.cst-hero{position:relative;min-height:min(88svh,820px);display:flex;align-items:center;justify-content:center;overflow:hidden;
   background:linear-gradient(180deg,#3A2A14 0%,#24190F 45%,var(--bg) 100%);}
 .cst-heroArt{position:absolute;inset:-4%;z-index:0;background-size:cover;background-position:center 28%;
   filter:saturate(1.05) brightness(.95);animation:cst-kb 36s ease-in-out infinite alternate;}
@@ -451,7 +429,7 @@ const CSS = `
   background:
     radial-gradient(60% 55% at 50% 60%,rgba(18,13,9,.35),rgba(18,13,9,.55) 100%),
     linear-gradient(180deg,rgba(18,13,9,.05) 0%,rgba(18,13,9,.2) 45%,rgba(18,13,9,.6) 80%,var(--bg) 100%);}
-.cst-heroInner{position:relative;z-index:3;max-width:900px;padding:140px 20px 120px;text-align:center;}
+.cst-heroInner{position:relative;z-index:3;max-width:900px;padding:110px 20px 96px;text-align:center;}
 .cst-kicker{margin:0 0 26px;color:var(--gold-bright);font-size:12px;font-weight:700;letter-spacing:.34em;text-transform:uppercase;text-shadow:0 2px 24px rgba(0,0,0,.7);}
 .cst-h1{margin:0 auto 24px;font-family:var(--serif);font-weight:600;font-size:clamp(3rem,7.6vw,5.8rem);line-height:1.02;letter-spacing:-.015em;color:#FBF4E6;text-shadow:0 2px 6px rgba(0,0,0,.35),0 10px 50px rgba(0,0,0,.7);}
 .cst-h1 em{display:block;margin-top:10px;font-style:italic;font-weight:500;font-size:.56em;
@@ -466,20 +444,20 @@ const CSS = `
   background:rgba(18,13,9,.35);backdrop-filter:blur(8px);font-size:15px;font-weight:700;transition:border-color 160ms,background 160ms;}
 .cst-ghost:hover{border-color:var(--gold-dim);background:rgba(201,163,86,.12);}
 .cst-ghostIcon{width:14px;height:14px;color:var(--gold-bright);}
-.cst-scrollCue{position:absolute;left:50%;bottom:clamp(44px,7vh,64px);transform:translateX(-50%);z-index:4;color:var(--gold-bright);opacity:.7;animation:cst-cue 2.4s ease-in-out infinite;}
+.cst-scrollCue{position:absolute;left:50%;bottom:clamp(28px,5vh,44px);transform:translateX(-50%);z-index:4;color:var(--gold-bright);opacity:.7;animation:cst-cue 2.4s ease-in-out infinite;}
 .cst-scrollCue svg{width:22px;height:22px;}
 @keyframes cst-cue{0%,100%{transform:translate(-50%,0)}50%{transform:translate(-50%,8px)}}
 
 /* band */
-.cst-band{width:min(840px,calc(100% - 40px));margin:-8px auto 0;display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);}
-.cst-band>div{padding:24px 10px;display:flex;flex-direction:column;gap:5px;text-align:center;}
+.cst-band{width:min(840px,calc(100% - 40px));margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);}
+.cst-band>div{padding:20px 10px;display:flex;flex-direction:column;gap:5px;text-align:center;}
 .cst-band>div+div{border-left:1px solid var(--hair-soft);}
 .cst-band dt{margin:0;font-family:var(--serif);font-weight:600;font-size:clamp(1.6rem,2.8vw,2.2rem);color:var(--gold-bright);line-height:1;}
 .cst-band dd{margin:0;color:var(--faint);font-size:11.5px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;}
 
 /* sections */
-.cst-section{width:min(1200px,calc(100% - 40px));margin:0 auto;padding:clamp(64px,10vh,120px) 0 0;scroll-margin-top:40px;}
-.cst-head{max-width:660px;margin-bottom:clamp(32px,5vh,52px);}
+.cst-section{width:min(1200px,calc(100% - 40px));margin:0 auto;padding:clamp(48px,7vh,80px) 0 0;scroll-margin-top:40px;}
+.cst-head{max-width:660px;margin-bottom:clamp(24px,4vh,36px);}
 .cst-headCenter{margin-left:auto;margin-right:auto;text-align:center;}
 .cst-eyebrow{margin:0 0 14px;color:var(--gold);font-size:11.5px;font-weight:700;letter-spacing:.3em;text-transform:uppercase;}
 .cst-h2{margin:0;font-family:var(--serif);font-weight:600;font-size:clamp(2.1rem,4.4vw,3.4rem);line-height:1.08;letter-spacing:-.01em;}
@@ -491,6 +469,8 @@ const CSS = `
 .cst-film:hover{transform:translateY(-6px);border-color:var(--gold-dim);box-shadow:0 36px 70px -34px rgba(0,0,0,.95),0 0 0 1px rgba(201,163,86,.08);}
 .cst-poster{position:relative;display:block;width:100%;aspect-ratio:9/16;background:#000;overflow:hidden;}
 .cst-posterFrame{position:absolute;inset:0;width:100%;height:100%;border:0;display:block;background:#000;}
+/* Instagram fallback: crop its white header/footer so only the video shows */
+.cst-poster.is-ig .cst-posterFrame{top:-54px;height:calc(100% + 54px + 140px);}
 .cst-lang{position:absolute;top:14px;left:14px;z-index:2;pointer-events:none;padding:5px 11px;border:1px solid rgba(230,201,127,.4);border-radius:999px;background:rgba(18,13,9,.6);backdrop-filter:blur(6px);color:var(--gold-bright);font-size:10.5px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;}
 .cst-filmBody{display:flex;flex-direction:column;flex:1;padding:20px 22px 18px;}
 .cst-filmTitle{margin:0;font-family:var(--serif);font-weight:600;font-size:25px;line-height:1.15;}
@@ -505,10 +485,10 @@ const CSS = `
 .cst-seeAll a:hover{color:var(--gold-bright);border-color:var(--gold-dim);}
 
 /* story break */
-.cst-break{position:relative;margin-top:clamp(72px,11vh,130px);min-height:72svh;display:flex;align-items:center;justify-content:center;
+.cst-break{position:relative;margin-top:clamp(48px,7vh,80px);min-height:min(56svh,520px);display:flex;align-items:center;justify-content:center;
   background-size:cover;background-position:center 35%;background-attachment:fixed;background-color:var(--bg2);}
 .cst-breakShade{position:absolute;inset:0;background:linear-gradient(180deg,var(--bg) 0%,rgba(18,13,9,.45) 25%,rgba(18,13,9,.55) 75%,var(--bg) 100%);}
-.cst-quote{position:relative;width:min(860px,calc(100% - 40px));margin:0;padding:48px 0;text-align:center;}
+.cst-quote{position:relative;width:min(860px,calc(100% - 40px));margin:0;padding:32px 0;text-align:center;}
 .cst-quote blockquote{margin:0;font-family:var(--serif);font-style:italic;font-weight:500;color:var(--gold-bright);font-size:clamp(1.8rem,4vw,3rem);line-height:1.3;text-shadow:0 4px 40px rgba(0,0,0,.8);}
 .cst-quote figcaption{margin-top:20px;color:var(--text);font-size:12px;font-weight:700;letter-spacing:.3em;text-transform:uppercase;opacity:.8;}
 .cst-quote::before,.cst-quote::after{content:"";display:block;width:56px;height:1px;margin:0 auto;background:var(--gold-dim);}
@@ -522,18 +502,12 @@ const CSS = `
 .cst-missionCap{position:absolute;left:18px;bottom:16px;z-index:1;color:var(--muted);font-size:11.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;}
 .cst-missionCopy p:not(.cst-eyebrow){margin:18px 0 0;color:var(--muted);font-size:17px;line-height:1.85;}
 .cst-missionCopy em{color:var(--text);}
-
-/* creator */
-.cst-creator{display:grid;grid-template-columns:260px 1fr;gap:clamp(28px,4vw,56px);align-items:center;padding:clamp(28px,4vw,48px);
-  border:1px solid var(--hair);border-radius:24px;background:linear-gradient(135deg,rgba(201,163,86,.08),rgba(201,163,86,.02) 60%,transparent);}
-.cst-creatorPhoto{aspect-ratio:4/5;border-radius:18px;background-size:cover;background-position:center;background-color:var(--panel2);box-shadow:0 30px 60px -30px rgba(0,0,0,.9);}
-.cst-creatorText{margin:0;font-family:var(--serif);font-size:clamp(1.25rem,2vw,1.55rem);line-height:1.55;color:var(--text);}
-.cst-creatorSig{margin:22px 0 0;font-family:var(--serif);font-style:italic;font-size:19px;color:var(--gold-bright);}
-.cst-creatorSig span{font-style:normal;font-family:var(--sans);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint);margin-left:8px;}
+.cst-missionCopy .cst-missionSig{margin-top:24px;font-family:var(--serif);font-style:italic;font-size:19px;color:var(--gold-bright);line-height:1.4;}
+.cst-missionSig span{font-style:normal;font-family:var(--sans);font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint);margin-left:8px;}
 
 /* ledger */
 .cst-ledger{margin:0;padding:0;list-style:none;border-top:1px solid var(--hair);}
-.cst-row{display:grid;grid-template-columns:72px 260px 1fr;gap:20px;align-items:baseline;padding:28px 6px;border-bottom:1px solid var(--hair-soft);transition:background 160ms;}
+.cst-row{display:grid;grid-template-columns:72px 260px 1fr;gap:20px;align-items:baseline;padding:20px 6px;border-bottom:1px solid var(--hair-soft);transition:background 160ms;}
 .cst-row:hover{background:rgba(201,163,86,.03);}
 .cst-rowN{font-family:var(--serif);font-size:15px;color:var(--gold);letter-spacing:.1em;}
 .cst-rowTitle{font-family:var(--serif);font-weight:600;font-size:24px;}
@@ -541,7 +515,7 @@ const CSS = `
 
 /* slate */
 .cst-slate{margin:0;padding:0;list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:0 clamp(28px,5vw,72px);border-top:1px solid var(--hair);}
-.cst-saint{display:flex;align-items:center;gap:18px;padding:22px 6px;border-bottom:1px solid var(--hair-soft);}
+.cst-saint{display:flex;align-items:center;gap:18px;padding:16px 6px;border-bottom:1px solid var(--hair-soft);}
 .cst-saintN{font-family:var(--serif);font-size:14px;color:var(--gold);letter-spacing:.08em;}
 .cst-saintBody{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;}
 .cst-saintName{font-family:var(--serif);font-weight:600;font-size:20px;line-height:1.2;}
@@ -551,13 +525,7 @@ const CSS = `
 .cst-status.is-next{border-color:rgba(243,234,218,.22);color:var(--muted);}
 
 /* support */
-.cst-support{padding-bottom:clamp(72px,10vh,120px);}
-.cst-goal{max-width:620px;margin:0 auto 40px;}
-.cst-goalTop{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px;color:var(--muted);font-size:14px;}
-.cst-goalTop strong{color:var(--gold-bright);font-family:var(--serif);font-size:22px;font-weight:600;}
-.cst-goalBar{height:6px;border-radius:999px;background:rgba(243,234,218,.08);overflow:hidden;}
-.cst-goalBar span{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--gold),var(--gold-bright));transition:width 1200ms ease;}
-.cst-goalNote{margin:10px 0 0;text-align:center;color:var(--faint);font-size:12.5px;}
+.cst-support{padding-bottom:clamp(56px,8vh,88px);}
 .cst-tiers{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;}
 .cst-tier{position:relative;display:flex;flex-direction:column;gap:10px;padding:30px 24px 24px;border:1px solid var(--hair-soft);border-radius:20px;background:linear-gradient(180deg,var(--panel),var(--bg2));transition:transform 180ms,border-color 180ms,box-shadow 180ms;}
 .cst-tier:hover{transform:translateY(-4px);border-color:var(--gold-dim);box-shadow:0 26px 54px -28px rgba(0,0,0,.95);}
@@ -575,7 +543,7 @@ const CSS = `
 .cst-alt{margin:26px auto 0;display:flex;justify-content:center;flex-wrap:wrap;gap:10px;}
 .cst-altBtn{padding:10px 18px;border:1px solid var(--hair-soft);border-radius:999px;color:var(--muted);font-size:13px;font-weight:700;transition:border-color 150ms,color 150ms,background 150ms;}
 .cst-altBtn:hover{border-color:var(--gold-dim);color:var(--gold-bright);background:rgba(201,163,86,.05);}
-.cst-fine{max-width:720px;margin:56px auto 0;padding:26px 28px;border:1px solid var(--hair-soft);border-radius:16px;background:rgba(243,234,218,.025);}
+.cst-fine{max-width:720px;margin:40px auto 0;padding:26px 28px;border:1px solid var(--hair-soft);border-radius:16px;background:rgba(243,234,218,.025);}
 .cst-fine h3{margin:0 0 10px;font-size:13px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;}
 .cst-fine p{margin:0;color:var(--faint);font-size:13.5px;line-height:1.75;}
 .cst-fine strong{color:var(--muted);}
@@ -596,7 +564,6 @@ const CSS = `
   .cst-tiers{grid-template-columns:repeat(2,1fr);}
   .cst-row{grid-template-columns:52px 1fr;}
   .cst-rowText{grid-column:2;}
-  .cst-creator{grid-template-columns:200px 1fr;}
 }
 @media (max-width:800px){
   .cst-mission{grid-template-columns:1fr;}
@@ -605,9 +572,7 @@ const CSS = `
   .cst-band{grid-template-columns:repeat(2,1fr);}
   .cst-band>div:nth-child(3){border-left:0;}
   .cst-band>div:nth-child(n+3){border-top:1px solid var(--hair-soft);}
-  .cst-creator{grid-template-columns:1fr;}
-  .cst-creatorPhoto{max-width:220px;}
-  .cst-break{background-attachment:scroll;min-height:60svh;}
+  .cst-break{background-attachment:scroll;min-height:44svh;}
 }
 @media (max-width:600px){
   .cst-barLink{display:none;}
@@ -621,7 +586,7 @@ const CSS = `
   .cst-tiers{grid-template-columns:1fr;gap:14px;}
   .cst-tierLine{min-height:0;}
   .cst-row{padding:20px 2px;}
-  .cst-fine,.cst-creator{padding:20px;}
+  .cst-fine{padding:20px;}
 }
 @media (prefers-reduced-motion:reduce){
   .cst *{transition:none!important;animation:none!important;}
