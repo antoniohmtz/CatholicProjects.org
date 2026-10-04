@@ -76,12 +76,22 @@ const FEATURED: Film[] = [
   },
 ];
 
-type MoreFilm = { title: string; lang: "English" | "Español"; stats: Stats; href: string };
-const MORE: MoreFilm[] = [
-  { title: "Saint Vincent de Paul", lang: "English", stats: { views: "53.3K", likes: "3.5K", shares: "607" }, href: "https://www.facebook.com/reel/958525383998552" },
-  { title: "San Damián de Molokai", lang: "Español", stats: { views: "56.1K", likes: "748", shares: "100" }, href: "https://www.facebook.com/reel/2563206477478130" },
-  // { title: "St. Thérèse of Lisieux", lang: "English", stats: { views: "", likes: "", shares: "" }, href: "" },
-  // { title: "San Juan Bosco",          lang: "Español", stats: { views: "", likes: "", shares: "" }, href: "" },
+/* MORE: same video cards, second row. Add as many as you like —
+   they load lazily as people scroll. Each needs a Facebook link. */
+const MORE: Film[] = [
+  {
+    slug: "vincent", title: "Saint Vincent de Paul", lang: "English",
+    logline: "He wanted to rise above poverty — then God led him back to the poor.",
+    stats: { views: "53.3K", likes: "3.5K", shares: "607" },
+    ig: INSTAGRAM_URL, fb: "https://www.facebook.com/reel/958525383998552",
+  },
+  {
+    slug: "damian-es", title: "San Damián de Molokai", lang: "Español",
+    logline: "Eligió vivir con los enviados lejos por la lepra — sabiendo que quizá nunca volvería.",
+    stats: { views: "56.1K", likes: "748", shares: "100" },
+    ig: "https://www.instagram.com/reel/DeAb99UBwNT/", fb: "https://www.facebook.com/reel/2563206477478130",
+  },
+  // { slug: "therese", title: "St. Thérèse of Lisieux", lang: "English", logline: "", stats: { views: "", likes: "", shares: "" }, ig: "", fb: "" },
 ];
 
 /* Mission section plays this reel (no image needed). */
@@ -114,6 +124,7 @@ const COPY = {
     showingH2: "Stories people can't stop sharing",
     showingLede: "Every film is free to watch. These are the ones traveling furthest right now.",
     watch: "Watch on Instagram",
+    watchFb: "Watch on Facebook",
     views: "views", likes: "likes", shares: "shares",
     moreH3: "More stories",
     seeAll: "All 102 stories, free, on Instagram & Facebook →",
@@ -214,6 +225,7 @@ const COPY = {
     showingH2: "Historias que la gente no deja de compartir",
     showingLede: "Todas las películas son gratis. Estas son las que más lejos están llegando ahora.",
     watch: "Ver en Instagram",
+    watchFb: "Ver en Facebook",
     views: "vistas", likes: "me gusta", shares: "compartidos",
     moreH3: "Más historias",
     seeAll: "Las 102 historias, gratis, en Instagram y Facebook →",
@@ -392,6 +404,29 @@ function Player({ film }: { film: Film }) {
   );
 }
 
+function FilmCard({ film, t, lang }: { film: Film; t: (typeof COPY)[Lang]; lang: Lang }) {
+  return (
+    <article className="cst-film" data-reveal>
+      <div className="cst-poster">
+        <Player film={film} />
+        <span className="cst-lang">{film.lang}</span>
+      </div>
+      <div className="cst-filmBody">
+        <h3 className="cst-filmTitle">{film.title}</h3>
+        {film.logline && <p className="cst-filmLogline">{film.logline}</p>}
+        <dl className="cst-stats">
+          <div><dt>{film.stats.views || "—"}</dt><dd>{t.views}</dd></div>
+          <div><dt>{film.stats.likes || "—"}</dt><dd>{t.likes}</dd></div>
+          <div><dt>{film.stats.shares || "—"}</dt><dd>{t.shares}</dd></div>
+        </dl>
+        <a className="cst-filmWatch" href={film.ig || film.fb} target="_blank" rel="noopener noreferrer">
+          {film.ig && film.ig !== INSTAGRAM_URL ? t.watch : t.watchFb} <Svg sw={2.2}>{I.arrow}</Svg>
+        </a>
+      </div>
+    </article>
+  );
+}
+
 /* ═══════════════════════ PAGE ═══════════════════════ */
 export default function SupportPage() {
   const [lang, toggleLang] = useLang();
@@ -406,7 +441,7 @@ export default function SupportPage() {
 
       <header className="cst-bar">
         <a className="cst-mark" href="https://catholicprojects.org">
-          <img className="cst-markLogo" src={CP_LOGO} alt="CatholicProjects.org" />
+          <span className="cst-markTile"><img className="cst-markLogo" src={CP_LOGO} alt="CatholicProjects.org" /></span>
           <span className="cst-markDivider" aria-hidden="true" />
           <span className="cst-markText">Catholic Saint Stories</span>
         </a>
@@ -460,43 +495,15 @@ export default function SupportPage() {
             <p className="cst-lede">{t.showingLede}</p>
           </div>
           <div className="cst-films">
-            {FEATURED.map((f) => (
-              <article key={f.slug} className="cst-film" data-reveal>
-                <div className="cst-poster">
-                  <Player film={f} />
-                  <span className="cst-lang">{f.lang}</span>
-                </div>
-                <div className="cst-filmBody">
-                  <h3 className="cst-filmTitle">{f.title}</h3>
-                  <p className="cst-filmLogline">{f.logline}</p>
-                  <dl className="cst-stats">
-                    <div><dt>{f.stats.views}</dt><dd>{t.views}</dd></div>
-                    <div><dt>{f.stats.likes}</dt><dd>{t.likes}</dd></div>
-                    <div><dt>{f.stats.shares}</dt><dd>{t.shares}</dd></div>
-                  </dl>
-                  <a className="cst-filmWatch" href={f.ig} target="_blank" rel="noopener noreferrer">{t.watch} <Svg sw={2.2}>{I.arrow}</Svg></a>
-                </div>
-              </article>
-            ))}
+            {FEATURED.map((f) => <FilmCard key={f.slug} film={f} t={t} lang={lang} />)}
           </div>
 
           {MORE.length > 0 && (
-            <div className="cst-more" data-reveal>
-              <h3 className="cst-moreH3">{t.moreH3}</h3>
-              <ul className="cst-moreList">
-                {MORE.map((m) => (
-                  <li key={m.href}>
-                    <a className="cst-moreRow" href={m.href} target="_blank" rel="noopener noreferrer">
-                      <span className="cst-moreTitle">{m.title}</span>
-                      <span className="cst-moreLang">{m.lang}</span>
-                      <span className="cst-moreStats">
-                        <b>{m.stats.views}</b> {t.views} · <b>{m.stats.likes}</b> {t.likes} · <b>{m.stats.shares}</b> {t.shares}
-                      </span>
-                      <Svg sw={2.2} className="cst-moreArrow">{I.arrow}</Svg>
-                    </a>
-                  </li>
-                ))}
-              </ul>
+            <div className="cst-more">
+              <h3 className="cst-moreH3" data-reveal>{t.moreH3}</h3>
+              <div className="cst-films">
+                {MORE.map((f) => <FilmCard key={f.slug} film={f} t={t} lang={lang} />)}
+              </div>
             </div>
           )}
           <p className="cst-seeAll" data-reveal><a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer">{t.seeAll}</a></p>
@@ -694,8 +701,9 @@ const CSS = `
 .cst-bar{position:fixed;top:0;left:0;right:0;z-index:50;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px clamp(20px,4vw,44px);
   background:rgba(18,13,9,.8);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid rgba(201,163,86,.1);}
 .cst-mark{display:inline-flex;align-items:center;gap:16px;}
-/* Logo on dark: a dark single-color logo is inverted to white. */
-.cst-markLogo{height:42px;width:auto;display:block;filter:brightness(0) invert(1);opacity:.95;}
+/* Logo at its real colors on a small cream tile */
+.cst-markTile{display:inline-flex;align-items:center;padding:6px 12px;border-radius:10px;background:#FFFDF9;box-shadow:0 6px 18px -8px rgba(0,0,0,.8);}
+.cst-markLogo{height:28px;width:auto;display:block;}
 .cst-markDivider{width:1px;height:22px;background:var(--hair);}
 .cst-markText{font-family:var(--serif);font-weight:600;font-size:16px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-bright);}
 .cst-barNav{display:flex;align-items:center;gap:18px;}
@@ -780,17 +788,9 @@ const CSS = `
 .cst-filmWatch{margin-top:auto;padding-top:14px;display:inline-flex;align-items:center;gap:6px;color:var(--gold-bright);font-size:13px;font-weight:700;white-space:nowrap;}
 .cst-filmWatch svg{width:14px;height:14px;transition:transform 160ms;}
 .cst-film:hover .cst-filmWatch svg{transform:translateX(3px);}
-/* more stories — lightweight rows */
-.cst-more{margin-top:36px;}
-.cst-moreH3{margin:0 0 10px;color:var(--gold);font-size:11.5px;font-weight:700;letter-spacing:.3em;text-transform:uppercase;}
-.cst-moreList{margin:0;padding:0;list-style:none;border-top:1px solid var(--hair);}
-.cst-moreRow{display:grid;grid-template-columns:1fr auto auto 20px;align-items:center;gap:20px;padding:14px 6px;border-bottom:1px solid var(--hair-soft);transition:background 150ms;}
-.cst-moreRow:hover{background:rgba(201,163,86,.03);}
-.cst-moreTitle{font-family:var(--serif);font-weight:600;font-size:20px;}
-.cst-moreLang{padding:4px 10px;border:1px solid var(--hair-soft);border-radius:999px;color:var(--faint);font-size:10px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;}
-.cst-moreStats{color:var(--faint);font-size:12.5px;white-space:nowrap;}
-.cst-moreStats b{color:var(--muted);font-weight:700;}
-.cst-moreArrow{width:16px;height:16px;color:var(--gold-bright);}
+/* more stories — second row of the same cards */
+.cst-more{margin-top:40px;padding-top:32px;border-top:1px solid var(--hair);}
+.cst-moreH3{margin:0 0 20px;color:var(--gold);font-size:11.5px;font-weight:700;letter-spacing:.3em;text-transform:uppercase;}
 .cst-seeAll{margin:28px 0 0;text-align:center;}
 .cst-seeAll a{color:var(--muted);font-size:14px;font-weight:600;border-bottom:1px solid var(--hair);padding-bottom:3px;transition:color 150ms,border-color 150ms;}
 .cst-seeAll a:hover{color:var(--gold-bright);border-color:var(--gold-dim);}
@@ -883,7 +883,7 @@ const CSS = `
 
 /* footer */
 .cst-foot{margin-top:auto;padding:56px 20px 60px;border-top:1px solid var(--hair-soft);text-align:center;background:linear-gradient(180deg,transparent,rgba(201,163,86,.05));}
-.cst-footLogo{display:block;height:34px;width:auto;margin:0 auto 16px;filter:brightness(0) invert(1);opacity:.85;}
+.cst-footLogo{display:block;height:30px;width:auto;margin:0 auto 16px;padding:7px 14px;border-radius:10px;background:#FFFDF9;box-sizing:content-box;}
 .cst-footLine{margin:0 0 14px;font-family:var(--serif);font-style:italic;font-size:19px;color:var(--muted);}
 .cst-footMeta{margin:0 0 8px;color:var(--faint);font-size:13px;}
 .cst-footMeta a{color:var(--muted);font-weight:650;}
@@ -907,8 +907,6 @@ const CSS = `
   .cst-missionCopy .cst-missionCall{border-radius:16px;border-left-width:3px;}
   .cst-cp{grid-template-columns:1fr;text-align:center;}
   .cst-cpLogoWrap{max-width:200px;}
-  .cst-moreRow{grid-template-columns:1fr 20px;}
-  .cst-moreLang,.cst-moreStats{grid-column:1;}
   .cst-band{grid-template-columns:repeat(2,1fr);}
   .cst-band>div:nth-child(3){border-left:0;}
   .cst-band>div:nth-child(n+3){border-top:1px solid var(--hair-soft);}
@@ -919,7 +917,8 @@ const CSS = `
   .cst-barLink{display:none;}
   .cst-markText{display:none;}
   .cst-markDivider{display:none;}
-  .cst-markLogo{height:32px;}
+  .cst-markLogo{height:22px;}
+  .cst-markTile{padding:5px 9px;}
   .cst-heroInner{padding:100px 16px 120px;}
   .cst-kicker{letter-spacing:.22em;font-size:11px;}
   .cst-heroCtas{flex-direction:column;align-items:stretch;}
