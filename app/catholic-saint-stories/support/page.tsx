@@ -50,11 +50,11 @@ type Film = { slug: string; title: string; lang: "English" | "Español"; logline
 
 const FEATURED: Film[] = [
   {
-    slug: "damian", title: "Saint Damien of Molokai", lang: "English",
-    logline: "He volunteered to live with people sent away for having leprosy — knowing he might never come back.",
-    stats: { views: "45.8K", likes: "—", shares: "—" }, // TODO: real numbers
-    ig: "https://www.instagram.com/reel/Dd93KI8B4xB/",
-    fb: "", // TODO: Facebook link for the ENGLISH Damien reel (until then the Instagram embed is used)
+    slug: "sebastian", title: "Saint Sebastian", lang: "English",
+    logline: "A captain of the Emperor's guard who served another King — and would not deny Him, even under the arrows.",
+    stats: { views: "", likes: "", shares: "" }, // TODO: real numbers
+    ig: INSTAGRAM_URL, // TODO: direct Instagram reel link
+    fb: "https://fb.watch/v/79fkexHl-/",
   },
   {
     slug: "sheen", title: "Blessed Fulton Sheen", lang: "English",
@@ -79,19 +79,9 @@ const FEATURED: Film[] = [
 /* MORE: same video cards, second row. Add as many as you like —
    they load lazily as people scroll. Each needs a Facebook link. */
 const MORE: Film[] = [
-  {
-    slug: "vincent", title: "Saint Vincent de Paul", lang: "English",
-    logline: "He wanted to rise above poverty — then God led him back to the poor.",
-    stats: { views: "53.3K", likes: "3.5K", shares: "607" },
-    ig: INSTAGRAM_URL, fb: "https://www.facebook.com/reel/958525383998552",
-  },
-  {
-    slug: "damian-es", title: "San Damián de Molokai", lang: "Español",
-    logline: "Eligió vivir con los enviados lejos por la lepra — sabiendo que quizá nunca volvería.",
-    stats: { views: "56.1K", likes: "748", shares: "100" },
-    ig: "https://www.instagram.com/reel/DeAb99UBwNT/", fb: "https://www.facebook.com/reel/2563206477478130",
-  },
-  // { slug: "therese", title: "St. Thérèse of Lisieux", lang: "English", logline: "", stats: { views: "", likes: "", shares: "" }, ig: "", fb: "" },
+  // Empty = the "More stories" row doesn't render. Uncomment to add a second row:
+  // { slug: "vincent", title: "Saint Vincent de Paul", lang: "English", logline: "He wanted to rise above poverty — then God led him back to the poor.", stats: { views: "53.3K", likes: "3.5K", shares: "607" }, ig: INSTAGRAM_URL, fb: "https://www.facebook.com/reel/958525383998552" },
+  // { slug: "damian-es", title: "San Damián de Molokai", lang: "Español", logline: "Eligió vivir con los enviados lejos por la lepra — sabiendo que quizá nunca volvería.", stats: { views: "56.1K", likes: "748", shares: "100" }, ig: "https://www.instagram.com/reel/DeAb99UBwNT/", fb: "https://www.facebook.com/reel/2563206477478130" },
 ];
 
 /* Mission section plays this reel (no image needed). */
@@ -682,6 +672,7 @@ const CSS = `
   --gold:#C9A356;--gold-bright:#E6C97F;--gold-dim:rgba(201,163,86,.4);
   --hair:rgba(201,163,86,.18);--hair-soft:rgba(243,234,218,.08);
   --text:#F4ECDD;--muted:#BBAB94;--faint:#8F8069;
+  --tile:#D8CBB2; /* logo tile — warm parchment, tune darker/lighter here */
   --serif:var(--cst-serif),"Cormorant Garamond",Georgia,serif;
   --sans:var(--cst-ui),Inter,system-ui,sans-serif;
   position:relative;isolation:isolate;min-height:100svh;display:flex;flex-direction:column;overflow-x:clip;
@@ -702,8 +693,8 @@ const CSS = `
   background:rgba(18,13,9,.8);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid rgba(201,163,86,.1);}
 .cst-mark{display:inline-flex;align-items:center;gap:16px;}
 /* Logo at its real colors on a small cream tile */
-.cst-markTile{display:inline-flex;align-items:center;padding:6px 12px;border-radius:10px;background:#FFFDF9;box-shadow:0 6px 18px -8px rgba(0,0,0,.8);}
-.cst-markLogo{height:28px;width:auto;display:block;}
+.cst-markTile{display:inline-flex;align-items:center;padding:3px 6px;border-radius:8px;background:var(--tile);box-shadow:0 6px 18px -8px rgba(0,0,0,.8),inset 0 0 0 1px rgba(201,163,86,.25);}
+.cst-markLogo{height:40px;width:auto;display:block;}
 .cst-markDivider{width:1px;height:22px;background:var(--hair);}
 .cst-markText{font-family:var(--serif);font-weight:600;font-size:16px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-bright);}
 .cst-barNav{display:flex;align-items:center;gap:18px;}
@@ -850,7 +841,7 @@ const CSS = `
 .cst-nextCard p{margin:0;color:var(--muted);font-size:14.5px;line-height:1.7;}
 /* catholicprojects band */
 .cst-cp{display:grid;grid-template-columns:minmax(220px,.8fr) 1.6fr;gap:clamp(28px,5vw,64px);align-items:center;padding:clamp(28px,4vw,48px);border:1px solid var(--hair);border-radius:24px;background:linear-gradient(135deg,rgba(201,163,86,.1),rgba(201,163,86,.03) 55%,transparent);}
-.cst-cpLogoWrap{display:flex;align-items:center;justify-content:center;aspect-ratio:1;max-width:260px;margin:0 auto;border-radius:20px;background:#FFFDF9;box-shadow:0 30px 60px -30px rgba(0,0,0,.9);padding:28px;}
+.cst-cpLogoWrap{display:flex;align-items:center;justify-content:center;aspect-ratio:1;max-width:260px;margin:0 auto;border-radius:20px;background:var(--tile);box-shadow:0 30px 60px -30px rgba(0,0,0,.9),inset 0 0 0 1px rgba(201,163,86,.25);padding:28px;}
 .cst-cpLogo{width:100%;height:auto;display:block;}
 .cst-h2Small{font-size:clamp(1.7rem,3vw,2.4rem);}
 .cst-cpText{margin:14px 0 0;color:var(--muted);font-size:15.5px;line-height:1.75;}
@@ -883,7 +874,7 @@ const CSS = `
 
 /* footer */
 .cst-foot{margin-top:auto;padding:56px 20px 60px;border-top:1px solid var(--hair-soft);text-align:center;background:linear-gradient(180deg,transparent,rgba(201,163,86,.05));}
-.cst-footLogo{display:block;height:30px;width:auto;margin:0 auto 16px;padding:7px 14px;border-radius:10px;background:#FFFDF9;box-sizing:content-box;}
+.cst-footLogo{display:block;height:40px;width:auto;margin:0 auto 16px;padding:4px 8px;border-radius:8px;background:var(--tile);box-shadow:inset 0 0 0 1px rgba(201,163,86,.25);box-sizing:content-box;}
 .cst-footLine{margin:0 0 14px;font-family:var(--serif);font-style:italic;font-size:19px;color:var(--muted);}
 .cst-footMeta{margin:0 0 8px;color:var(--faint);font-size:13px;}
 .cst-footMeta a{color:var(--muted);font-weight:650;}
@@ -917,8 +908,8 @@ const CSS = `
   .cst-barLink{display:none;}
   .cst-markText{display:none;}
   .cst-markDivider{display:none;}
-  .cst-markLogo{height:22px;}
-  .cst-markTile{padding:5px 9px;}
+  .cst-markLogo{height:30px;}
+  .cst-markTile{padding:3px 5px;}
   .cst-heroInner{padding:100px 16px 120px;}
   .cst-kicker{letter-spacing:.22em;font-size:11px;}
   .cst-heroCtas{flex-direction:column;align-items:stretch;}
