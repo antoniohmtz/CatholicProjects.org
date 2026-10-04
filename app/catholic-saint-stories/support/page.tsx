@@ -50,10 +50,11 @@ type Film = { slug: string; title: string; lang: "English" | "Español"; logline
 
 const FEATURED: Film[] = [
   {
-    slug: "damian", title: "San Damián de Molokai", lang: "Español",
-    logline: "Eligió vivir con los enviados lejos por la lepra — sabiendo que quizá nunca volvería.",
-    stats: { views: "56.1K", likes: "748", shares: "100" },
-    ig: "https://www.instagram.com/reel/DeAb99UBwNT/", fb: "https://www.facebook.com/reel/2563206477478130",
+    slug: "damian", title: "Saint Damien of Molokai", lang: "English",
+    logline: "He volunteered to live with people sent away for having leprosy — knowing he might never come back.",
+    stats: { views: "45.8K", likes: "—", shares: "—" }, // TODO: real numbers
+    ig: "https://www.instagram.com/reel/Dd93KI8B4xB/",
+    fb: "", // TODO: Facebook link for the ENGLISH Damien reel (until then the Instagram embed is used)
   },
   {
     slug: "sheen", title: "Blessed Fulton Sheen", lang: "English",
@@ -78,12 +79,17 @@ const FEATURED: Film[] = [
 type MoreFilm = { title: string; lang: "English" | "Español"; stats: Stats; href: string };
 const MORE: MoreFilm[] = [
   { title: "Saint Vincent de Paul", lang: "English", stats: { views: "53.3K", likes: "3.5K", shares: "607" }, href: "https://www.facebook.com/reel/958525383998552" },
+  { title: "San Damián de Molokai", lang: "Español", stats: { views: "56.1K", likes: "748", shares: "100" }, href: "https://www.facebook.com/reel/2563206477478130" },
   // { title: "St. Thérèse of Lisieux", lang: "English", stats: { views: "", likes: "", shares: "" }, href: "" },
   // { title: "San Juan Bosco",          lang: "Español", stats: { views: "", likes: "", shares: "" }, href: "" },
 ];
 
 /* Mission section plays this reel (no image needed). */
-const MISSION_REEL = FEATURED[0];
+const MISSION_REEL: Film = {
+  slug: "damian-es", title: "San Damián de Molokai", lang: "Español", logline: "",
+  stats: { views: "", likes: "", shares: "" },
+  ig: "https://www.instagram.com/reel/DeAb99UBwNT/", fb: "https://www.facebook.com/reel/2563206477478130",
+};
 
 /* ═══════════════════════ COPY ═══════════════════════ */
 const COPY = {
@@ -114,13 +120,15 @@ const COPY = {
     quote: "Verso l'alto — To the heights.",
     quoteBy: "St. Pier Giorgio Frassati",
     missionEyebrow: "Why we tell these stories",
-    missionH2: "The saints belong to the whole world",
-    missionP1: "The Church has told the stories of the saints for two thousand years — in Scripture, in the liturgy, in every parish that bears a saint's name. We are not replacing that. We are carrying it somewhere new: into the feeds where this generation actually lives.",
-    missionP2: "Because the saints were never only Catholics. They were martyrs who died for Christ. Servants who gave everything to the poor. Young people who chose heaven over comfort. Men and women who understood that their lives belonged to Christ — and lived like it. Vincent de Paul among the poor of Paris. Ginés, the actor who mocked the faith on stage until, mid-play, he believed. Damián, who chose the lepers of Molokai knowing he would die among them.",
-    missionP3: "Every film has one purpose: that someone, somewhere, stops scrolling — meets a saint — and goes home. To their parish. To the sacraments. To Christ. And begins to believe that they, too, are called to become one.",
+    missionVerse: "Since we are surrounded by so great a cloud of witnesses…",
+    missionVerseRef: "Hebrews 12:1",
+    missionH2: "Lives that belonged to Christ",
+    missionP1: "The Church has told the stories of her saints for two thousand years — in Scripture, in the liturgy, in every parish that bears a saint's name. We are not replacing that. We are carrying it into the feeds where this generation actually lives.",
+    missionP2: "The saints were not Catholics in name only. They were martyrs who died for Christ. Servants who gave everything to the poor. Young people who chose heaven over comfort. Men and women who understood that their lives were not their own — they belonged to Christ — and lived like it. Vincent de Paul among the poor of Paris. Ginés, the actor who mocked the faith on stage until, mid-play, he believed. Damien, who chose the lepers of Molokai knowing he would die among them.",
+    missionP3: "Every film has one purpose: that someone, somewhere, stops scrolling — meets a saint — and comes home. To their parish. To the sacraments. To Christ. And begins to believe what the Church has always taught: that they, too, are called to be saints.",
     missionCap: "San Damián de Molokai — from the film",
     saintsEyebrow: "Martyrs · Servants · Mystics · Saints",
-    saintsH2: "The company we keep",
+    saintsH2: "A cloud of witnesses",
     saints: [
       ["St. Vincent de Paul", "Servant of the poor"],
       ["San Ginés de Roma", "Martyr · the actor who believed"],
@@ -149,7 +157,7 @@ const COPY = {
       ["Script & production", "Cinematic visuals, careful writing, and editing worthy of the life being told."],
       ["Narration", "Voice performances that carry reverence, in every language we publish."],
       ["Translation & captions", "Every story crosses languages — subtitled, translated, accessible."],
-      ["Distribution", "Published where people are — Instagram, Facebook, TikTok, YouTube — and pointed home to the parish."],
+      ["Distribution", "Published where people are — Instagram, Facebook, TikTok, YouTube — so each story travels as far as it can."],
     ],
     nextEyebrow: "What's next",
     nextH2: "Where the mission is going",
@@ -212,13 +220,15 @@ const COPY = {
     quote: "Verso l'alto — Hacia lo alto.",
     quoteBy: "San Pier Giorgio Frassati",
     missionEyebrow: "Por qué contamos estas historias",
-    missionH2: "Los santos son de todo el mundo",
-    missionP1: "La Iglesia lleva dos mil años contando las historias de los santos — en la Escritura, en la liturgia, en cada parroquia que lleva el nombre de un santo. No venimos a reemplazar eso. Venimos a llevarlo a un lugar nuevo: a las redes donde esta generación realmente vive.",
-    missionP2: "Porque los santos nunca fueron solo católicos. Fueron mártires que murieron por Cristo. Siervos que lo dieron todo por los pobres. Jóvenes que eligieron el cielo antes que la comodidad. Hombres y mujeres que entendieron que su vida pertenecía a Cristo — y vivieron así. Vicente de Paúl entre los pobres de París. Ginés, el actor que se burlaba de la fe en escena hasta que, a mitad de la obra, creyó. Damián, que eligió a los leprosos de Molokai sabiendo que moriría entre ellos.",
-    missionP3: "Cada película tiene un solo propósito: que alguien, en algún lugar, deje de hacer scroll — conozca a un santo — y vuelva a casa. A su parroquia. A los sacramentos. A Cristo. Y empiece a creer que él también está llamado a ser santo.",
+    missionVerse: "Teniendo en torno nuestro tan gran nube de testigos…",
+    missionVerseRef: "Hebreos 12:1",
+    missionH2: "Vidas que pertenecieron a Cristo",
+    missionP1: "La Iglesia lleva dos mil años contando las historias de sus santos — en la Escritura, en la liturgia, en cada parroquia que lleva el nombre de un santo. No venimos a reemplazar eso. Venimos a llevarlo a las redes donde esta generación realmente vive.",
+    missionP2: "Los santos no fueron católicos solo de nombre. Fueron mártires que murieron por Cristo. Siervos que lo dieron todo por los pobres. Jóvenes que eligieron el cielo antes que la comodidad. Hombres y mujeres que entendieron que su vida no era suya — pertenecía a Cristo — y vivieron así. Vicente de Paúl entre los pobres de París. Ginés, el actor que se burlaba de la fe en escena hasta que, a mitad de la obra, creyó. Damián, que eligió a los leprosos de Molokai sabiendo que moriría entre ellos.",
+    missionP3: "Cada película tiene un solo propósito: que alguien, en algún lugar, deje de hacer scroll — conozca a un santo — y vuelva a casa. A su parroquia. A los sacramentos. A Cristo. Y empiece a creer lo que la Iglesia siempre ha enseñado: que él también está llamado a ser santo.",
     missionCap: "San Damián de Molokai — de la película",
     saintsEyebrow: "Mártires · Siervos · Místicos · Santos",
-    saintsH2: "La compañía que nos acompaña",
+    saintsH2: "Una nube de testigos",
     saints: [
       ["San Vicente de Paúl", "Siervo de los pobres"],
       ["San Ginés de Roma", "Mártir · el actor que creyó"],
@@ -247,7 +257,7 @@ const COPY = {
       ["Guion y producción", "Imágenes cinematográficas, escritura cuidada y edición a la altura de la vida que se cuenta."],
       ["Narración", "Voces que transmiten reverencia, en cada idioma que publicamos."],
       ["Traducción y subtítulos", "Cada historia cruza idiomas — subtitulada, traducida, accesible."],
-      ["Distribución", "Publicadas donde está la gente — Instagram, Facebook, TikTok, YouTube — y orientadas de vuelta a la parroquia."],
+      ["Distribución", "Publicadas donde está la gente — Instagram, Facebook, TikTok, YouTube — para que cada historia llegue lo más lejos posible."],
     ],
     nextEyebrow: "Lo que viene",
     nextH2: "Hacia dónde va la misión",
@@ -340,14 +350,54 @@ function useReveal(dep: unknown) {
   }, [dep]);
 }
 
-const fbEmbed = (url: string) =>
-  `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&autoplay=true&mute=true&show_text=false&allowfullscreen=true`;
+/* ── Facebook SDK: the documented route to muted autoplay ── */
+declare global { interface Window { FB?: { XFBML: { parse: (el?: Element) => void } }; fbAsyncInit?: () => void } }
+
+function useFacebookSdk() {
+  useEffect(() => {
+    if (window.FB) { window.FB.XFBML.parse(); return; }
+    if (!document.getElementById("fb-root")) {
+      const root = document.createElement("div"); root.id = "fb-root"; document.body.prepend(root);
+    }
+    if (!document.getElementById("fb-sdk")) {
+      const s = document.createElement("script");
+      s.id = "fb-sdk"; s.async = true; s.defer = true; s.crossOrigin = "anonymous";
+      s.src = "https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v19.0";
+      document.body.appendChild(s);
+    }
+  }, []);
+}
+
+const igId = (url: string) => url.match(/\/(?:reel|p)\/([^/?#]+)/)?.[1] ?? "";
+
+/* Plays the Facebook reel (autoplay, muted) or, with no Facebook link, the Instagram embed. */
+function Player({ film }: { film: Film }) {
+  if (film.fb) {
+    return (
+      <div
+        className="fb-video cst-fbVideo"
+        data-href={film.fb}
+        data-width="auto"
+        data-autoplay="true"
+        data-show-text="false"
+        data-show-captions="false"
+        data-allowfullscreen="true"
+        data-lazy="true"
+      />
+    );
+  }
+  return (
+    <iframe className="cst-posterFrame cst-igFrame" src={`https://www.instagram.com/reel/${igId(film.ig)}/embed/`} title={film.title}
+      loading="lazy" allow="autoplay; encrypted-media; picture-in-picture; web-share" allowFullScreen />
+  );
+}
 
 /* ═══════════════════════ PAGE ═══════════════════════ */
 export default function SupportPage() {
   const [lang, toggleLang] = useLang();
   const t = COPY[lang];
   useReveal(lang);
+  useFacebookSdk();
 
   return (
     <div className={`cst ${ui.variable} ${serif.variable}`}>
@@ -413,8 +463,7 @@ export default function SupportPage() {
             {FEATURED.map((f) => (
               <article key={f.slug} className="cst-film" data-reveal>
                 <div className="cst-poster">
-                  <iframe className="cst-posterFrame" src={fbEmbed(f.fb)} title={f.title} loading="lazy"
-                    allow="autoplay; encrypted-media; picture-in-picture; web-share" allowFullScreen />
+                  <Player film={f} />
                   <span className="cst-lang">{f.lang}</span>
                 </div>
                 <div className="cst-filmBody">
@@ -465,12 +514,17 @@ export default function SupportPage() {
         {/* ═══ MISSION ═══ */}
         <section className="cst-section cst-mission">
           <div className="cst-missionStill" data-reveal>
-            <iframe className="cst-posterFrame" src={fbEmbed(MISSION_REEL.fb)} title={MISSION_REEL.title} loading="lazy"
-              allow="autoplay; encrypted-media; picture-in-picture; web-share" allowFullScreen />
+            <div className="cst-missionFrame">
+              <Player film={MISSION_REEL} />
+            </div>
             <span className="cst-missionCap">{t.missionCap}</span>
           </div>
           <div className="cst-missionCopy" data-reveal>
             <p className="cst-eyebrow">{t.missionEyebrow}</p>
+            <blockquote className="cst-verse">
+              <p>“{t.missionVerse}”</p>
+              <cite>{t.missionVerseRef}</cite>
+            </blockquote>
             <h2 className="cst-h2">{t.missionH2}</h2>
             <p>{t.missionP1}</p>
             <p>{t.missionP2}</p>
@@ -637,10 +691,11 @@ const CSS = `
 [data-reveal].is-in{opacity:1;transform:none;}
 
 /* bar */
-.cst-bar{position:fixed;top:0;left:0;right:0;z-index:50;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px clamp(20px,4vw,44px);background:linear-gradient(180deg,rgba(18,13,9,.85),rgba(18,13,9,0));}
-.cst-mark{display:inline-flex;align-items:center;gap:14px;}
+.cst-bar{position:fixed;top:0;left:0;right:0;z-index:50;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px clamp(20px,4vw,44px);
+  background:rgba(18,13,9,.8);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid rgba(201,163,86,.1);}
+.cst-mark{display:inline-flex;align-items:center;gap:16px;}
 /* Logo on dark: a dark single-color logo is inverted to white. */
-.cst-markLogo{height:30px;width:auto;display:block;filter:brightness(0) invert(1);opacity:.92;}
+.cst-markLogo{height:42px;width:auto;display:block;filter:brightness(0) invert(1);opacity:.95;}
 .cst-markDivider{width:1px;height:22px;background:var(--hair);}
 .cst-markText{font-family:var(--serif);font-weight:600;font-size:16px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-bright);}
 .cst-barNav{display:flex;align-items:center;gap:18px;}
@@ -708,7 +763,12 @@ const CSS = `
 .cst-film:hover{transform:translateY(-6px);border-color:var(--gold-dim);box-shadow:0 36px 70px -34px rgba(0,0,0,.95),0 0 0 1px rgba(201,163,86,.08);}
 .cst-poster{position:relative;display:block;width:100%;aspect-ratio:9/16;background:#000;overflow:hidden;}
 .cst-posterFrame{position:absolute;inset:0;width:100%;height:100%;border:0;display:block;background:#000;}
-.cst-lang{position:absolute;top:14px;left:14px;z-index:2;pointer-events:none;padding:5px 11px;border:1px solid rgba(230,201,127,.4);border-radius:999px;background:rgba(18,13,9,.6);backdrop-filter:blur(6px);color:var(--gold-bright);font-size:10.5px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;}
+/* Facebook SDK player: fills the 9:16 frame */
+.cst-fbVideo{position:absolute;inset:0;width:100%;height:100%;}
+.cst-fbVideo>span,.cst-fbVideo iframe{width:100%!important;height:100%!important;display:block;}
+/* Instagram fallback: crop its white header/footer */
+.cst-igFrame{top:-54px;height:calc(100% + 54px + 140px);}
+.cst-lang{position:absolute;left:14px;bottom:14px;z-index:2;pointer-events:none;padding:5px 11px;border:1px solid rgba(230,201,127,.4);border-radius:999px;background:rgba(18,13,9,.65);backdrop-filter:blur(6px);color:var(--gold-bright);font-size:10.5px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;}
 .cst-filmBody{display:flex;flex-direction:column;flex:1;padding:18px 18px 16px;}
 .cst-filmTitle{margin:0;font-family:var(--serif);font-weight:600;font-size:22px;line-height:1.15;}
 .cst-filmLogline{margin:8px 0 0;color:var(--muted);font-family:var(--serif);font-style:italic;font-size:16px;line-height:1.5;}
@@ -746,10 +806,14 @@ const CSS = `
 
 /* mission */
 .cst-mission{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:clamp(32px,5vw,72px);align-items:center;}
-.cst-missionStill{position:relative;aspect-ratio:9/16;max-width:420px;margin:0 auto;border-radius:22px;background:#000;box-shadow:0 40px 80px -40px rgba(0,0,0,.95);overflow:hidden;border:1px solid var(--hair-soft);}
-.cst-missionCap{position:absolute;left:0;right:0;bottom:0;z-index:2;padding:40px 18px 14px;pointer-events:none;background:linear-gradient(180deg,transparent,rgba(18,13,9,.85));color:var(--muted);font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;}
+.cst-missionStill{position:relative;max-width:400px;margin:0 auto;padding:10px;border-radius:26px;background:linear-gradient(160deg,rgba(201,163,86,.35),rgba(201,163,86,.06) 50%,rgba(201,163,86,.25));box-shadow:0 50px 100px -40px rgba(0,0,0,.95),0 0 0 1px rgba(201,163,86,.12);}
+.cst-missionFrame{position:relative;aspect-ratio:9/16;border-radius:18px;background:#000;overflow:hidden;}
+.cst-missionCap{display:block;padding:14px 6px 2px;text-align:center;color:var(--faint);font-size:10.5px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;}
+.cst-verse{margin:0 0 22px;padding:0;}
+.cst-verse p{margin:0;font-family:var(--serif);font-style:italic;font-size:clamp(1.2rem,1.9vw,1.5rem);line-height:1.4;color:var(--gold-bright);}
+.cst-verse cite{display:block;margin-top:6px;color:var(--faint);font-style:normal;font-size:11px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;}
 .cst-missionCopy p:not(.cst-eyebrow){margin:18px 0 0;color:var(--muted);font-size:16.5px;line-height:1.85;}
-.cst-missionCopy .cst-missionCall{margin-top:24px;padding-left:18px;border-left:2px solid var(--gold-dim);color:var(--text);font-family:var(--serif);font-size:20px;line-height:1.55;}
+.cst-missionCopy .cst-missionCall{margin-top:26px;padding:22px 24px;border:1px solid var(--hair);border-left:3px solid var(--gold);border-radius:0 16px 16px 0;background:linear-gradient(90deg,rgba(201,163,86,.09),transparent);color:var(--text);font-family:var(--serif);font-size:21px;line-height:1.55;}
 
 /* saints grid */
 .cst-saintsGrid{margin:0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
@@ -839,7 +903,8 @@ const CSS = `
 }
 @media (max-width:800px){
   .cst-mission{grid-template-columns:1fr;}
-  .cst-missionStill{max-width:340px;}
+  .cst-missionStill{max-width:320px;}
+  .cst-missionCopy .cst-missionCall{border-radius:16px;border-left-width:3px;}
   .cst-cp{grid-template-columns:1fr;text-align:center;}
   .cst-cpLogoWrap{max-width:200px;}
   .cst-moreRow{grid-template-columns:1fr 20px;}
@@ -854,7 +919,7 @@ const CSS = `
   .cst-barLink{display:none;}
   .cst-markText{display:none;}
   .cst-markDivider{display:none;}
-  .cst-markLogo{height:26px;}
+  .cst-markLogo{height:32px;}
   .cst-heroInner{padding:100px 16px 120px;}
   .cst-kicker{letter-spacing:.22em;font-size:11px;}
   .cst-heroCtas{flex-direction:column;align-items:stretch;}
