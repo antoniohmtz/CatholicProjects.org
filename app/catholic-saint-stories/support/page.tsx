@@ -331,11 +331,27 @@ function PhoneFeed({ films, t }: { films: Film[]; t: T }) {
     <div className="cst-heroPhoneWrap" onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)} onKeyDown={onKey} tabIndex={0} aria-label={`${t.phoneCap}: ${f.title}`}>
       <div className="cst-phoneGlow" aria-hidden="true" />
       <div className="cst-phone">
+        <span className="cst-phoneBtn cst-phoneBtnMute" aria-hidden="true" />
+        <span className="cst-phoneBtn cst-phoneBtnVolUp" aria-hidden="true" />
+        <span className="cst-phoneBtn cst-phoneBtnVolDn" aria-hidden="true" />
+        <span className="cst-phoneBtn cst-phoneBtnPower" aria-hidden="true" />
         <div className="cst-phoneScreen">
-          <div className="cst-feedTrack" style={{ transform: `translateY(-${i * 100}%)` }}>
-            {films.map((film) => (
-              <div key={film.slug} className="cst-feedSlide"><Player film={film} /></div>
-            ))}
+          <div className="cst-statusBar" aria-hidden="true">
+            <span className="cst-statusTime">9:41</span>
+            <span className="cst-statusIsland" />
+            <span className="cst-statusIcons">
+              <svg viewBox="0 0 18 12" className="cst-statusSignal"><rect x="0" y="8" width="3" height="4" rx=".6"/><rect x="5" y="5.5" width="3" height="6.5" rx=".6"/><rect x="10" y="3" width="3" height="9" rx=".6"/><rect x="15" y="0" width="3" height="12" rx=".6"/></svg>
+              <svg viewBox="0 0 16 12" className="cst-statusWifi"><path d="M8 11.2 1.3 4.6a9.4 9.4 0 0 1 13.4 0Z"/><path d="M8 11.2 4 7.3a5.7 5.7 0 0 1 8 0Z" opacity=".55"/></svg>
+              <span className="cst-statusBattery"><i /></span>
+            </span>
+          </div>
+          <div className="cst-feedArea">
+            <div className="cst-feedTrack" style={{ transform: `translateY(-${i * 100}%)` }}>
+              {films.map((film) => (
+                <div key={film.slug} className="cst-feedSlide"><Player film={film} /></div>
+              ))}
+            </div>
+            <span className="cst-homeBar" aria-hidden="true" />
           </div>
         </div>
       </div>
@@ -744,11 +760,33 @@ const CSS = `
 /* the phone */
 .cst-heroPhoneWrap{position:relative;display:flex;justify-content:center;align-items:center;padding:20px 0;}
 .cst-phoneGlow{position:absolute;width:120%;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,rgba(201,163,86,.28),rgba(201,163,86,.08) 40%,transparent 68%);filter:blur(10px);pointer-events:none;animation:cst-breathe 7s ease-in-out infinite alternate;}
-.cst-phone{position:relative;width:min(300px,78vw);border-radius:44px;padding:11px;background:linear-gradient(160deg,#2B2118,#0E0A07);
-  box-shadow:0 0 0 1px rgba(201,163,86,.35),0 0 0 2px rgba(0,0,0,.6),inset 0 0 0 1px rgba(255,255,255,.06),0 60px 110px -40px rgba(0,0,0,1),0 30px 60px -30px rgba(201,163,86,.25);
+.cst-phone{position:relative;width:min(300px,78vw);border-radius:48px;padding:12px;background:linear-gradient(160deg,#3A2D20 0%,#1A130D 40%,#0E0A07 100%);
+  box-shadow:0 0 0 1.5px rgba(201,163,86,.45),0 0 0 3px rgba(0,0,0,.7),inset 0 0 0 1px rgba(255,255,255,.08),inset 0 1px 0 rgba(255,255,255,.12),0 60px 110px -40px rgba(0,0,0,1),0 30px 60px -30px rgba(201,163,86,.25);
   animation:cst-float 8s ease-in-out infinite;}
 @keyframes cst-float{0%,100%{transform:translateY(0) rotate(-1.2deg)}50%{transform:translateY(-10px) rotate(-1.2deg)}}
-.cst-phoneScreen{position:relative;width:100%;aspect-ratio:9/16;border-radius:34px;overflow:hidden;background:#000;}
+/* physical buttons on the bezel */
+.cst-phoneBtn{position:absolute;width:3px;border-radius:2px;background:linear-gradient(180deg,#5A4A36,#2A2018);box-shadow:0 0 0 1px rgba(0,0,0,.6);}
+.cst-phoneBtnMute{left:-4px;top:17%;height:26px;}
+.cst-phoneBtnVolUp{left:-4px;top:25%;height:48px;}
+.cst-phoneBtnVolDn{left:-4px;top:35%;height:48px;}
+.cst-phoneBtnPower{right:-4px;top:27%;height:72px;}
+/* screen with glass highlight */
+.cst-phoneScreen{position:relative;width:100%;border-radius:37px;overflow:hidden;background:#000;display:flex;flex-direction:column;}
+.cst-phoneScreen::after{content:"";position:absolute;inset:0;z-index:6;pointer-events:none;border-radius:inherit;
+  background:linear-gradient(115deg,rgba(255,255,255,.07) 0%,rgba(255,255,255,.02) 28%,transparent 45%);box-shadow:inset 0 0 0 1px rgba(255,255,255,.04);}
+/* status bar */
+.cst-statusBar{position:relative;z-index:5;height:44px;flex:0 0 44px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:0 22px 0 26px;background:#000;color:#F4ECDD;}
+.cst-statusTime{font-family:var(--sans);font-size:14px;font-weight:700;letter-spacing:-.01em;}
+.cst-statusIsland{width:92px;height:26px;border-radius:999px;background:#0A0806;box-shadow:inset 0 0 0 1px rgba(255,255,255,.05);}
+.cst-statusIcons{display:flex;align-items:center;justify-content:flex-end;gap:6px;}
+.cst-statusSignal{width:17px;height:11px;fill:#F4ECDD;}
+.cst-statusWifi{width:15px;height:11px;fill:#F4ECDD;}
+.cst-statusBattery{position:relative;width:25px;height:12px;border:1.5px solid rgba(244,236,221,.5);border-radius:4px;padding:1.5px;}
+.cst-statusBattery::after{content:"";position:absolute;right:-4px;top:3px;width:2px;height:5px;border-radius:0 1px 1px 0;background:rgba(244,236,221,.5);}
+.cst-statusBattery i{display:block;width:80%;height:100%;border-radius:2px;background:#F4ECDD;}
+/* feed area */
+.cst-feedArea{position:relative;width:100%;aspect-ratio:9/16;overflow:hidden;background:#000;}
+.cst-homeBar{position:absolute;left:50%;bottom:8px;transform:translateX(-50%);z-index:5;width:38%;height:5px;border-radius:999px;background:rgba(244,236,221,.85);pointer-events:none;}
 .cst-feedTrack{position:absolute;inset:0;transition:transform 700ms cubic-bezier(.65,0,.2,1);}
 .cst-feedSlide{position:relative;width:100%;height:100%;}
 .cst-feedSlide .cst-fbVideo{position:absolute;inset:0;}
