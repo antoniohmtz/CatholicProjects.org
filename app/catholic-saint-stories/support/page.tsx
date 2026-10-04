@@ -66,7 +66,10 @@ const MISSION_FILM: Film = {
   ig: "https://www.instagram.com/reel/DeAb99UBwNT/", fb: "https://www.facebook.com/reel/2563206477478130",
 };
 
-const WITNESS_SLUGS = ["vincent", "gines", "damien", "frassati", "acutis", "pio", "anthony", "kolbe"];
+/* Witnesses: a printed litany by default. Flip to true once the
+   witness-<slug>.jpg portraits are in /public/saint-stories/. */
+const WITNESS_PORTRAITS = false;
+const WITNESS_SLUGS = ["vincent", "gines", "damien", "sebastian", "frassati", "acutis", "pio", "anthony", "kolbe", "alacoque", "therese", "sheen"];
 
 /* ═══════════════════════ COPY ═══════════════════════ */
 const COPY = {
@@ -92,8 +95,23 @@ const COPY = {
     missionP3: "That is why we tell their stories: holiness is not reserved for a few. It is the vocation of every baptized person. The saints are not only to be admired. They are to be followed — all the way to Christ, and home to His Church.",
     missionCap: "San Damián de Molokai — from the film",
     saintsEyebrow: "Martyrs · Servants · Mystics · Saints", saintsH2: "A cloud of witnesses",
-    saints: [["St. Vincent de Paul", "Servant of the poor"], ["San Ginés de Roma", "Martyr · the actor who believed"], ["St. Damien of Molokai", "Apostle to the lepers"], ["St. Pier Giorgio Frassati", "Verso l'alto"], ["St. Carlo Acutis", "The Eucharist, his highway to heaven"], ["St. Padre Pio", "The stigmata, the confessional"], ["St. Anthony of Padua", "Finder of the lost"], ["St. Maximilian Kolbe", "Martyr of charity, Auschwitz"]],
+    saintsLede: "The saints we have told, and the ones we are telling next. A litany — and a promise of what is coming.",
+    saints: [
+      ["St. Vincent de Paul", "Servant of the poor · Paris, 1660"],
+      ["San Ginés de Roma", "Martyr · the actor who believed · Rome, 303"],
+      ["St. Damien of Molokai", "Apostle to the lepers · Hawaiʻi, 1889"],
+      ["St. Sebastian", "Martyr · soldier of Christ · Rome, 288"],
+      ["St. Pier Giorgio Frassati", "Verso l'alto · Turin, 1925"],
+      ["St. Carlo Acutis", "The Eucharist, his highway to heaven · 2006"],
+      ["St. Padre Pio", "The stigmata, the confessional · 1968"],
+      ["St. Anthony of Padua", "Doctor of the Church · finder of the lost · 1231"],
+      ["St. Maximilian Kolbe", "Martyr of charity · Auschwitz, 1941"],
+      ["St. Margaret Mary Alacoque", "Apostle of the Sacred Heart · 1690"],
+      ["St. Thérèse of Lisieux", "The Little Way · Doctor of the Church · 1897"],
+      ["Blessed Fulton Sheen", "Life is worth living · 1979"],
+    ],
     prayForUs: "pray for us",
+    litanyClose: "All you holy men and women of God,", litanyCloseR: "pray for us.",
     measuredEyebrow: "The mission, measured", measuredH2: "What your support is held to",
     measuredLede: "We are Catholics who want to give back to the Church. So we hold this work to three things you can see for yourself.",
     measured: [
@@ -148,8 +166,23 @@ const COPY = {
     missionP3: "Por eso contamos sus historias: la santidad no está reservada a unos pocos. Es la vocación de todo bautizado. A los santos no solo se les admira. Se les sigue — hasta Cristo, y de vuelta a casa, a su Iglesia.",
     missionCap: "San Damián de Molokai — de la película",
     saintsEyebrow: "Mártires · Siervos · Místicos · Santos", saintsH2: "Una nube de testigos",
-    saints: [["San Vicente de Paúl", "Siervo de los pobres"], ["San Ginés de Roma", "Mártir · el actor que creyó"], ["San Damián de Molokai", "Apóstol de los leprosos"], ["San Pier Giorgio Frassati", "Verso l'alto"], ["San Carlo Acutis", "La Eucaristía, su autopista al cielo"], ["San Pío de Pietrelcina", "Los estigmas, el confesionario"], ["San Antonio de Padua", "Hallador de lo perdido"], ["San Maximiliano Kolbe", "Mártir de la caridad, Auschwitz"]],
+    saintsLede: "Los santos que ya hemos contado, y los que vienen. Una letanía — y una promesa de lo que está por llegar.",
+    saints: [
+      ["San Vicente de Paúl", "Siervo de los pobres · París, 1660"],
+      ["San Ginés de Roma", "Mártir · el actor que creyó · Roma, 303"],
+      ["San Damián de Molokai", "Apóstol de los leprosos · Hawái, 1889"],
+      ["San Sebastián", "Mártir · soldado de Cristo · Roma, 288"],
+      ["San Pier Giorgio Frassati", "Verso l'alto · Turín, 1925"],
+      ["San Carlo Acutis", "La Eucaristía, su autopista al cielo · 2006"],
+      ["San Pío de Pietrelcina", "Los estigmas, el confesionario · 1968"],
+      ["San Antonio de Padua", "Doctor de la Iglesia · hallador de lo perdido · 1231"],
+      ["San Maximiliano Kolbe", "Mártir de la caridad · Auschwitz, 1941"],
+      ["Santa Margarita María de Alacoque", "Apóstol del Sagrado Corazón · 1690"],
+      ["Santa Teresita de Lisieux", "El Caminito · Doctora de la Iglesia · 1897"],
+      ["Beato Fulton Sheen", "La vida vale la pena vivirla · 1979"],
+    ],
     prayForUs: "ruega por nosotros",
+    litanyClose: "Santos y santas de Dios,", litanyCloseR: "rueguen por nosotros.",
     measuredEyebrow: "La misión, en cifras", measuredH2: "A qué responde tu apoyo",
     measuredLede: "Somos católicos que queremos devolverle a la Iglesia. Por eso medimos este trabajo con tres cosas que puedes ver por ti mismo.",
     measured: [
@@ -373,25 +406,50 @@ export default function SupportPage() {
           </div>
         </section>
 
-        {/* ═══ WITNESSES — full-bleed portraits ═══ */}
+        {/* ═══ WITNESSES — a printed litany (or portraits, when the frames exist) ═══ */}
         <section className="cst-witnesses">
+          <div className="cst-witnessGlow" aria-hidden="true" />
           <div className="cst-head cst-headCenter" data-reveal>
             <p className="cst-eyebrow">{t.saintsEyebrow}</p>
             <h2 className="cst-h2">{t.saintsH2}</h2>
+            <p className="cst-lede">{t.saintsLede}</p>
           </div>
-          <ul className="cst-portraits">
-            {t.saints.map(([name, role], i) => (
-              <li key={name} className="cst-portrait" data-reveal>
-                <Still src={`${A}/witness-${WITNESS_SLUGS[i]}.jpg`} alt={name} />
-                <span className="cst-portraitShade" aria-hidden="true" />
-                <span className="cst-portraitText">
-                  <span className="cst-portraitName">{name}</span>
-                  <span className="cst-portraitRole">{role}</span>
-                  <span className="cst-portraitPray">{t.prayForUs}</span>
-                </span>
+
+          {WITNESS_PORTRAITS ? (
+            <ul className="cst-portraits">
+              {t.saints.map(([name, role], i) => (
+                <li key={name} className="cst-portrait" data-reveal>
+                  <Still src={`${A}/witness-${WITNESS_SLUGS[i]}.jpg`} alt={name} />
+                  <span className="cst-portraitShade" aria-hidden="true" />
+                  <span className="cst-portraitText">
+                    <span className="cst-portraitName">{name}</span>
+                    <span className="cst-portraitRole">{role}</span>
+                    <span className="cst-portraitPray">{t.prayForUs}</span>
+                  </span>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <ol className="cst-litanyList">
+              {t.saints.map(([name, role], i) => (
+                <li key={name} className="cst-litanyRow" data-reveal style={{ transitionDelay: `${(i % 6) * 60}ms` }}>
+                  <span className="cst-litanyN" aria-hidden="true">{String(i + 1).padStart(2, "0")}</span>
+                  <span className="cst-litanyCall">
+                    <span className="cst-litanyName"><i aria-hidden="true">✠</i>{name}</span>
+                    <span className="cst-litanyRole">{role}</span>
+                  </span>
+                  <span className="cst-litanyDots" aria-hidden="true" />
+                  <span className="cst-litanyResp">{t.prayForUs}</span>
+                </li>
+              ))}
+              <li className="cst-litanyRow cst-litanyFinal" data-reveal>
+                <span className="cst-litanyN" aria-hidden="true">✠</span>
+                <span className="cst-litanyCall"><span className="cst-litanyName">{t.litanyClose}</span></span>
+                <span className="cst-litanyDots" aria-hidden="true" />
+                <span className="cst-litanyResp">{t.litanyCloseR}</span>
               </li>
-            ))}
-          </ul>
+            </ol>
+          )}
         </section>
 
         {/* ═══ THE MISSION, MEASURED ═══ */}
@@ -660,10 +718,28 @@ const CSS = `
 .cst-missionCopy p:not(.cst-eyebrow){margin:18px 0 0;color:var(--muted);font-size:16.5px;line-height:1.85;}
 .cst-missionCopy .cst-missionCall{margin-top:26px;padding:22px 24px;border:1px solid var(--hair);border-left:3px solid var(--gold);border-radius:0 16px 16px 0;background:linear-gradient(90deg,rgba(201,163,86,.09),transparent);color:var(--text);font-family:var(--serif);font-size:21px;line-height:1.55;}
 
-/* witnesses — full-bleed portraits */
-.cst-witnesses{margin-top:clamp(56px,8vh,96px);padding:0 0 8px;}
+/* witnesses */
+.cst-witnesses{position:relative;margin-top:clamp(56px,8vh,96px);padding:clamp(40px,6vh,72px) 0 8px;}
 .cst-witnesses .cst-head{padding:0 20px;}
-.cst-portraits{margin:0;padding:0 clamp(12px,2vw,24px);list-style:none;display:grid;grid-template-columns:repeat(8,1fr);gap:8px;}
+.cst-witnessGlow{position:absolute;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(60% 50% at 50% 0%,rgba(201,163,86,.1),transparent 70%);}
+
+/* the printed litany */
+.cst-litanyList{width:min(960px,calc(100% - 40px));margin:0 auto;padding:0;list-style:none;border-top:1px solid var(--hair);}
+.cst-litanyRow{display:grid;grid-template-columns:48px 1fr auto auto;align-items:baseline;gap:18px;padding:22px 8px;border-bottom:1px solid var(--hair-soft);transition:background 200ms,opacity 900ms cubic-bezier(.2,.65,.2,1),transform 900ms cubic-bezier(.2,.65,.2,1);}
+.cst-litanyRow:hover{background:rgba(201,163,86,.035);}
+.cst-litanyN{font-family:var(--serif);font-size:14px;color:var(--gold);letter-spacing:.1em;}
+.cst-litanyCall{display:flex;flex-direction:column;gap:4px;min-width:0;}
+.cst-litanyName{font-family:var(--serif);font-weight:600;font-size:clamp(1.45rem,2.4vw,2.1rem);line-height:1.1;color:var(--text);}
+.cst-litanyName i{display:inline-block;width:0;overflow:hidden;margin-right:0;font-style:normal;font-size:.65em;color:var(--gold);vertical-align:.1em;opacity:0;transition:width 220ms ease,margin-right 220ms ease,opacity 220ms ease;}
+.cst-litanyRow:hover .cst-litanyName i{width:.9em;margin-right:.35em;opacity:1;}
+.cst-litanyRole{font-family:var(--serif);font-style:italic;font-size:15px;line-height:1.35;color:var(--faint);}
+.cst-litanyDots{flex:1;align-self:center;min-width:40px;height:1px;background:repeating-linear-gradient(90deg,var(--gold-dim) 0 2px,transparent 2px 7px);opacity:.6;}
+.cst-litanyResp{font-family:var(--serif);font-style:italic;font-size:clamp(1.05rem,1.5vw,1.3rem);color:var(--gold-bright);white-space:nowrap;}
+.cst-litanyFinal{margin-top:14px;padding-top:30px;padding-bottom:30px;border-top:1px solid var(--hair);border-bottom:0;}
+.cst-litanyFinal .cst-litanyN{font-size:18px;}
+.cst-litanyFinal .cst-litanyName{font-size:clamp(1.6rem,2.8vw,2.4rem);font-style:italic;font-weight:500;}
+.cst-litanyFinal .cst-litanyResp{font-size:clamp(1.2rem,1.9vw,1.6rem);}
+.cst-portraits{margin:0;padding:0 clamp(12px,2vw,24px);list-style:none;display:grid;grid-template-columns:repeat(6,1fr);gap:8px;}
 .cst-portrait{position:relative;aspect-ratio:4/5;overflow:hidden;border-radius:12px;background:var(--panel2);}
 .cst-portrait .cst-still{object-position:center 15%;transition:transform 1100ms cubic-bezier(.2,.65,.2,1),filter 400ms;filter:saturate(.85) brightness(.92);}
 .cst-portrait:hover .cst-still{transform:scale(1.06);filter:saturate(1) brightness(1);}
@@ -780,6 +856,9 @@ const CSS = `
   .cst-heroCtas{flex-direction:column;align-items:stretch;}
   .cst-cta,.cst-ghost{justify-content:center;width:100%;}
   .cst-litanyItem{font-size:17px;padding:0 20px;}
+  .cst-litanyRow{grid-template-columns:1fr;gap:6px;padding:18px 4px;}
+  .cst-litanyN,.cst-litanyDots{display:none;}
+  .cst-litanyResp{white-space:normal;}
   .cst-films{grid-template-columns:1fr;}
   .cst-portraits{grid-template-columns:repeat(2,1fr);}
   .cst-tiers{grid-template-columns:1fr;gap:14px;}
