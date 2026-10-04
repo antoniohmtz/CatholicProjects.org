@@ -65,7 +65,7 @@ const FILMS: Film[] = [
     logline: "A bishop, a chalkboard, and a television camera — and thirty million people listening.",
     proof: "19K+ views",
     ig: "https://www.instagram.com/reel/DduZyldBW9M/",
-    // fb: "https://www.facebook.com/reel/…",  ← TODO
+    fb: "https://fb.watch/v/6tDwOkXld/",
   },
   {
     slug: "alacoque",
@@ -74,7 +74,16 @@ const FILMS: Film[] = [
     logline: "Jesús le mostró Su Corazón ardiendo de amor — y le confió una misión para toda la Iglesia.",
     proof: "3.6K reactions · 400+ shares",
     ig: "https://www.instagram.com/reel/Dd4tluZBbbc/",
-    // fb: "https://www.facebook.com/reel/…",  ← TODO
+    fb: "https://fb.watch/v/84XezVsW2/",
+  },
+  {
+    slug: "gines",
+    title: "San Ginés de Roma",
+    lang: "Español",
+    logline: "Un actor que se burlaba de los cristianos en escena — hasta que, a mitad de la obra, creyó.",
+    proof: "Latest release",
+    ig: INSTAGRAM_URL, // TODO: direct Instagram reel link
+    fb: "https://fb.watch/v/7WGZBbZ1Q/",
   },
 ];
 
@@ -464,7 +473,7 @@ const CSS = `
 .cst-lede{margin:16px 0 0;color:var(--muted);font-size:16.5px;line-height:1.7;}
 
 /* films */
-.cst-films{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;}
+.cst-films{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;}
 .cst-film{display:flex;flex-direction:column;border:1px solid var(--hair-soft);border-radius:20px;overflow:hidden;background:var(--panel);transition:transform 260ms ease,border-color 260ms,box-shadow 260ms;}
 .cst-film:hover{transform:translateY(-6px);border-color:var(--gold-dim);box-shadow:0 36px 70px -34px rgba(0,0,0,.95),0 0 0 1px rgba(201,163,86,.08);}
 .cst-poster{position:relative;display:block;width:100%;aspect-ratio:9/16;background:#000;overflow:hidden;}
@@ -472,9 +481,9 @@ const CSS = `
 /* Instagram fallback: crop its white header/footer so only the video shows */
 .cst-poster.is-ig .cst-posterFrame{top:-54px;height:calc(100% + 54px + 140px);}
 .cst-lang{position:absolute;top:14px;left:14px;z-index:2;pointer-events:none;padding:5px 11px;border:1px solid rgba(230,201,127,.4);border-radius:999px;background:rgba(18,13,9,.6);backdrop-filter:blur(6px);color:var(--gold-bright);font-size:10.5px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;}
-.cst-filmBody{display:flex;flex-direction:column;flex:1;padding:20px 22px 18px;}
-.cst-filmTitle{margin:0;font-family:var(--serif);font-weight:600;font-size:25px;line-height:1.15;}
-.cst-filmLogline{margin:9px 0 0;color:var(--muted);font-family:var(--serif);font-style:italic;font-size:17px;line-height:1.55;}
+.cst-filmBody{display:flex;flex-direction:column;flex:1;padding:18px 18px 16px;}
+.cst-filmTitle{margin:0;font-family:var(--serif);font-weight:600;font-size:22px;line-height:1.15;}
+.cst-filmLogline{margin:8px 0 0;color:var(--muted);font-family:var(--serif);font-style:italic;font-size:16px;line-height:1.5;}
 .cst-filmFoot{margin-top:18px;padding-top:16px;display:flex;align-items:center;justify-content:space-between;gap:12px;border-top:1px solid var(--hair-soft);}
 .cst-filmProof{color:var(--faint);font-size:11.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;}
 .cst-filmWatch{display:inline-flex;align-items:center;gap:6px;padding:0;color:var(--gold-bright);font-size:13px;font-weight:700;}
@@ -560,7 +569,6 @@ const CSS = `
 /* responsive */
 @media (max-width:1040px){
   .cst-films{grid-template-columns:repeat(2,1fr);}
-  .cst-film:last-child{display:none;}
   .cst-tiers{grid-template-columns:repeat(2,1fr);}
   .cst-row{grid-template-columns:52px 1fr;}
   .cst-rowText{grid-column:2;}
@@ -582,7 +590,6 @@ const CSS = `
   .cst-heroCtas{flex-direction:column;align-items:stretch;}
   .cst-cta,.cst-ghost{justify-content:center;width:100%;}
   .cst-films{grid-template-columns:1fr;}
-  .cst-film:last-child{display:flex;}
   .cst-tiers{grid-template-columns:1fr;gap:14px;}
   .cst-tierLine{min-height:0;}
   .cst-row{padding:20px 2px;}
