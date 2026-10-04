@@ -13,20 +13,11 @@ const serif = Cormorant_Garamond({
 /* =============================================================
    Catholic Saint Stories — Support   (v16 · cinematic · bilingual)
 
-   Films play as embedded Facebook players (autoplay, muted).
-   Images — small JPGs (< 300KB) in /public/saint-stories/ :
+   No image files required. Films play as embedded Facebook players
+   (autoplay, muted); the hero is a CSS phone with the lead reel inside.
 
-     banner.jpg            Facebook cover art            hero + story break
-     witness-vincent.jpg   portraits for the witnesses   4:5 crops
-     witness-gines.jpg
-     witness-damien.jpg
-     witness-frassati.jpg
-     witness-acutis.jpg
-     witness-pio.jpg
-     witness-anthony.jpg
-     witness-kolbe.jpg
-
-   A missing image falls back to a dark title card.
+   Optional, only if WITNESS_PORTRAITS is flipped to true:
+     /public/saint-stories/witness-<slug>.jpg   4:5 portrait frames
    ============================================================= */
 
 const A = "/saint-stories";
@@ -79,6 +70,8 @@ const COPY = {
     h1a: "Stories of the Saints.", h1b: "Made for a new generation.",
     heroSub: "Cinematic films about the men and women who gave their lives to Christ — martyrs, servants, mystics — told faithfully, released free, and carried to the feeds where the whole world now lives.",
     ctaPrimary: "Be part of the mission", ctaWatch: "Watch the stories",
+    trust: ["Grounded in Tier 1 & Tier 2 Catholic sources", "Free to watch, always", "English & Español"],
+    phoneCap: "Now playing",
     litany: ["St. Vincent de Paul, pray for us", "San Ginés de Roma, pray for us", "St. Damien of Molokai, pray for us", "St. Pier Giorgio Frassati, pray for us", "St. Carlo Acutis, pray for us", "St. Padre Pio, pray for us", "St. Anthony of Padua, pray for us", "St. Maximilian Kolbe, pray for us", "St. Sebastian, pray for us", "St. Margaret Mary Alacoque, pray for us", "Blessed Fulton Sheen, pray for us", "All you holy men and women, pray for us"],
     band: [["435K", "monthly views"], ["14K", "followers"], ["102", "stories released"], ["EN · ES", "two languages"]],
     showingEyebrow: "Now showing", showingH2: "Stories people can't stop sharing",
@@ -150,6 +143,8 @@ const COPY = {
     h1a: "Historias de los Santos.", h1b: "Hechas para una nueva generación.",
     heroSub: "Películas cinematográficas sobre los hombres y mujeres que entregaron su vida a Cristo — mártires, siervos, místicos — contadas con fidelidad, publicadas gratis y llevadas a las redes donde hoy vive el mundo entero.",
     ctaPrimary: "Sé parte de la misión", ctaWatch: "Ver las historias",
+    trust: ["Fuentes católicas de Nivel 1 y 2", "Gratis, siempre", "Español e inglés"],
+    phoneCap: "En reproducción",
     litany: ["San Vicente de Paúl, ruega por nosotros", "San Ginés de Roma, ruega por nosotros", "San Damián de Molokai, ruega por nosotros", "San Pier Giorgio Frassati, ruega por nosotros", "San Carlo Acutis, ruega por nosotros", "San Pío de Pietrelcina, ruega por nosotros", "San Antonio de Padua, ruega por nosotros", "San Maximiliano Kolbe, ruega por nosotros", "San Sebastián, ruega por nosotros", "Santa Margarita María de Alacoque, ruega por nosotros", "Beato Fulton Sheen, ruega por nosotros", "Santos y santas de Dios, rueguen por nosotros"],
     band: [["435K", "vistas al mes"], ["14K", "seguidores"], ["102", "historias publicadas"], ["ES · EN", "dos idiomas"]],
     showingEyebrow: "En cartelera", showingH2: "Historias que la gente no deja de compartir",
@@ -342,17 +337,35 @@ export default function SupportPage() {
       <main>
         {/* ═══ HERO ═══ */}
         <section className="cst-hero">
-          <div className="cst-heroArt" style={{ backgroundImage: `url(${A}/banner.jpg)` }} aria-hidden="true" />
           <div className="cst-heroDawn" aria-hidden="true" />
           <div className="cst-heroRays" aria-hidden="true" />
-          <div className="cst-heroShade" aria-hidden="true" />
-          <div className="cst-heroInner">
-            <p className="cst-kicker">{t.kicker}</p>
-            <h1 className="cst-h1">{t.h1a}<em>{t.h1b}</em></h1>
-            <p className="cst-heroSub">{t.heroSub}</p>
-            <div className="cst-heroCtas">
-              <a className="cst-cta" href="#support">{t.ctaPrimary} <Svg sw={2}>{I.arrow}</Svg></a>
-              <a className="cst-ghost" href="#films"><Svg sw={2} className="cst-ghostIcon">{I.play}</Svg>{t.ctaWatch}</a>
+          <div className="cst-heroGrid">
+            <div className="cst-heroCopy">
+              <p className="cst-kicker">{t.kicker}</p>
+              <h1 className="cst-h1">{t.h1a}<em>{t.h1b}</em></h1>
+              <p className="cst-heroSub">{t.heroSub}</p>
+              <div className="cst-heroCtas">
+                <a className="cst-cta" href="#support">{t.ctaPrimary} <Svg sw={2}>{I.arrow}</Svg></a>
+                <a className="cst-ghost" href="#films"><Svg sw={2} className="cst-ghostIcon">{I.play}</Svg>{t.ctaWatch}</a>
+              </div>
+              <ul className="cst-trust">
+                {t.trust.map((line) => <li key={line}><i aria-hidden="true">✠</i>{line}</li>)}
+              </ul>
+            </div>
+
+            <div className="cst-heroPhoneWrap" aria-label={`${t.phoneCap}: ${FILMS[0].title}`}>
+              <div className="cst-phoneGlow" aria-hidden="true" />
+              <div className="cst-phone">
+                <div className="cst-phoneIsland" aria-hidden="true" />
+                <div className="cst-phoneScreen">
+                  <Player film={FILMS[0]} />
+                </div>
+              </div>
+              <div className="cst-chip cst-chipA"><b>{FILMS[0].stats.likes}</b> {t.likes}</div>
+              <div className="cst-chip cst-chipB"><b>{FILMS[0].stats.shares}</b> {t.shares}</div>
+              <div className="cst-chip cst-chipC">
+                <span className="cst-chipDot" aria-hidden="true" />{t.phoneCap} · {FILMS[0].title}
+              </div>
             </div>
           </div>
           <div className="cst-litany" aria-hidden="true">
@@ -380,7 +393,7 @@ export default function SupportPage() {
         </section>
 
         {/* ═══ STORY BREAK ═══ */}
-        <section className="cst-break" style={{ backgroundImage: `url(${A}/banner.jpg)` }}>
+        <section className="cst-break">
           <div className="cst-breakShade" aria-hidden="true" />
           <figure className="cst-quote" data-reveal>
             <blockquote>“{t.quote}”</blockquote>
@@ -625,23 +638,42 @@ const CSS = `
 .cst-barCta{padding:9px 18px;border:1px solid var(--gold-dim);border-radius:999px;color:var(--gold-bright);font-size:12.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;transition:background 160ms,color 160ms;}
 .cst-barCta:hover{background:var(--gold);color:#17110A;}
 
-/* hero */
-.cst-hero{position:relative;min-height:min(94svh,900px);display:flex;align-items:center;justify-content:center;overflow:hidden;background:linear-gradient(180deg,#3A2A14 0%,#24190F 45%,var(--bg) 100%);}
-.cst-heroArt{position:absolute;inset:-4%;z-index:0;background-size:cover;background-position:center 28%;filter:saturate(1.05) brightness(.9);animation:cst-kb 36s ease-in-out infinite alternate;}
-@keyframes cst-kb{from{transform:scale(1)}to{transform:scale(1.07)}}
-.cst-heroDawn{position:absolute;inset:0;z-index:1;mix-blend-mode:screen;animation:cst-breathe 9s ease-in-out infinite alternate;
-  background:radial-gradient(55% 48% at 50% 0%,rgba(255,220,140,.5),rgba(230,180,90,.2) 40%,transparent 72%),radial-gradient(35% 30% at 50% 8%,rgba(255,240,200,.4),transparent 70%);}
-@keyframes cst-breathe{from{opacity:.85}to{opacity:1}}
-.cst-heroRays{position:absolute;inset:-20% 0 0;z-index:1;mix-blend-mode:screen;opacity:.3;pointer-events:none;
-  background:conic-gradient(from 180deg at 50% 0%,transparent 0 8%,rgba(255,225,160,.18) 10%,transparent 12%,transparent 20%,rgba(255,225,160,.14) 22%,transparent 24%,transparent 30%,rgba(255,225,160,.2) 32%,transparent 34%,transparent 40%,rgba(255,225,160,.12) 42%,transparent 44%,transparent 56%,rgba(255,225,160,.12) 58%,transparent 60%,transparent 66%,rgba(255,225,160,.2) 68%,transparent 70%,transparent 76%,rgba(255,225,160,.14) 78%,transparent 80%,transparent 88%,rgba(255,225,160,.18) 90%,transparent 92%);
-  -webkit-mask-image:radial-gradient(70% 90% at 50% 0%,#000 30%,transparent 100%);mask-image:radial-gradient(70% 90% at 50% 0%,#000 30%,transparent 100%);}
-.cst-heroShade{position:absolute;inset:0;z-index:2;background:radial-gradient(60% 55% at 50% 60%,rgba(18,13,9,.3),rgba(18,13,9,.55) 100%),linear-gradient(180deg,rgba(18,13,9,.1) 0%,rgba(18,13,9,.2) 45%,rgba(18,13,9,.65) 82%,var(--bg) 100%);}
-.cst-heroInner{position:relative;z-index:3;max-width:920px;padding:120px 20px 150px;text-align:center;}
-.cst-kicker{margin:0 0 26px;color:var(--gold-bright);font-size:12px;font-weight:700;letter-spacing:.34em;text-transform:uppercase;text-shadow:0 2px 24px rgba(0,0,0,.7);}
-.cst-h1{margin:0 auto 24px;font-family:var(--serif);font-weight:600;font-size:clamp(3rem,7.6vw,5.8rem);line-height:1.02;letter-spacing:-.015em;color:#FBF4E6;text-shadow:0 2px 6px rgba(0,0,0,.35),0 10px 50px rgba(0,0,0,.7);}
-.cst-h1 em{display:block;margin-top:10px;font-style:italic;font-weight:500;font-size:.56em;background:linear-gradient(100deg,#E6C97F 10%,#FFF0C8 45%,#E6C97F 90%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 2px 14px rgba(0,0,0,.55));}
-.cst-heroSub{margin:0 auto;max-width:60ch;color:#E9DEC8;font-size:clamp(1rem,1.5vw,1.15rem);line-height:1.75;text-shadow:0 2px 20px rgba(0,0,0,.8);}
-.cst-heroCtas{margin:38px auto 0;display:flex;justify-content:center;flex-wrap:wrap;gap:14px;}
+/* hero — split: the ask on the left, the feed on the right */
+.cst-hero{position:relative;min-height:min(92svh,880px);display:flex;align-items:center;overflow:hidden;background:radial-gradient(70% 60% at 70% 40%,rgba(201,163,86,.12),transparent 70%),linear-gradient(180deg,#241A10 0%,#1A130D 50%,var(--bg) 100%);}
+.cst-heroDawn{position:absolute;inset:0;z-index:0;mix-blend-mode:screen;animation:cst-breathe 9s ease-in-out infinite alternate;pointer-events:none;
+  background:radial-gradient(50% 45% at 72% 0%,rgba(255,220,140,.35),rgba(230,180,90,.12) 40%,transparent 72%);}
+@keyframes cst-breathe{from{opacity:.8}to{opacity:1}}
+.cst-heroRays{position:absolute;inset:-20% 0 0;z-index:0;mix-blend-mode:screen;opacity:.22;pointer-events:none;
+  background:conic-gradient(from 180deg at 72% 0%,transparent 0 8%,rgba(255,225,160,.18) 10%,transparent 12%,transparent 20%,rgba(255,225,160,.14) 22%,transparent 24%,transparent 30%,rgba(255,225,160,.2) 32%,transparent 34%,transparent 40%,rgba(255,225,160,.12) 42%,transparent 44%,transparent 56%,rgba(255,225,160,.12) 58%,transparent 60%,transparent 66%,rgba(255,225,160,.2) 68%,transparent 70%,transparent 76%,rgba(255,225,160,.14) 78%,transparent 80%);
+  -webkit-mask-image:radial-gradient(60% 90% at 72% 0%,#000 30%,transparent 100%);mask-image:radial-gradient(60% 90% at 72% 0%,#000 30%,transparent 100%);}
+.cst-heroGrid{position:relative;z-index:2;width:min(1200px,calc(100% - 40px));margin:0 auto;padding:110px 0 150px;display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:clamp(32px,5vw,72px);align-items:center;}
+.cst-heroCopy{max-width:640px;}
+.cst-kicker{margin:0 0 24px;color:var(--gold-bright);font-size:12px;font-weight:700;letter-spacing:.34em;text-transform:uppercase;}
+.cst-h1{margin:0 0 22px;font-family:var(--serif);font-weight:600;font-size:clamp(3rem,6.4vw,5.4rem);line-height:1.0;letter-spacing:-.015em;color:#FBF4E6;}
+.cst-h1 em{display:block;margin-top:10px;font-style:italic;font-weight:500;font-size:.56em;background:linear-gradient(100deg,#E6C97F 10%,#FFF0C8 45%,#E6C97F 90%);-webkit-background-clip:text;background-clip:text;color:transparent;}
+.cst-heroSub{margin:0;max-width:54ch;color:#D9CDB8;font-size:clamp(1rem,1.4vw,1.12rem);line-height:1.75;}
+.cst-heroCtas{margin:34px 0 0;display:flex;flex-wrap:wrap;gap:14px;}
+.cst-trust{margin:30px 0 0;padding:0;list-style:none;display:flex;flex-wrap:wrap;gap:10px 26px;}
+.cst-trust li{display:inline-flex;align-items:center;gap:9px;color:var(--muted);font-size:13px;font-weight:600;}
+.cst-trust i{font-style:normal;font-size:11px;color:var(--gold);}
+
+/* the phone */
+.cst-heroPhoneWrap{position:relative;display:flex;justify-content:center;align-items:center;padding:20px 0;}
+.cst-phoneGlow{position:absolute;width:120%;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,rgba(201,163,86,.28),rgba(201,163,86,.08) 40%,transparent 68%);filter:blur(10px);pointer-events:none;animation:cst-breathe 7s ease-in-out infinite alternate;}
+.cst-phone{position:relative;width:min(300px,78vw);aspect-ratio:9/19;border-radius:44px;padding:11px;background:linear-gradient(160deg,#2B2118,#0E0A07);
+  box-shadow:0 0 0 1px rgba(201,163,86,.35),0 0 0 2px rgba(0,0,0,.6),inset 0 0 0 1px rgba(255,255,255,.06),0 60px 110px -40px rgba(0,0,0,1),0 30px 60px -30px rgba(201,163,86,.25);
+  animation:cst-float 8s ease-in-out infinite;}
+@keyframes cst-float{0%,100%{transform:translateY(0) rotate(-1.2deg)}50%{transform:translateY(-10px) rotate(-1.2deg)}}
+.cst-phoneIsland{position:absolute;top:22px;left:50%;transform:translateX(-50%);width:86px;height:24px;border-radius:999px;background:#000;z-index:3;box-shadow:inset 0 0 0 1px rgba(255,255,255,.05);}
+.cst-phoneScreen{position:relative;width:100%;height:100%;border-radius:34px;overflow:hidden;background:#000;}
+.cst-phoneScreen .cst-fbVideo{position:absolute;inset:0;}
+.cst-chip{position:absolute;z-index:4;display:inline-flex;align-items:center;gap:8px;padding:9px 14px;border:1px solid rgba(201,163,86,.35);border-radius:999px;background:rgba(18,13,9,.78);backdrop-filter:blur(10px);color:var(--muted);font-size:12px;font-weight:600;box-shadow:0 14px 30px -14px rgba(0,0,0,.9);white-space:nowrap;}
+.cst-chip b{font-family:var(--serif);font-weight:600;font-size:17px;color:var(--gold-bright);}
+.cst-chipA{top:16%;left:-6%;animation:cst-float 9s ease-in-out infinite;animation-delay:-2s;}
+.cst-chipB{top:58%;right:-8%;animation:cst-float 10s ease-in-out infinite;animation-delay:-5s;}
+.cst-chipC{bottom:3%;left:50%;transform:translateX(-50%);font-family:var(--serif);font-style:italic;font-size:14px;color:var(--text);}
+.cst-chipDot{width:7px;height:7px;border-radius:50%;background:#E25D4B;box-shadow:0 0 0 3px rgba(226,93,75,.25);animation:cst-pulse 1.6s ease-in-out infinite;}
+@keyframes cst-pulse{0%,100%{opacity:1}50%{opacity:.4}}
 .cst-cta{display:inline-flex;align-items:center;gap:10px;min-height:54px;padding:15px 26px;border-radius:999px;background:linear-gradient(135deg,#E6C97F,#C9A356 55%,#A8823C);color:#17110A;font-size:15px;font-weight:800;box-shadow:0 10px 36px -10px rgba(201,163,86,.6);transition:transform 160ms,box-shadow 160ms;}
 .cst-cta:hover{transform:translateY(-2px);box-shadow:0 16px 44px -10px rgba(201,163,86,.7);}
 .cst-cta svg{width:17px;height:17px;}
@@ -699,8 +731,8 @@ const CSS = `
 .cst-seeAll a:hover{color:var(--gold-bright);border-color:var(--gold-dim);}
 
 /* story break */
-.cst-break{position:relative;margin-top:clamp(48px,7vh,80px);padding:clamp(40px,6vh,64px) 0;display:flex;align-items:center;justify-content:center;background-size:cover;background-position:center 35%;background-attachment:fixed;background-color:var(--bg2);}
-.cst-breakShade{position:absolute;inset:0;background:linear-gradient(180deg,var(--bg) 0%,rgba(18,13,9,.45) 30%,rgba(18,13,9,.5) 70%,var(--bg) 100%);}
+.cst-break{position:relative;margin-top:clamp(48px,7vh,80px);padding:clamp(40px,6vh,64px) 0;display:flex;align-items:center;justify-content:center;background:var(--bg);}
+.cst-breakShade{position:absolute;inset:0;background:radial-gradient(50% 80% at 50% 50%,rgba(201,163,86,.09),transparent 70%);}
 .cst-quote{position:relative;width:min(860px,calc(100% - 40px));margin:0;padding:0;text-align:center;}
 .cst-quote blockquote{margin:0;font-family:var(--serif);font-style:italic;font-weight:500;color:var(--gold-bright);font-size:clamp(1.9rem,4.2vw,3.2rem);line-height:1.3;text-shadow:0 4px 40px rgba(0,0,0,.85);}
 .cst-quote figcaption{margin-top:20px;color:var(--text);font-size:12px;font-weight:700;letter-spacing:.3em;text-transform:uppercase;opacity:.85;}
@@ -834,6 +866,15 @@ const CSS = `
   .cst-row{grid-template-columns:52px 1fr;}
   .cst-rowText{grid-column:2;}
 }
+@media (max-width:900px){
+  .cst-heroGrid{grid-template-columns:1fr;padding:100px 0 140px;gap:48px;text-align:center;}
+  .cst-heroCopy{max-width:640px;margin:0 auto;}
+  .cst-heroSub{margin:0 auto;}
+  .cst-heroCtas,.cst-trust{justify-content:center;}
+  .cst-phone{width:min(260px,70vw);}
+  .cst-chipA{left:2%;}
+  .cst-chipB{right:2%;}
+}
 @media (max-width:800px){
   .cst-mission{grid-template-columns:1fr;}
   .cst-missionStill{max-width:320px;}
@@ -851,10 +892,12 @@ const CSS = `
   .cst-markText,.cst-markDivider{display:none;}
   .cst-markLogo{height:30px;}
   .cst-markTile{padding:3px 5px;}
-  .cst-heroInner{padding:100px 16px 130px;}
+  .cst-heroGrid{padding:96px 0 130px;}
   .cst-kicker{letter-spacing:.22em;font-size:11px;}
   .cst-heroCtas{flex-direction:column;align-items:stretch;}
   .cst-cta,.cst-ghost{justify-content:center;width:100%;}
+  .cst-trust{flex-direction:column;align-items:center;gap:8px;}
+  .cst-chipA,.cst-chipB{display:none;}
   .cst-litanyItem{font-size:17px;padding:0 20px;}
   .cst-litanyRow{grid-template-columns:1fr;gap:6px;padding:18px 4px;}
   .cst-litanyN,.cst-litanyDots{display:none;}
