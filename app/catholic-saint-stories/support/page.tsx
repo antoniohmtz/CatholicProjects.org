@@ -331,7 +331,6 @@ function PhoneFeed({ films, t }: { films: Film[]; t: T }) {
     <div className="cst-heroPhoneWrap" onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)} onKeyDown={onKey} tabIndex={0} aria-label={`${t.phoneCap}: ${f.title}`}>
       <div className="cst-phoneGlow" aria-hidden="true" />
       <div className="cst-phone">
-        <div className="cst-phoneIsland" aria-hidden="true" />
         <div className="cst-phoneScreen">
           <div className="cst-feedTrack" style={{ transform: `translateY(-${i * 100}%)` }}>
             {films.map((film) => (
@@ -745,12 +744,11 @@ const CSS = `
 /* the phone */
 .cst-heroPhoneWrap{position:relative;display:flex;justify-content:center;align-items:center;padding:20px 0;}
 .cst-phoneGlow{position:absolute;width:120%;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,rgba(201,163,86,.28),rgba(201,163,86,.08) 40%,transparent 68%);filter:blur(10px);pointer-events:none;animation:cst-breathe 7s ease-in-out infinite alternate;}
-.cst-phone{position:relative;width:min(300px,78vw);aspect-ratio:9/19;border-radius:44px;padding:11px;background:linear-gradient(160deg,#2B2118,#0E0A07);
+.cst-phone{position:relative;width:min(300px,78vw);border-radius:44px;padding:11px;background:linear-gradient(160deg,#2B2118,#0E0A07);
   box-shadow:0 0 0 1px rgba(201,163,86,.35),0 0 0 2px rgba(0,0,0,.6),inset 0 0 0 1px rgba(255,255,255,.06),0 60px 110px -40px rgba(0,0,0,1),0 30px 60px -30px rgba(201,163,86,.25);
   animation:cst-float 8s ease-in-out infinite;}
 @keyframes cst-float{0%,100%{transform:translateY(0) rotate(-1.2deg)}50%{transform:translateY(-10px) rotate(-1.2deg)}}
-.cst-phoneIsland{position:absolute;top:22px;left:50%;transform:translateX(-50%);width:86px;height:24px;border-radius:999px;background:#000;z-index:3;box-shadow:inset 0 0 0 1px rgba(255,255,255,.05);}
-.cst-phoneScreen{position:relative;width:100%;height:100%;border-radius:34px;overflow:hidden;background:#000;}
+.cst-phoneScreen{position:relative;width:100%;aspect-ratio:9/16;border-radius:34px;overflow:hidden;background:#000;}
 .cst-feedTrack{position:absolute;inset:0;transition:transform 700ms cubic-bezier(.65,0,.2,1);}
 .cst-feedSlide{position:relative;width:100%;height:100%;}
 .cst-feedSlide .cst-fbVideo{position:absolute;inset:0;}
@@ -759,6 +757,8 @@ const CSS = `
 /* feed controls */
 .cst-feedNav{position:absolute;right:calc(50% - min(300px,78vw)/2 - 58px);top:50%;transform:translateY(-50%);z-index:5;display:flex;flex-direction:column;align-items:center;gap:12px;}
 .cst-feedBtn{width:38px;height:38px;display:flex;align-items:center;justify-content:center;border:1px solid rgba(201,163,86,.35);border-radius:50%;background:rgba(18,13,9,.7);backdrop-filter:blur(8px);color:var(--gold-bright);transition:background 160ms,color 160ms,transform 160ms;}
+.cst-feedBtn:focus-visible,.cst-feedDot:focus-visible{outline:2px solid var(--gold);outline-offset:2px;border-radius:999px;}
+.cst-feedBtn:focus:not(:focus-visible){outline:none;}
 .cst-feedBtn:hover{background:var(--gold);color:#17110A;transform:scale(1.06);}
 .cst-feedBtn svg{width:16px;height:16px;}
 .cst-feedDots{display:flex;flex-direction:column;gap:8px;padding:6px 0;}
@@ -767,9 +767,9 @@ const CSS = `
 .cst-feedDot:hover{background:var(--gold);}
 .cst-chip{position:absolute;z-index:4;display:inline-flex;align-items:center;gap:8px;padding:9px 14px;border:1px solid rgba(201,163,86,.35);border-radius:999px;background:rgba(18,13,9,.78);backdrop-filter:blur(10px);color:var(--muted);font-size:12px;font-weight:600;box-shadow:0 14px 30px -14px rgba(0,0,0,.9);white-space:nowrap;}
 .cst-chip b{font-family:var(--serif);font-weight:600;font-size:17px;color:var(--gold-bright);}
-.cst-chipA{top:16%;left:-6%;animation:cst-float 9s ease-in-out infinite,cst-chipIn 500ms ease;animation-delay:-2s,0s;}
-.cst-chipB{top:58%;right:4%;animation:cst-float 10s ease-in-out infinite,cst-chipIn 500ms ease;animation-delay:-5s,0s;}
-.cst-chipC{bottom:3%;left:50%;transform:translateX(-50%);font-family:var(--serif);font-style:italic;font-size:14px;color:var(--text);animation:cst-chipIn 500ms ease;}
+.cst-chipA{top:18%;left:calc(50% - min(300px,78vw)/2 - 70px);animation:cst-float 9s ease-in-out infinite,cst-chipIn 500ms ease;animation-delay:-2s,0s;}
+.cst-chipB{top:62%;left:calc(50% - min(300px,78vw)/2 - 54px);animation:cst-float 10s ease-in-out infinite,cst-chipIn 500ms ease;animation-delay:-5s,0s;}
+.cst-chipC{bottom:-8px;left:50%;transform:translateX(-50%);font-family:var(--serif);font-style:italic;font-size:14px;color:var(--text);animation:cst-chipIn 500ms ease;}
 @keyframes cst-chipIn{from{opacity:0}to{opacity:1}}
 .cst-chipDot{width:7px;height:7px;border-radius:50%;background:#E25D4B;box-shadow:0 0 0 3px rgba(226,93,75,.25);animation:cst-pulse 1.6s ease-in-out infinite;}
 @keyframes cst-pulse{0%,100%{opacity:1}50%{opacity:.4}}
@@ -987,8 +987,8 @@ const CSS = `
   .cst-heroSub{margin:0 auto;}
   .cst-heroCtas,.cst-trust{justify-content:center;}
   .cst-phone{width:min(260px,70vw);}
-  .cst-chipA{left:2%;}
-  .cst-chipB{right:2%;}
+  .cst-chipA{left:calc(50% - min(260px,70vw)/2 - 60px);}
+  .cst-chipB{left:calc(50% - min(260px,70vw)/2 - 46px);}
   .cst-feedNav{right:calc(50% - min(260px,70vw)/2 - 54px);}
 }
 @media (max-width:800px){
@@ -1014,7 +1014,8 @@ const CSS = `
   .cst-cta,.cst-ghost{justify-content:center;width:100%;}
   .cst-trust{flex-direction:column;align-items:center;gap:8px;}
   .cst-chipA,.cst-chipB{display:none;}
-  .cst-feedNav{right:auto;left:50%;top:auto;bottom:-14px;transform:translateX(-50%);flex-direction:row;gap:10px;}
+  .cst-heroPhoneWrap{padding-bottom:70px;}
+  .cst-feedNav{right:auto;left:50%;top:auto;bottom:0;transform:translateX(-50%);flex-direction:row;gap:10px;}
   .cst-feedDots{flex-direction:row;padding:0 6px;}
   .cst-feedDot.is-on{height:6px;width:18px;}
   .cst-chipC{bottom:auto;top:-10px;}
