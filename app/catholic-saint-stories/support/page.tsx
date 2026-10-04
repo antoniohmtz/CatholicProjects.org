@@ -20,13 +20,16 @@ const serif = Cormorant_Garamond({
    browsers; `?lang=es` forces Spanish (use it from Spanish posts).
 
    Videos play from Facebook — nothing to upload.
-   Two images in /public/saint-stories/ (keep each < 2MB):
+   One image in /public/saint-stories/ (keep it < 2MB):
      banner.jpg   Facebook cover art (hero + story break)
-     damian.jpg   one still from the Damián film (mission)
 ------------------------------------------------------------ */
 
 const A = "/saint-stories";
-const ASSETS = { banner: `${A}/banner.jpg`, still: `${A}/damian.jpg` };
+const ASSETS = { banner: `${A}/banner.jpg` };
+/* CatholicProjects logo. If it's a dark logo on transparent, the CSS
+   turns it white for the dark page. For a multi-color logo, export a
+   light version to /public/saint-stories/cp-logo-light.png and use that. */
+const CP_LOGO = "https://app.catholicprojects.org/brand/catholicprojects-logo.png";
 
 const CONTACT = "team@catholicprojects.org";
 const STRIPE_LINK = "https://buy.stripe.com/your-stripe-link"; // TODO
@@ -36,35 +39,51 @@ const INSTAGRAM_URL = "https://instagram.com/catholicsaintstories";
 
 type Lang = "en" | "es";
 
-/* ═══════════════════════ FILMS ═══════════════════════ */
-type Film = { slug: string; title: string; lang: "English" | "Español"; logline: string; proof: Record<Lang, string>; ig: string; fb: string };
+/* ═══════════════════════ FILMS ═══════════════════════
+   FEATURED (4): autoplaying players. Keep this at four — each one is
+   a live Facebook player and more gets heavy.
+   MORE: as many as you like — lightweight rows, no players.
+   Stats are strings so you can write "56.1K", "1.2M", "—". Combine
+   platforms however you count them (TODO: fill in real numbers). */
+type Stats = { views: string; likes: string; shares: string };
+type Film = { slug: string; title: string; lang: "English" | "Español"; logline: string; stats: Stats; ig: string; fb: string };
 
-const FILMS: Film[] = [
+const FEATURED: Film[] = [
   {
     slug: "damian", title: "San Damián de Molokai", lang: "Español",
     logline: "Eligió vivir con los enviados lejos por la lepra — sabiendo que quizá nunca volvería.",
-    proof: { en: "56K+ views", es: "56K+ vistas" },
+    stats: { views: "56.1K", likes: "748", shares: "100" },
     ig: "https://www.instagram.com/reel/DeAb99UBwNT/", fb: "https://www.facebook.com/reel/2563206477478130",
   },
   {
     slug: "sheen", title: "Blessed Fulton Sheen", lang: "English",
     logline: "A bishop, a chalkboard, and a television camera — and thirty million people listening.",
-    proof: { en: "19K+ views", es: "19K+ vistas" },
+    stats: { views: "19.5K", likes: "—", shares: "—" },
     ig: "https://www.instagram.com/reel/DduZyldBW9M/", fb: "https://fb.watch/v/6tDwOkXld/",
   },
   {
     slug: "alacoque", title: "Santa Margarita María de Alacoque", lang: "Español",
     logline: "Jesús le mostró Su Corazón ardiendo de amor — y le confió una misión para toda la Iglesia.",
-    proof: { en: "3.6K reactions · 400+ shares", es: "3.6K reacciones · 400+ compartidos" },
+    stats: { views: "31.7K", likes: "3.6K", shares: "418" },
     ig: "https://www.instagram.com/reel/Dd4tluZBbbc/", fb: "https://fb.watch/v/84XezVsW2/",
   },
   {
     slug: "gines", title: "San Ginés de Roma", lang: "Español",
     logline: "Un actor que se burlaba de los cristianos en escena — hasta que, a mitad de la obra, creyó.",
-    proof: { en: "Latest release", es: "Último estreno" },
+    stats: { views: "—", likes: "—", shares: "—" },
     ig: INSTAGRAM_URL, fb: "https://fb.watch/v/7WGZBbZ1Q/", // TODO: direct Instagram reel
   },
 ];
+
+type MoreFilm = { title: string; lang: "English" | "Español"; stats: Stats; href: string };
+const MORE: MoreFilm[] = [
+  { title: "Saint Vincent de Paul", lang: "English", stats: { views: "53.3K", likes: "3.5K", shares: "607" }, href: "https://www.facebook.com/reel/958525383998552" },
+  // { title: "St. Thérèse of Lisieux", lang: "English", stats: { views: "", likes: "", shares: "" }, href: "" },
+  // { title: "San Juan Bosco",          lang: "Español", stats: { views: "", likes: "", shares: "" }, href: "" },
+];
+
+/* Mission section plays this reel (no image needed). */
+const MISSION_REEL = FEATURED[0];
 
 /* ═══════════════════════ COPY ═══════════════════════ */
 const COPY = {
@@ -89,6 +108,8 @@ const COPY = {
     showingH2: "Stories people can't stop sharing",
     showingLede: "Every film is free to watch. These are the ones traveling furthest right now.",
     watch: "Watch on Instagram",
+    views: "views", likes: "likes", shares: "shares",
+    moreH3: "More stories",
     seeAll: "All 102 stories, free, on Instagram & Facebook →",
     quote: "Verso l'alto — To the heights.",
     quoteBy: "St. Pier Giorgio Frassati",
@@ -137,16 +158,10 @@ const COPY = {
       ["Saint Stories for Kids", "Age-appropriate films for families, classrooms, and parish programs — so children meet the saints the way they meet everything else: with wonder."],
       ["More languages", "English and Spanish today. As support grows, the saints in more languages — so no one is left out because of the language they pray in."],
     ],
-    slateEyebrow: "On the slate",
-    slateH2: "The stories we're preparing",
-    slate: [
-      ["St. Thérèse of Lisieux", "The Little Way", "Coming soon"],
-      ["St. Francis of Assisi", "The Poverello", "In production"],
-      ["St. Joan of Arc", "The Maid of Orléans", "In research"],
-      ["St. Benedict", "Father of Western monasticism", "In research"],
-      ["St. Catherine of Siena", "Mystic & Doctor of the Church", "In research"],
-      ["St. Augustine", "Doctor of Grace", "In research"],
-    ],
+    cpEyebrow: "A project of CatholicProjects.org",
+    cpH2: "Built to serve the Church — and always free",
+    cpText: "Catholic Saint Stories is one of two projects at CatholicProjects.org. The other is a free library of Catholic worksheets, crafts, and saint activities for catechists, parishes, and families. Both exist for the same reason: to help people take one step closer to Christ and to the life of their parish.",
+    cpLink: "Explore the free resource hub",
     supportEyebrow: "Be part of the mission",
     supportH2: "Help carry the saints to the world",
     supportLede: "You're not funding a channel. You're helping tell the stories of the saints to people who have never heard them — and pointing them home: to their parish, to the sacraments, to Christ. Every gift carries real impact. It becomes research, production, narration, translation — the next story, reaching the next person.",
@@ -191,6 +206,8 @@ const COPY = {
     showingH2: "Historias que la gente no deja de compartir",
     showingLede: "Todas las películas son gratis. Estas son las que más lejos están llegando ahora.",
     watch: "Ver en Instagram",
+    views: "vistas", likes: "me gusta", shares: "compartidos",
+    moreH3: "Más historias",
     seeAll: "Las 102 historias, gratis, en Instagram y Facebook →",
     quote: "Verso l'alto — Hacia lo alto.",
     quoteBy: "San Pier Giorgio Frassati",
@@ -239,16 +256,10 @@ const COPY = {
       ["Historias de Santos para Niños", "Películas adecuadas para familias, aulas y programas parroquiales — para que los niños conozcan a los santos como conocen todo lo demás: con asombro."],
       ["Más idiomas", "Hoy, español e inglés. Conforme crezca el apoyo, los santos en más idiomas — para que nadie quede fuera por el idioma en que reza."],
     ],
-    slateEyebrow: "En preparación",
-    slateH2: "Las historias que estamos preparando",
-    slate: [
-      ["Santa Teresita de Lisieux", "El Caminito", "Próximamente"],
-      ["San Francisco de Asís", "El Poverello", "En producción"],
-      ["Santa Juana de Arco", "La Doncella de Orleans", "En investigación"],
-      ["San Benito", "Padre del monacato occidental", "En investigación"],
-      ["Santa Catalina de Siena", "Mística y Doctora de la Iglesia", "En investigación"],
-      ["San Agustín", "Doctor de la Gracia", "En investigación"],
-    ],
+    cpEyebrow: "Un proyecto de CatholicProjects.org",
+    cpH2: "Hecho para servir a la Iglesia — y siempre gratis",
+    cpText: "Catholic Saint Stories es uno de los dos proyectos de CatholicProjects.org. El otro es una biblioteca gratuita de fichas, manualidades y actividades de santos para catequistas, parroquias y familias. Ambos existen por la misma razón: ayudar a las personas a dar un paso más hacia Cristo y hacia la vida de su parroquia.",
+    cpLink: "Explorar los recursos gratuitos",
     supportEyebrow: "Sé parte de la misión",
     supportH2: "Ayuda a llevar a los santos al mundo",
     supportLede: "No estás financiando un canal. Estás ayudando a contar las historias de los santos a personas que nunca las han oído — y a orientarlas de vuelta a casa: a su parroquia, a los sacramentos, a Cristo. Cada aporte tiene un impacto real. Se convierte en investigación, producción, narración, traducción — la próxima historia, llegando a la próxima persona.",
@@ -344,8 +355,9 @@ export default function SupportPage() {
       <div className="cst-grain" aria-hidden="true" />
 
       <header className="cst-bar">
-        <a className="cst-mark" href={FACEBOOK_URL} target="_blank" rel="noopener noreferrer">
-          <span className="cst-markCross" aria-hidden="true">✠</span>
+        <a className="cst-mark" href="https://catholicprojects.org">
+          <img className="cst-markLogo" src={CP_LOGO} alt="CatholicProjects.org" />
+          <span className="cst-markDivider" aria-hidden="true" />
           <span className="cst-markText">Catholic Saint Stories</span>
         </a>
         <nav className="cst-barNav">
@@ -398,7 +410,7 @@ export default function SupportPage() {
             <p className="cst-lede">{t.showingLede}</p>
           </div>
           <div className="cst-films">
-            {FILMS.map((f) => (
+            {FEATURED.map((f) => (
               <article key={f.slug} className="cst-film" data-reveal>
                 <div className="cst-poster">
                   <iframe className="cst-posterFrame" src={fbEmbed(f.fb)} title={f.title} loading="lazy"
@@ -408,14 +420,36 @@ export default function SupportPage() {
                 <div className="cst-filmBody">
                   <h3 className="cst-filmTitle">{f.title}</h3>
                   <p className="cst-filmLogline">{f.logline}</p>
-                  <div className="cst-filmFoot">
-                    <span className="cst-filmProof">{f.proof[lang]}</span>
-                    <a className="cst-filmWatch" href={f.ig} target="_blank" rel="noopener noreferrer">{t.watch} <Svg sw={2.2}>{I.arrow}</Svg></a>
-                  </div>
+                  <dl className="cst-stats">
+                    <div><dt>{f.stats.views}</dt><dd>{t.views}</dd></div>
+                    <div><dt>{f.stats.likes}</dt><dd>{t.likes}</dd></div>
+                    <div><dt>{f.stats.shares}</dt><dd>{t.shares}</dd></div>
+                  </dl>
+                  <a className="cst-filmWatch" href={f.ig} target="_blank" rel="noopener noreferrer">{t.watch} <Svg sw={2.2}>{I.arrow}</Svg></a>
                 </div>
               </article>
             ))}
           </div>
+
+          {MORE.length > 0 && (
+            <div className="cst-more" data-reveal>
+              <h3 className="cst-moreH3">{t.moreH3}</h3>
+              <ul className="cst-moreList">
+                {MORE.map((m) => (
+                  <li key={m.href}>
+                    <a className="cst-moreRow" href={m.href} target="_blank" rel="noopener noreferrer">
+                      <span className="cst-moreTitle">{m.title}</span>
+                      <span className="cst-moreLang">{m.lang}</span>
+                      <span className="cst-moreStats">
+                        <b>{m.stats.views}</b> {t.views} · <b>{m.stats.likes}</b> {t.likes} · <b>{m.stats.shares}</b> {t.shares}
+                      </span>
+                      <Svg sw={2.2} className="cst-moreArrow">{I.arrow}</Svg>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
           <p className="cst-seeAll" data-reveal><a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer">{t.seeAll}</a></p>
         </section>
 
@@ -430,7 +464,9 @@ export default function SupportPage() {
 
         {/* ═══ MISSION ═══ */}
         <section className="cst-section cst-mission">
-          <div className="cst-missionStill" data-reveal style={{ backgroundImage: `url(${ASSETS.still})` }}>
+          <div className="cst-missionStill" data-reveal>
+            <iframe className="cst-posterFrame" src={fbEmbed(MISSION_REEL.fb)} title={MISSION_REEL.title} loading="lazy"
+              allow="autoplay; encrypted-media; picture-in-picture; web-share" allowFullScreen />
             <span className="cst-missionCap">{t.missionCap}</span>
           </div>
           <div className="cst-missionCopy" data-reveal>
@@ -451,7 +487,6 @@ export default function SupportPage() {
           <ul className="cst-saintsGrid">
             {t.saints.map(([name, role]) => (
               <li key={name} className="cst-saintCard" data-reveal>
-                <span className="cst-saintCross" aria-hidden="true">✠</span>
                 <span className="cst-saintCardName">{name}</span>
                 <span className="cst-saintCardRole">{role}</span>
                 <span className="cst-saintPray">{t.prayForUs}</span>
@@ -519,17 +554,20 @@ export default function SupportPage() {
               </div>
             ))}
           </div>
-          <div className="cst-slateWrap">
-            <p className="cst-eyebrow" data-reveal>{t.slateEyebrow}</p>
-            <ul className="cst-slate">
-              {t.slate.map(([name, epithet, status], i) => (
-                <li key={name} className="cst-saint" data-reveal>
-                  <span className="cst-saintN">{String(i + 1).padStart(2, "0")}</span>
-                  <span className="cst-saintBody"><span className="cst-saintName">{name}</span><span className="cst-saintEpithet">{epithet}</span></span>
-                  <span className={`cst-status ${i === 1 ? "is-active" : i === 0 ? "is-next" : ""}`}>{status}</span>
-                </li>
-              ))}
-            </ul>
+        </section>
+
+        {/* ═══ CATHOLICPROJECTS ═══ */}
+        <section className="cst-section">
+          <div className="cst-cp" data-reveal>
+            <div className="cst-cpLogoWrap">
+              <img className="cst-cpLogo" src={CP_LOGO} alt="CatholicProjects.org" />
+            </div>
+            <div className="cst-cpBody">
+              <p className="cst-eyebrow">{t.cpEyebrow}</p>
+              <h2 className="cst-h2 cst-h2Small">{t.cpH2}</h2>
+              <p className="cst-cpText">{t.cpText}</p>
+              <a className="cst-cpLink" href="https://app.catholicprojects.org">{t.cpLink} <Svg sw={2.2}>{I.arrow}</Svg></a>
+            </div>
           </div>
         </section>
 
@@ -567,7 +605,7 @@ export default function SupportPage() {
       </main>
 
       <footer className="cst-foot">
-        <span className="cst-footCross" aria-hidden="true">✠</span>
+        <img className="cst-footLogo" src={CP_LOGO} alt="CatholicProjects.org" />
         <p className="cst-footLine">{t.footLine}</p>
         <p className="cst-footMeta">{t.footProject} <a href="https://catholicprojects.org">CatholicProjects.org</a> · <a href={`mailto:${CONTACT}`}>{CONTACT}</a> · © {new Date().getFullYear()}</p>
         <p className="cst-footFine">{t.footFine}</p>
@@ -600,9 +638,11 @@ const CSS = `
 
 /* bar */
 .cst-bar{position:fixed;top:0;left:0;right:0;z-index:50;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px clamp(20px,4vw,44px);background:linear-gradient(180deg,rgba(18,13,9,.85),rgba(18,13,9,0));}
-.cst-mark{display:inline-flex;align-items:center;gap:10px;}
-.cst-markCross{color:var(--gold);font-size:17px;}
-.cst-markText{font-family:var(--serif);font-weight:600;font-size:17px;letter-spacing:.14em;text-transform:uppercase;}
+.cst-mark{display:inline-flex;align-items:center;gap:14px;}
+/* Logo on dark: a dark single-color logo is inverted to white. */
+.cst-markLogo{height:30px;width:auto;display:block;filter:brightness(0) invert(1);opacity:.92;}
+.cst-markDivider{width:1px;height:22px;background:var(--hair);}
+.cst-markText{font-family:var(--serif);font-weight:600;font-size:16px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-bright);}
 .cst-barNav{display:flex;align-items:center;gap:18px;}
 .cst-barLink{color:var(--muted);font-size:13px;font-weight:600;transition:color 150ms;}
 .cst-barLink:hover{color:var(--text);}
@@ -672,11 +712,25 @@ const CSS = `
 .cst-filmBody{display:flex;flex-direction:column;flex:1;padding:18px 18px 16px;}
 .cst-filmTitle{margin:0;font-family:var(--serif);font-weight:600;font-size:22px;line-height:1.15;}
 .cst-filmLogline{margin:8px 0 0;color:var(--muted);font-family:var(--serif);font-style:italic;font-size:16px;line-height:1.5;}
-.cst-filmFoot{margin-top:18px;padding-top:16px;display:flex;align-items:center;justify-content:space-between;gap:12px;border-top:1px solid var(--hair-soft);}
-.cst-filmProof{color:var(--faint);font-size:11.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;}
-.cst-filmWatch{display:inline-flex;align-items:center;gap:6px;color:var(--gold-bright);font-size:13px;font-weight:700;white-space:nowrap;}
+.cst-stats{margin:16px 0 0;padding:14px 0 0;display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--hair-soft);}
+.cst-stats>div{display:flex;flex-direction:column;gap:2px;}
+.cst-stats>div+div{border-left:1px solid var(--hair-soft);padding-left:12px;}
+.cst-stats dt{margin:0;font-family:var(--serif);font-weight:600;font-size:20px;line-height:1;color:var(--gold-bright);}
+.cst-stats dd{margin:0;color:var(--faint);font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;}
+.cst-filmWatch{margin-top:auto;padding-top:14px;display:inline-flex;align-items:center;gap:6px;color:var(--gold-bright);font-size:13px;font-weight:700;white-space:nowrap;}
 .cst-filmWatch svg{width:14px;height:14px;transition:transform 160ms;}
 .cst-film:hover .cst-filmWatch svg{transform:translateX(3px);}
+/* more stories — lightweight rows */
+.cst-more{margin-top:36px;}
+.cst-moreH3{margin:0 0 10px;color:var(--gold);font-size:11.5px;font-weight:700;letter-spacing:.3em;text-transform:uppercase;}
+.cst-moreList{margin:0;padding:0;list-style:none;border-top:1px solid var(--hair);}
+.cst-moreRow{display:grid;grid-template-columns:1fr auto auto 20px;align-items:center;gap:20px;padding:14px 6px;border-bottom:1px solid var(--hair-soft);transition:background 150ms;}
+.cst-moreRow:hover{background:rgba(201,163,86,.03);}
+.cst-moreTitle{font-family:var(--serif);font-weight:600;font-size:20px;}
+.cst-moreLang{padding:4px 10px;border:1px solid var(--hair-soft);border-radius:999px;color:var(--faint);font-size:10px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;}
+.cst-moreStats{color:var(--faint);font-size:12.5px;white-space:nowrap;}
+.cst-moreStats b{color:var(--muted);font-weight:700;}
+.cst-moreArrow{width:16px;height:16px;color:var(--gold-bright);}
 .cst-seeAll{margin:28px 0 0;text-align:center;}
 .cst-seeAll a{color:var(--muted);font-size:14px;font-weight:600;border-bottom:1px solid var(--hair);padding-bottom:3px;transition:color 150ms,border-color 150ms;}
 .cst-seeAll a:hover{color:var(--gold-bright);border-color:var(--gold-dim);}
@@ -692,9 +746,8 @@ const CSS = `
 
 /* mission */
 .cst-mission{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:clamp(32px,5vw,72px);align-items:center;}
-.cst-missionStill{position:relative;aspect-ratio:4/5;border-radius:22px;background-size:cover;background-position:center 20%;background-color:var(--panel2);box-shadow:0 40px 80px -40px rgba(0,0,0,.95);overflow:hidden;}
-.cst-missionStill::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 60%,rgba(18,13,9,.85));}
-.cst-missionCap{position:absolute;left:18px;bottom:16px;z-index:1;color:var(--muted);font-size:11.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;}
+.cst-missionStill{position:relative;aspect-ratio:9/16;max-width:420px;margin:0 auto;border-radius:22px;background:#000;box-shadow:0 40px 80px -40px rgba(0,0,0,.95);overflow:hidden;border:1px solid var(--hair-soft);}
+.cst-missionCap{position:absolute;left:0;right:0;bottom:0;z-index:2;padding:40px 18px 14px;pointer-events:none;background:linear-gradient(180deg,transparent,rgba(18,13,9,.85));color:var(--muted);font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;}
 .cst-missionCopy p:not(.cst-eyebrow){margin:18px 0 0;color:var(--muted);font-size:16.5px;line-height:1.85;}
 .cst-missionCopy .cst-missionCall{margin-top:24px;padding-left:18px;border-left:2px solid var(--gold-dim);color:var(--text);font-family:var(--serif);font-size:20px;line-height:1.55;}
 
@@ -702,7 +755,6 @@ const CSS = `
 .cst-saintsGrid{margin:0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
 .cst-saintCard{display:flex;flex-direction:column;gap:6px;padding:22px 20px;border:1px solid var(--hair-soft);border-radius:16px;background:linear-gradient(180deg,var(--panel),var(--bg2));transition:border-color 200ms,transform 200ms;}
 .cst-saintCard:hover{border-color:var(--gold-dim);transform:translateY(-3px);}
-.cst-saintCross{color:var(--gold);font-size:14px;margin-bottom:4px;}
 .cst-saintCardName{font-family:var(--serif);font-weight:600;font-size:20px;line-height:1.15;}
 .cst-saintCardRole{color:var(--muted);font-family:var(--serif);font-style:italic;font-size:15px;line-height:1.4;}
 .cst-saintPray{margin-top:8px;color:var(--faint);font-size:10.5px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;}
@@ -732,16 +784,14 @@ const CSS = `
 .cst-nextN{display:block;margin-bottom:14px;font-family:var(--serif);font-size:14px;color:var(--gold);letter-spacing:.1em;}
 .cst-nextCard h3{margin:0 0 10px;font-family:var(--serif);font-weight:600;font-size:23px;line-height:1.15;}
 .cst-nextCard p{margin:0;color:var(--muted);font-size:14.5px;line-height:1.7;}
-.cst-slateWrap{margin-top:clamp(36px,5vh,56px);}
-.cst-slate{margin:0;padding:0;list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:0 clamp(28px,5vw,72px);border-top:1px solid var(--hair);}
-.cst-saint{display:flex;align-items:center;gap:18px;padding:16px 6px;border-bottom:1px solid var(--hair-soft);}
-.cst-saintN{font-family:var(--serif);font-size:14px;color:var(--gold);letter-spacing:.08em;}
-.cst-saintBody{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;}
-.cst-saintName{font-family:var(--serif);font-weight:600;font-size:20px;line-height:1.2;}
-.cst-saintEpithet{color:var(--faint);font-family:var(--serif);font-style:italic;font-size:15px;}
-.cst-status{flex:0 0 auto;padding:5px 11px;border:1px solid var(--hair-soft);border-radius:999px;color:var(--faint);font-size:10px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;white-space:nowrap;}
-.cst-status.is-active{border-color:var(--gold-dim);color:var(--gold-bright);background:rgba(201,163,86,.08);}
-.cst-status.is-next{border-color:rgba(243,234,218,.22);color:var(--muted);}
+/* catholicprojects band */
+.cst-cp{display:grid;grid-template-columns:minmax(220px,.8fr) 1.6fr;gap:clamp(28px,5vw,64px);align-items:center;padding:clamp(28px,4vw,48px);border:1px solid var(--hair);border-radius:24px;background:linear-gradient(135deg,rgba(201,163,86,.1),rgba(201,163,86,.03) 55%,transparent);}
+.cst-cpLogoWrap{display:flex;align-items:center;justify-content:center;aspect-ratio:1;max-width:260px;margin:0 auto;border-radius:20px;background:#FFFDF9;box-shadow:0 30px 60px -30px rgba(0,0,0,.9);padding:28px;}
+.cst-cpLogo{width:100%;height:auto;display:block;}
+.cst-h2Small{font-size:clamp(1.7rem,3vw,2.4rem);}
+.cst-cpText{margin:14px 0 0;color:var(--muted);font-size:15.5px;line-height:1.75;}
+.cst-cpLink{margin-top:18px;display:inline-flex;align-items:center;gap:8px;color:var(--gold-bright);font-size:14px;font-weight:700;}
+.cst-cpLink svg{width:15px;height:15px;}
 
 /* support */
 .cst-support{padding-bottom:clamp(56px,8vh,88px);}
@@ -769,7 +819,7 @@ const CSS = `
 
 /* footer */
 .cst-foot{margin-top:auto;padding:56px 20px 60px;border-top:1px solid var(--hair-soft);text-align:center;background:linear-gradient(180deg,transparent,rgba(201,163,86,.05));}
-.cst-footCross{display:block;color:var(--gold);font-size:22px;margin-bottom:12px;}
+.cst-footLogo{display:block;height:34px;width:auto;margin:0 auto 16px;filter:brightness(0) invert(1);opacity:.85;}
 .cst-footLine{margin:0 0 14px;font-family:var(--serif);font-style:italic;font-size:19px;color:var(--muted);}
 .cst-footMeta{margin:0 0 8px;color:var(--faint);font-size:13px;}
 .cst-footMeta a{color:var(--muted);font-weight:650;}
@@ -789,8 +839,11 @@ const CSS = `
 }
 @media (max-width:800px){
   .cst-mission{grid-template-columns:1fr;}
-  .cst-missionStill{aspect-ratio:16/10;}
-  .cst-slate{grid-template-columns:1fr;}
+  .cst-missionStill{max-width:340px;}
+  .cst-cp{grid-template-columns:1fr;text-align:center;}
+  .cst-cpLogoWrap{max-width:200px;}
+  .cst-moreRow{grid-template-columns:1fr 20px;}
+  .cst-moreLang,.cst-moreStats{grid-column:1;}
   .cst-band{grid-template-columns:repeat(2,1fr);}
   .cst-band>div:nth-child(3){border-left:0;}
   .cst-band>div:nth-child(n+3){border-top:1px solid var(--hair-soft);}
@@ -799,7 +852,9 @@ const CSS = `
 }
 @media (max-width:600px){
   .cst-barLink{display:none;}
-  .cst-markText{font-size:14px;letter-spacing:.1em;}
+  .cst-markText{display:none;}
+  .cst-markDivider{display:none;}
+  .cst-markLogo{height:26px;}
   .cst-heroInner{padding:100px 16px 120px;}
   .cst-kicker{letter-spacing:.22em;font-size:11px;}
   .cst-heroCtas{flex-direction:column;align-items:stretch;}
