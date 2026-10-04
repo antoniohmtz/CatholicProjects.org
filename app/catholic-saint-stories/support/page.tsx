@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import { Inter, Cormorant_Garamond } from "next/font/google";
 import type { ReactNode } from "react";
 
@@ -13,15 +13,10 @@ const serif = Cormorant_Garamond({
 /* =============================================================
    Catholic Saint Stories — Support   (v16 · cinematic · bilingual)
 
-   Built around YOUR frames. Every image is a small JPG (< 300KB)
-   in /public/saint-stories/ :
+   Films play as embedded Facebook players (autoplay, muted).
+   Images — small JPGs (< 300KB) in /public/saint-stories/ :
 
      banner.jpg            Facebook cover art            hero + story break
-     sebastian.jpg         first frame of each film      film cards (9:16)
-     sheen.jpg
-     alacoque.jpg
-     vicente.jpg
-     damian.jpg            Damián still                  mission section
      witness-vincent.jpg   portraits for the witnesses   4:5 crops
      witness-gines.jpg
      witness-damien.jpg
@@ -31,9 +26,7 @@ const serif = Cormorant_Garamond({
      witness-anthony.jpg
      witness-kolbe.jpg
 
-   A missing image falls back to a dark title card, so the page
-   never breaks — but it only becomes world-class once they're in.
-   Clicking any film opens the real reel, with sound, in a lightbox.
+   A missing image falls back to a dark title card.
    ============================================================= */
 
 const A = "/saint-stories";
@@ -240,45 +233,37 @@ function Still({ src, alt, className }: { src: string; alt: string; className?: 
     : <div className={`cst-still cst-stillFallback ${className ?? ""}`} aria-label={alt}><span>✠</span><b>{alt}</b></div>;
 }
 
-/* ═══════════════════════ LIGHTBOX ═══════════════════════ */
-function Lightbox({ film, t, onClose }: { film: Film | null; t: T; onClose: () => void }) {
+/* ═══════════════════════ FACEBOOK PLAYER (as in v15) ═══════════════════════ */
+declare global { interface Window { FB?: { XFBML: { parse: (el?: Element) => void } }; fbAsyncInit?: () => void } }
+
+function useFacebookSdk() {
   useEffect(() => {
-    if (!film) return;
-    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
-    document.addEventListener("keydown", onKey); document.body.style.overflow = "hidden";
-    return () => { document.removeEventListener("keydown", onKey); document.body.style.overflow = ""; };
-  }, [film, onClose]);
-  if (!film) return null;
-  const src = `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(film.fb)}&autoplay=true&show_text=false&allowfullscreen=true`;
+    if (window.FB) { window.FB.XFBML.parse(); return; }
+    if (!document.getElementById("fb-root")) { const r = document.createElement("div"); r.id = "fb-root"; document.body.prepend(r); }
+    if (!document.getElementById("fb-sdk")) {
+      const s = document.createElement("script");
+      s.id = "fb-sdk"; s.async = true; s.defer = true; s.crossOrigin = "anonymous";
+      s.src = "https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v19.0";
+      document.body.appendChild(s);
+    }
+  }, []);
+}
+
+function Player({ film }: { film: Film }) {
   return (
-    <div className="cst-lb" role="dialog" aria-modal="true" aria-label={film.title} onClick={onClose}>
-      <div className="cst-lbInner" onClick={(e) => e.stopPropagation()}>
-        <button className="cst-lbClose" onClick={onClose} aria-label={t.close}><Svg sw={2}>{I.x}</Svg></button>
-        <div className="cst-lbFrame">
-          <iframe src={src} title={film.title} allow="autoplay; encrypted-media; picture-in-picture; web-share" allowFullScreen />
-        </div>
-        <div className="cst-lbMeta">
-          <span className="cst-lbTitle">{film.title}</span>
-          <span className="cst-lbLinks">
-            <a href={film.fb} target="_blank" rel="noopener noreferrer">{t.openFb} <Svg sw={2.2}>{I.arrow}</Svg></a>
-            {film.ig && film.ig !== INSTAGRAM_URL && <a href={film.ig} target="_blank" rel="noopener noreferrer">{t.openIg} <Svg sw={2.2}>{I.arrow}</Svg></a>}
-          </span>
-        </div>
-      </div>
-    </div>
+    <div className="fb-video cst-fbVideo" data-href={film.fb} data-width="auto" data-autoplay="true"
+      data-show-text="false" data-show-captions="false" data-allowfullscreen="true" data-lazy="true" />
   );
 }
 
 /* ═══════════════════════ FILM CARD ═══════════════════════ */
-function FilmCard({ film, t, onPlay }: { film: Film; t: T; onPlay: (f: Film) => void }) {
+function FilmCard({ film, t }: { film: Film; t: T }) {
   return (
     <article className="cst-film" data-reveal>
-      <button className="cst-poster" onClick={() => onPlay(film)} aria-label={`${t.play}: ${film.title}`}>
-        <Still src={`${A}/${film.slug}.jpg`} alt={film.title} />
-        <span className="cst-posterShade" aria-hidden="true" />
+      <div className="cst-poster">
+        <Player film={film} />
         <span className="cst-lang">{film.lang}</span>
-        <span className="cst-playBtn" aria-hidden="true"><Svg sw={1.8}>{I.play}</Svg></span>
-      </button>
+      </div>
       <div className="cst-filmBody">
         <h3 className="cst-filmTitle">{film.title}</h3>
         <p className="cst-filmLogline">{film.logline}</p>
@@ -287,6 +272,9 @@ function FilmCard({ film, t, onPlay }: { film: Film; t: T; onPlay: (f: Film) => 
           <div><dt>{film.stats.comments || "—"}</dt><dd>{t.comments}</dd></div>
           <div><dt>{film.stats.shares || "—"}</dt><dd>{t.shares}</dd></div>
         </dl>
+        <a className="cst-filmWatch" href={film.ig && film.ig !== INSTAGRAM_URL ? film.ig : film.fb} target="_blank" rel="noopener noreferrer">
+          {film.ig && film.ig !== INSTAGRAM_URL ? t.openIg : t.openFb} <Svg sw={2.2}>{I.arrow}</Svg>
+        </a>
       </div>
     </article>
   );
@@ -297,8 +285,7 @@ export default function SupportPage() {
   const [lang, toggleLang] = useLang();
   const t = COPY[lang];
   useReveal(lang);
-  const [watching, setWatching] = useState<Film | null>(null);
-  const closeWatch = useCallback(() => setWatching(null), []);
+  useFacebookSdk();
 
   return (
     <div className={`cst ${ui.variable} ${serif.variable}`}>
@@ -354,7 +341,7 @@ export default function SupportPage() {
             <p className="cst-lede">{t.showingLede}</p>
           </div>
           <div className="cst-films">
-            {FILMS.map((f) => <FilmCard key={f.slug} film={f} t={t} onPlay={setWatching} />)}
+            {FILMS.map((f) => <FilmCard key={f.slug} film={f} t={t} />)}
           </div>
           <p className="cst-seeAll" data-reveal><a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer">{t.seeAll}</a></p>
         </section>
@@ -371,11 +358,9 @@ export default function SupportPage() {
         {/* ═══ MISSION ═══ */}
         <section className="cst-section cst-mission">
           <div className="cst-missionStill" data-reveal>
-            <button className="cst-missionFrame" onClick={() => setWatching(MISSION_FILM)} aria-label={`${t.play}: ${MISSION_FILM.title}`}>
-              <Still src={`${A}/${MISSION_FILM.slug}.jpg`} alt={MISSION_FILM.title} />
-              <span className="cst-posterShade" aria-hidden="true" />
-              <span className="cst-playBtn cst-playBtnCenter" aria-hidden="true"><Svg sw={1.8}>{I.play}</Svg></span>
-            </button>
+            <div className="cst-missionFrame">
+              <Player film={MISSION_FILM} />
+            </div>
             <span className="cst-missionCap">{t.missionCap}</span>
           </div>
           <div className="cst-missionCopy" data-reveal>
@@ -534,8 +519,6 @@ export default function SupportPage() {
         <p className="cst-footMeta">{t.footProject} <a href="https://catholicprojects.org">CatholicProjects.org</a> · <a href={`mailto:${CONTACT}`}>{CONTACT}</a> · © {new Date().getFullYear()}</p>
         <p className="cst-footFine">{t.footFine}</p>
       </footer>
-
-      <Lightbox film={watching} t={t} onClose={closeWatch} />
     </div>
   );
 }
@@ -638,18 +621,14 @@ const CSS = `
 .cst-films{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;}
 .cst-film{display:flex;flex-direction:column;border:1px solid var(--hair-soft);border-radius:20px;overflow:hidden;background:var(--panel);transition:transform 260ms ease,border-color 260ms,box-shadow 260ms;}
 .cst-film:hover{transform:translateY(-6px);border-color:var(--gold-dim);box-shadow:0 36px 70px -34px rgba(0,0,0,.95),0 0 0 1px rgba(201,163,86,.08);}
-.cst-poster{position:relative;display:block;width:100%;aspect-ratio:9/16;background:#000;overflow:hidden;text-align:left;}
-.cst-poster .cst-still{transition:transform 900ms cubic-bezier(.2,.65,.2,1);}
-.cst-film:hover .cst-poster .cst-still{transform:scale(1.05);}
-.cst-posterShade{position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,rgba(18,13,9,.15) 0%,transparent 35%,transparent 60%,rgba(18,13,9,.85) 100%);}
-.cst-lang{position:absolute;left:14px;bottom:14px;z-index:2;padding:5px 11px;border:1px solid rgba(230,201,127,.4);border-radius:999px;background:rgba(18,13,9,.65);backdrop-filter:blur(6px);color:var(--gold-bright);font-size:10.5px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;}
-.cst-playBtn{position:absolute;right:14px;bottom:14px;z-index:2;width:50px;height:50px;display:flex;align-items:center;justify-content:center;border:1px solid rgba(230,201,127,.55);border-radius:50%;background:rgba(18,13,9,.55);backdrop-filter:blur(6px);color:var(--gold-bright);transition:background 180ms,color 180ms,transform 180ms;}
-.cst-playBtn svg{width:17px;height:17px;margin-left:2px;}
-.cst-film:hover .cst-playBtn,.cst-missionFrame:hover .cst-playBtn{background:var(--gold);color:#17110A;transform:scale(1.06);}
-.cst-playBtnCenter{right:auto;bottom:auto;top:50%;left:50%;transform:translate(-50%,-50%);width:66px;height:66px;}
-.cst-missionFrame:hover .cst-playBtnCenter{transform:translate(-50%,-50%) scale(1.06);}
-.cst-playBtnCenter svg{width:22px;height:22px;}
+.cst-poster{position:relative;display:block;width:100%;aspect-ratio:9/16;background:#000;overflow:hidden;}
+.cst-fbVideo{position:absolute;inset:0;width:100%;height:100%;}
+.cst-fbVideo>span,.cst-fbVideo iframe{width:100%!important;height:100%!important;display:block;}
+.cst-lang{position:absolute;left:14px;bottom:14px;z-index:2;pointer-events:none;padding:5px 11px;border:1px solid rgba(230,201,127,.4);border-radius:999px;background:rgba(18,13,9,.65);backdrop-filter:blur(6px);color:var(--gold-bright);font-size:10.5px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;}
 .cst-filmBody{display:flex;flex-direction:column;flex:1;padding:18px 18px 18px;}
+.cst-filmWatch{margin-top:14px;display:inline-flex;align-items:center;gap:6px;color:var(--gold-bright);font-size:13px;font-weight:700;white-space:nowrap;}
+.cst-filmWatch svg{width:14px;height:14px;transition:transform 160ms;}
+.cst-film:hover .cst-filmWatch svg{transform:translateX(3px);}
 .cst-filmTitle{margin:0;font-family:var(--serif);font-weight:600;font-size:22px;line-height:1.15;}
 .cst-filmLogline{margin:8px 0 0;color:var(--muted);font-family:var(--serif);font-style:italic;font-size:16px;line-height:1.5;}
 .cst-stats{margin:auto 0 0;padding:14px 0 0;display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--hair-soft);margin-top:16px;}
@@ -662,20 +641,18 @@ const CSS = `
 .cst-seeAll a:hover{color:var(--gold-bright);border-color:var(--gold-dim);}
 
 /* story break */
-.cst-break{position:relative;margin-top:clamp(56px,8vh,96px);min-height:min(62svh,600px);display:flex;align-items:center;justify-content:center;background-size:cover;background-position:center 35%;background-attachment:fixed;background-color:var(--bg2);}
-.cst-breakShade{position:absolute;inset:0;background:linear-gradient(180deg,var(--bg) 0%,rgba(18,13,9,.4) 25%,rgba(18,13,9,.5) 75%,var(--bg) 100%);}
-.cst-quote{position:relative;width:min(860px,calc(100% - 40px));margin:0;padding:32px 0;text-align:center;}
+.cst-break{position:relative;margin-top:clamp(48px,7vh,80px);padding:clamp(40px,6vh,64px) 0;display:flex;align-items:center;justify-content:center;background-size:cover;background-position:center 35%;background-attachment:fixed;background-color:var(--bg2);}
+.cst-breakShade{position:absolute;inset:0;background:linear-gradient(180deg,var(--bg) 0%,rgba(18,13,9,.45) 30%,rgba(18,13,9,.5) 70%,var(--bg) 100%);}
+.cst-quote{position:relative;width:min(860px,calc(100% - 40px));margin:0;padding:0;text-align:center;}
 .cst-quote blockquote{margin:0;font-family:var(--serif);font-style:italic;font-weight:500;color:var(--gold-bright);font-size:clamp(1.9rem,4.2vw,3.2rem);line-height:1.3;text-shadow:0 4px 40px rgba(0,0,0,.85);}
 .cst-quote figcaption{margin-top:20px;color:var(--text);font-size:12px;font-weight:700;letter-spacing:.3em;text-transform:uppercase;opacity:.85;}
 .cst-quote::before,.cst-quote::after{content:"";display:block;width:56px;height:1px;margin:0 auto;background:var(--gold-dim);}
-.cst-quote::before{margin-bottom:36px}.cst-quote::after{margin-top:36px}
+.cst-quote::before{margin-bottom:24px}.cst-quote::after{margin-top:24px}
 
 /* mission */
 .cst-mission{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:clamp(32px,5vw,72px);align-items:center;}
 .cst-missionStill{position:relative;max-width:400px;margin:0 auto;padding:10px;border-radius:26px;background:linear-gradient(160deg,rgba(201,163,86,.35),rgba(201,163,86,.06) 50%,rgba(201,163,86,.25));box-shadow:0 50px 100px -40px rgba(0,0,0,.95),0 0 0 1px rgba(201,163,86,.12);}
 .cst-missionFrame{position:relative;display:block;width:100%;aspect-ratio:9/16;border-radius:18px;background:#000;overflow:hidden;}
-.cst-missionFrame .cst-still{transition:transform 900ms cubic-bezier(.2,.65,.2,1);}
-.cst-missionFrame:hover .cst-still{transform:scale(1.04);}
 .cst-missionCap{display:block;padding:14px 6px 2px;text-align:center;color:var(--faint);font-size:10.5px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;}
 .cst-verse{margin:0 0 22px;padding:0;}
 .cst-verse p{margin:0;font-family:var(--serif);font-style:italic;font-size:clamp(1.2rem,1.9vw,1.5rem);line-height:1.4;color:var(--gold-bright);}
@@ -759,21 +736,6 @@ const CSS = `
 .cst-fine p{margin:0;color:var(--faint);font-size:13.5px;line-height:1.75;}
 .cst-fine strong{color:var(--muted);}
 
-/* lightbox */
-.cst-lb{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(10,7,5,.94);backdrop-filter:blur(12px);animation:cst-fade 220ms ease;}
-@keyframes cst-fade{from{opacity:0}to{opacity:1}}
-.cst-lbInner{position:relative;width:min(460px,100%);}
-.cst-lbClose{position:absolute;top:-50px;right:0;width:40px;height:40px;display:flex;align-items:center;justify-content:center;border:1px solid rgba(243,234,218,.25);border-radius:50%;color:var(--text);transition:background 150ms;}
-.cst-lbClose:hover{background:rgba(201,163,86,.15);}
-.cst-lbClose svg{width:18px;height:18px;}
-.cst-lbFrame{aspect-ratio:9/16;max-height:76svh;border-radius:18px;overflow:hidden;background:#000;border:1px solid var(--hair);box-shadow:0 60px 120px -40px rgba(0,0,0,1);}
-.cst-lbFrame iframe{width:100%;height:100%;border:0;display:block;}
-.cst-lbMeta{margin:14px 0 0;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;}
-.cst-lbTitle{font-family:var(--serif);font-weight:600;font-size:19px;}
-.cst-lbLinks{display:flex;gap:16px;}
-.cst-lbLinks a{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;color:var(--gold-bright);}
-.cst-lbLinks svg{width:13px;height:13px;}
-
 /* footer */
 .cst-foot{margin-top:auto;padding:56px 20px 60px;border-top:1px solid var(--hair-soft);text-align:center;background:linear-gradient(180deg,transparent,rgba(201,163,86,.05));}
 .cst-footLogo{display:block;height:40px;width:auto;margin:0 auto 16px;padding:4px 8px;border-radius:8px;background:var(--tile);box-shadow:inset 0 0 0 1px rgba(201,163,86,.25);box-sizing:content-box;}
@@ -803,7 +765,7 @@ const CSS = `
   .cst-band{grid-template-columns:repeat(2,1fr);}
   .cst-band>div:nth-child(3){border-left:0;}
   .cst-band>div:nth-child(n+3){border-top:1px solid var(--hair-soft);}
-  .cst-break{background-attachment:scroll;min-height:46svh;}
+  .cst-break{background-attachment:scroll;}
   .cst-sources{grid-template-columns:1fr;}
   .cst-cp{grid-template-columns:1fr;text-align:center;}
   .cst-cpLogoWrap{width:fit-content;margin:0 auto;}
@@ -824,7 +786,6 @@ const CSS = `
   .cst-tierLine{min-height:0;}
   .cst-row{padding:20px 2px;}
   .cst-fine{padding:20px;}
-  .cst-lbClose{top:-46px;}
 }
 @media (prefers-reduced-motion:reduce){
   .cst *{transition:none!important;animation:none!important;}
