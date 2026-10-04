@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef, useState, useCallback } from "react";
 import { Inter, Cormorant_Garamond } from "next/font/google";
 import type { ReactNode } from "react";
 
@@ -13,55 +14,64 @@ const serif = Cormorant_Garamond({
 });
 
 /* -----------------------------------------------------------
-   Catholic Saint Stories — Support
-   Cinematic dark theme drawn from the brand itself:
-   gold on near-black, serif display, film grain, vignette.
+   Catholic Saint Stories — Support  (v4, cinematic)
 
-   REAL SAINTS. TRUE STORIES. ETERNAL INSPIRATION.
-
-   This page is intentionally self-contained (no SiteNav):
-   it is a film-series landing page, not a library page.
+   Assets live in /public/saint-stories/  — see ASSETS below.
+   Every video is muted + looping; the Facebook reel plays
+   with sound only when someone clicks Watch (lightbox).
+   Everything degrades gracefully until the files exist.
 ------------------------------------------------------------ */
 
+const A = "/saint-stories";
+const ASSETS = {
+  heroVideo: `${A}/hero.mp4`,
+  heroPoster: `${A}/banner.jpg`,
+  banner: `${A}/banner.jpg`,
+  creator: `${A}/antonio.jpg`,
+};
+
 const CONTACT = "team@catholicprojects.org";
-const STRIPE_LINK = "https://buy.stripe.com/your-stripe-link"; // TODO: real link
-const PAYPAL_LINK = "https://paypal.me/catholicsaintstories"; // TODO: real link
+const STRIPE_LINK = "https://buy.stripe.com/your-stripe-link"; // TODO
+const PAYPAL_LINK = "https://paypal.me/catholicsaintstories"; // TODO
 const FACEBOOK_URL = "https://www.facebook.com/people/Catholicsaintstories/61592672761916/";
 const INSTAGRAM_URL = "https://instagram.com/catholicsaintstories";
 
-/* Real films, real links, real numbers. Drop film stills into
-   /public/saint-stories/ (e.g. damian.jpg) — the gradient
-   poster underneath remains as the fallback until you do. */
-const FILMS = [
+/* Monthly goal — update by hand for now; wire to Stripe later. */
+const GOAL = { patrons: 0, target: 40, monthlyCost: "$500–700" };
+
+type Film = {
+  slug: string;
+  title: string;
+  lang: "English" | "Español";
+  logline: string;
+  proof: string;
+  fb: string;
+};
+
+const FILMS: Film[] = [
   {
+    slug: "damian",
     title: "San Damián de Molokai",
     lang: "Español",
-    logline:
-      "Eligió vivir con los enviados lejos por la lepra — sabiendo que quizá nunca volvería.",
-    proof: "56K+ views across platforms",
-    href: "https://www.facebook.com/reel/2563206477478130",
-    still: "/saint-stories/damian.jpg",
-    hue: "160deg",
+    logline: "Eligió vivir con los enviados lejos por la lepra — sabiendo que quizá nunca volvería.",
+    proof: "56K+ views",
+    fb: "https://www.facebook.com/reel/2563206477478130",
   },
   {
+    slug: "vincent",
     title: "Saint Vincent de Paul",
     lang: "English",
-    logline:
-      "He wanted to rise above poverty — then God led him back to the poor.",
+    logline: "He wanted to rise above poverty — then God led him back to the poor.",
     proof: "3.5K reactions · 600+ shares",
-    href: "https://www.facebook.com/reel/958525383998552",
-    still: "/saint-stories/vincent.jpg",
-    hue: "20deg",
+    fb: "https://www.facebook.com/reel/958525383998552",
   },
   {
+    slug: "sacred-heart",
     title: "The Sacred Heart",
     lang: "Español",
-    logline:
-      "Jesús le mostró Su Corazón ardiendo de amor — y le confió una misión para toda la Iglesia.",
+    logline: "Jesús le mostró Su Corazón ardiendo de amor — y le confió una misión para toda la Iglesia.",
     proof: "3.6K reactions · 400+ shares",
-    href: FACEBOOK_URL,
-    still: "/saint-stories/sacred-heart.jpg",
-    hue: "320deg",
+    fb: FACEBOOK_URL, // TODO: direct reel link
   },
 ];
 
@@ -75,31 +85,11 @@ const SLATE = [
 ];
 
 const LEDGER = [
-  {
-    n: "01",
-    title: "Research",
-    text: "Every story begins in trusted Catholic sources — hagiographies, letters, papal writings — so the saints are portrayed faithfully.",
-  },
-  {
-    n: "02",
-    title: "Script & Production",
-    text: "Cinematic visuals, careful writing, and editing worthy of the lives being told. We don't cut corners on beauty.",
-  },
-  {
-    n: "03",
-    title: "Narration",
-    text: "Voice performances in English and Spanish that carry reverence, not noise.",
-  },
-  {
-    n: "04",
-    title: "Translation & Captions",
-    text: "Every story crosses languages — subtitled, translated, and accessible.",
-  },
-  {
-    n: "05",
-    title: "Distribution",
-    text: "Published where people actually are: Instagram, Facebook, TikTok, YouTube — in everyday feeds, pointing hearts toward Christ.",
-  },
+  { n: "01", title: "Research", text: "Every story begins in trusted Catholic sources — hagiographies, letters, papal writings — so the saints are portrayed faithfully." },
+  { n: "02", title: "Script & Production", text: "Cinematic visuals, careful writing, and editing worthy of the lives being told." },
+  { n: "03", title: "Narration", text: "Voice performances in English and Spanish that carry reverence, not noise." },
+  { n: "04", title: "Translation & Captions", text: "Every story crosses languages — subtitled, translated, accessible." },
+  { n: "05", title: "Distribution", text: "Published where people actually are — Instagram, Facebook, TikTok, YouTube — pointing hearts toward Christ." },
 ];
 
 const TIERS = [
@@ -109,6 +99,7 @@ const TIERS = [
   { amount: 50, name: "Founding Patron", line: "Sustains the whole slate, month after month." },
 ];
 
+/* ── icons ── */
 function Svg({ children, sw = 1.6, className }: { children: ReactNode; sw?: number; className?: string }) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -116,20 +107,99 @@ function Svg({ children, sw = 1.6, className }: { children: ReactNode; sw?: numb
     </svg>
   );
 }
-
 const I = {
   arrow: (<><path d="M5 12h14" /><path d="m13 6 6 6-6 6" /></>),
+  down: (<><path d="M12 5v14" /><path d="m6 13 6 6 6-6" /></>),
   play: (<><polygon points="6 4 20 12 6 20 6 4" /></>),
-  mail: (<><rect x="3.5" y="5.5" width="17" height="13" rx="2" /><path d="m4 7 8 6 8-6" /></>),
+  close: (<><path d="M18 6 6 18M6 6l12 12" /></>),
+  mute: (<><path d="M11 5 6 9H3v6h3l5 4z" /><path d="m22 9-6 6M16 9l6 6" /></>),
+  sound: (<><path d="M11 5 6 9H3v6h3l5 4z" /><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13" /></>),
 };
 
+/* ── scroll reveal ── */
+function useReveal() {
+  useEffect(() => {
+    const els = Array.from(document.querySelectorAll<HTMLElement>("[data-reveal]"));
+    if (!("IntersectionObserver" in window)) { els.forEach((e) => e.classList.add("is-in")); return; }
+    const io = new IntersectionObserver(
+      (entries) => entries.forEach((en) => { if (en.isIntersecting) { en.target.classList.add("is-in"); io.unobserve(en.target); } }),
+      { rootMargin: "0px 0px -12% 0px", threshold: 0.12 }
+    );
+    els.forEach((e) => io.observe(e));
+    return () => io.disconnect();
+  }, []);
+}
+
+/* ── film card: still → loops on hover / tap ── */
+function FilmCard({ film, onWatch }: { film: Film; onWatch: (f: Film) => void }) {
+  const vid = useRef<HTMLVideoElement>(null);
+  const [live, setLive] = useState(false);
+  const play = () => { const v = vid.current; if (!v) return; v.play().then(() => setLive(true)).catch(() => {}); };
+  const stop = () => { const v = vid.current; if (!v) return; v.pause(); v.currentTime = 0; setLive(false); };
+
+  return (
+    <article className={`cst-film ${live ? "is-live" : ""}`} data-reveal onMouseEnter={play} onMouseLeave={stop} onFocus={play} onBlur={stop}>
+      <button className="cst-poster" onClick={() => onWatch(film)} aria-label={`Watch ${film.title}`}
+        style={{ backgroundImage: `url(${A}/${film.slug}.jpg)` }}>
+        <video ref={vid} className="cst-posterVideo" muted loop playsInline preload="metadata" poster={`${A}/${film.slug}.jpg`}>
+          <source src={`${A}/${film.slug}.mp4`} type="video/mp4" />
+        </video>
+        <span className="cst-posterShade" aria-hidden="true" />
+        <span className="cst-posterCross" aria-hidden="true">✠</span>
+        <span className="cst-lang">{film.lang}</span>
+        <span className="cst-playBtn" aria-hidden="true"><Svg sw={1.8}>{I.play}</Svg></span>
+      </button>
+      <div className="cst-filmBody">
+        <h3 className="cst-filmTitle">{film.title}</h3>
+        <p className="cst-filmLogline">{film.logline}</p>
+        <div className="cst-filmFoot">
+          <span className="cst-filmProof">{film.proof}</span>
+          <button className="cst-filmWatch" onClick={() => onWatch(film)}>Watch <Svg sw={2.2}>{I.arrow}</Svg></button>
+        </div>
+      </div>
+    </article>
+  );
+}
+
+/* ── lightbox: the Facebook reel, with sound, on demand ── */
+function Lightbox({ film, onClose }: { film: Film | null; onClose: () => void }) {
+  useEffect(() => {
+    if (!film) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    document.addEventListener("keydown", onKey);
+    document.body.style.overflow = "hidden";
+    return () => { document.removeEventListener("keydown", onKey); document.body.style.overflow = ""; };
+  }, [film, onClose]);
+  if (!film) return null;
+  const src = `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(film.fb)}&autoplay=true&show_text=false&width=476`;
+  return (
+    <div className="cst-lb" role="dialog" aria-modal="true" aria-label={film.title} onClick={onClose}>
+      <div className="cst-lbInner" onClick={(e) => e.stopPropagation()}>
+        <button className="cst-lbClose" onClick={onClose} aria-label="Close"><Svg sw={2}>{I.close}</Svg></button>
+        <div className="cst-lbFrame">
+          <iframe src={src} title={film.title} allow="autoplay; encrypted-media; picture-in-picture; web-share" allowFullScreen />
+        </div>
+        <p className="cst-lbMeta"><span>{film.title}</span><a href={film.fb} target="_blank" rel="noopener noreferrer">Open on Facebook <Svg sw={2.2}>{I.arrow}</Svg></a></p>
+      </div>
+    </div>
+  );
+}
+
 export default function SupportPage() {
+  useReveal();
+  const [watching, setWatching] = useState<Film | null>(null);
+  const closeWatch = useCallback(() => setWatching(null), []);
+  const heroVid = useRef<HTMLVideoElement>(null);
+  const [muted, setMuted] = useState(true);
+  const toggleMute = () => { const v = heroVid.current; if (!v) return; v.muted = !v.muted; setMuted(v.muted); };
+
+  const pct = Math.min(100, Math.round((GOAL.patrons / GOAL.target) * 100));
+
   return (
     <div className={`cst ${ui.variable} ${serif.variable}`}>
       <style>{CSS}</style>
       <div className="cst-grain" aria-hidden="true" />
 
-      {/* ───────── top bar ───────── */}
       <header className="cst-bar">
         <a className="cst-mark" href={FACEBOOK_URL} target="_blank" rel="noopener noreferrer">
           <span className="cst-markCross" aria-hidden="true">✠</span>
@@ -142,440 +212,451 @@ export default function SupportPage() {
       </header>
 
       <main>
-        {/* ───────── hero ───────── */}
+        {/* ═══════════ HERO ═══════════ */}
         <section className="cst-hero">
-          <div className="cst-heroGlow" aria-hidden="true" />
-          <p className="cst-kicker">Real saints · True stories · Eternal inspiration</p>
-          <h1 className="cst-h1">
-            Stories of the Saints.
-            <em>Made for a new generation.</em>
-          </h1>
-          <p className="cst-heroSub">
-            Cinematic films about the men and women who gave everything to Christ —
-            released free, every week, in English and Spanish, on the feeds where
-            this generation actually lives.
-          </p>
-          <div className="cst-heroCtas">
-            <a className="cst-cta" href="#support">
-              Help bring the next story to life
-              <Svg sw={2}>{I.arrow}</Svg>
-            </a>
-            <a className="cst-ghost" href={FACEBOOK_URL} target="_blank" rel="noopener noreferrer">
-              <Svg sw={2} className="cst-ghostPlay">{I.play}</Svg>
-              Watch the stories
-            </a>
+          <video ref={heroVid} className="cst-heroVideo" autoPlay muted loop playsInline poster={ASSETS.heroPoster} aria-hidden="true">
+            <source src={ASSETS.heroVideo} type="video/mp4" />
+          </video>
+          <div className="cst-heroShade" aria-hidden="true" />
+          <div className="cst-letterbox cst-letterboxTop" aria-hidden="true" />
+          <div className="cst-letterbox cst-letterboxBot" aria-hidden="true" />
+
+          <div className="cst-heroInner">
+            <p className="cst-kicker">Real saints · True stories · Eternal inspiration</p>
+            <h1 className="cst-h1">
+              Stories of the Saints.
+              <em>Made for a new generation.</em>
+            </h1>
+            <p className="cst-heroSub">
+              Cinematic films about the men and women who gave everything to Christ —
+              released free, every week, in English and Spanish, on the feeds where this
+              generation actually lives.
+            </p>
+            <div className="cst-heroCtas">
+              <a className="cst-cta" href="#support">Help bring the next story to life <Svg sw={2}>{I.arrow}</Svg></a>
+              <a className="cst-ghost" href="#films"><Svg sw={2} className="cst-ghostIcon">{I.play}</Svg>Watch the stories</a>
+            </div>
           </div>
 
-          <dl className="cst-band">
-            <div><dt>435K</dt><dd>monthly views</dd></div>
-            <div><dt>14K</dt><dd>followers</dd></div>
-            <div><dt>102</dt><dd>stories released</dd></div>
-            <div><dt>EN · ES</dt><dd>two languages</dd></div>
-          </dl>
+          <button className="cst-muteBtn" onClick={toggleMute} aria-label={muted ? "Unmute" : "Mute"}>
+            <Svg sw={1.8}>{muted ? I.mute : I.sound}</Svg>
+          </button>
+          <a className="cst-scrollCue" href="#films" aria-label="Scroll"><Svg sw={1.6}>{I.down}</Svg></a>
         </section>
 
-        {/* ───────── now showing ───────── */}
-        <section className="cst-section">
-          <div className="cst-head">
+        {/* ═══════════ NUMBERS ═══════════ */}
+        <dl className="cst-band" data-reveal>
+          <div><dt>435K</dt><dd>monthly views</dd></div>
+          <div><dt>14K</dt><dd>followers</dd></div>
+          <div><dt>102</dt><dd>stories released</dd></div>
+          <div><dt>EN · ES</dt><dd>two languages</dd></div>
+        </dl>
+
+        {/* ═══════════ NOW SHOWING ═══════════ */}
+        <section className="cst-section" id="films">
+          <div className="cst-head" data-reveal>
             <p className="cst-eyebrow">Now showing</p>
             <h2 className="cst-h2">Stories people can't stop sharing</h2>
-            <p className="cst-lede">
-              Every film is free to watch. These are the ones traveling furthest right now.
-            </p>
+            <p className="cst-lede">Every film is free to watch. These are the ones traveling furthest right now.</p>
           </div>
-
           <div className="cst-films">
-            {FILMS.map((f) => (
-              <a key={f.title} className="cst-film" href={f.href} target="_blank" rel="noopener noreferrer" style={{ "--hue": f.hue } as React.CSSProperties}>
-                <span
-                  className="cst-poster"
-                  style={{ backgroundImage: `linear-gradient(170deg, rgba(13,10,7,0) 38%, rgba(13,10,7,.92) 86%), url(${f.still})` }}
-                >
-                  <span className="cst-posterCross" aria-hidden="true">✠</span>
-                  <span className="cst-lang">{f.lang}</span>
-                  <span className="cst-playBtn" aria-hidden="true"><Svg sw={1.8}>{I.play}</Svg></span>
-                </span>
-                <span className="cst-filmBody">
-                  <span className="cst-filmTitle">{f.title}</span>
-                  <span className="cst-filmLogline">{f.logline}</span>
-                  <span className="cst-filmFoot">
-                    <span className="cst-filmProof">{f.proof}</span>
-                    <span className="cst-filmWatch">Watch <Svg sw={2.2}>{I.arrow}</Svg></span>
-                  </span>
-                </span>
-              </a>
-            ))}
+            {FILMS.map((f) => <FilmCard key={f.slug} film={f} onWatch={setWatching} />)}
           </div>
-
-          <p className="cst-seeAll">
+          <p className="cst-seeAll" data-reveal>
             <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer">All 102 stories, free, on Instagram & Facebook →</a>
           </p>
         </section>
 
-        {/* ───────── quote ───────── */}
-        <figure className="cst-quote">
-          <blockquote>
-            “I make myself a leper with the lepers, to gain all to Jesus&nbsp;Christ.”
-          </blockquote>
-          <figcaption>— St. Damien of Molokai</figcaption>
-        </figure>
+        {/* ═══════════ STORY BREAK (full-bleed banner + quote) ═══════════ */}
+        <section className="cst-break" style={{ backgroundImage: `url(${ASSETS.banner})` }}>
+          <div className="cst-breakShade" aria-hidden="true" />
+          <figure className="cst-quote" data-reveal>
+            <blockquote>“I make myself a leper with the lepers, to gain all to Jesus&nbsp;Christ.”</blockquote>
+            <figcaption>St. Damien of Molokai</figcaption>
+          </figure>
+        </section>
 
-        {/* ───────── mission ───────── */}
+        {/* ═══════════ MISSION (split) ═══════════ */}
         <section className="cst-section cst-mission">
-          <div className="cst-head">
+          <div className="cst-missionStill" data-reveal style={{ backgroundImage: `url(${A}/damian.jpg)` }}>
+            <span className="cst-missionCap">San Damián de Molokai — from the film</span>
+          </div>
+          <div className="cst-missionCopy" data-reveal>
             <p className="cst-eyebrow">The mission</p>
             <h2 className="cst-h2">The saints belong in every feed</h2>
-          </div>
-          <div className="cst-missionCols">
             <p>
-              The lives of the saints — their courage, their sacrifice, their encounter
-              with Christ — are the greatest stories the Church has. But most people
-              will never open a hagiography. They're on Instagram at midnight. They're
-              scrolling TikTok on the bus.
+              The lives of the saints — their courage, their sacrifice, their encounter with
+              Christ — are the greatest stories the Church has. But most people will never
+              open a hagiography. They're on Instagram at midnight. They're scrolling TikTok
+              on the bus.
             </p>
             <p>
               So we bring the saints there. Not instead of the Church — <em>toward</em> it.
-              Every film is researched in trusted Catholic sources, told with reverence,
-              and released free, so that a lapsed Catholic, a curious seeker, or a kid
-              who has never heard of Molokai might stop scrolling — and meet a saint.
+              Every film is researched in trusted Catholic sources, told with reverence, and
+              released free, so that a lapsed Catholic, a curious seeker, or a kid who has
+              never heard of Molokai might stop scrolling — and meet a saint.
             </p>
           </div>
         </section>
 
-        {/* ───────── ledger ───────── */}
+        {/* ═══════════ FROM THE CREATOR ═══════════ */}
         <section className="cst-section">
-          <div className="cst-head">
+          <div className="cst-creator" data-reveal>
+            <div className="cst-creatorPhoto" style={{ backgroundImage: `url(${ASSETS.creator})` }} aria-hidden="true" />
+            <div className="cst-creatorBody">
+              <p className="cst-eyebrow">A note from the creator</p>
+              {/* TODO: replace with your own words — 3–4 sentences, first person. */}
+              <p className="cst-creatorText">
+                I'm a catechist in a small parish in California. I started making these
+                because the kids in my classes had never heard of the saints — but they had
+                all heard of whatever was in their feed that morning. So I decided the saints
+                should be in the feed too. Every film so far has been paid for out of my own
+                paycheck. If they've moved you, I'd be grateful for your help making the next one.
+              </p>
+              <p className="cst-creatorSig">— Antonio, <span>founder, CatholicProjects.org</span></p>
+            </div>
+          </div>
+        </section>
+
+        {/* ═══════════ LEDGER ═══════════ */}
+        <section className="cst-section">
+          <div className="cst-head" data-reveal>
             <p className="cst-eyebrow">Where every dollar goes</p>
             <h2 className="cst-h2">What your support pays for</h2>
-            <p className="cst-lede">
-              Each story costs real money to make — roughly $500–700 of production every
-              month. Support goes to the work. No overhead, no middlemen.
-            </p>
+            <p className="cst-lede">Each story costs real money to make — roughly {GOAL.monthlyCost} of production every month. Support goes to the work. No overhead, no middlemen.</p>
           </div>
           <ol className="cst-ledger">
-            {LEDGER.map((row) => (
-              <li key={row.n} className="cst-row">
-                <span className="cst-rowN">{row.n}</span>
-                <span className="cst-rowTitle">{row.title}</span>
-                <span className="cst-rowText">{row.text}</span>
+            {LEDGER.map((r) => (
+              <li key={r.n} className="cst-row" data-reveal>
+                <span className="cst-rowN">{r.n}</span>
+                <span className="cst-rowTitle">{r.title}</span>
+                <span className="cst-rowText">{r.text}</span>
               </li>
             ))}
           </ol>
         </section>
 
-        {/* ───────── slate ───────── */}
+        {/* ═══════════ SLATE ═══════════ */}
         <section className="cst-section">
-          <div className="cst-head">
+          <div className="cst-head" data-reveal>
             <p className="cst-eyebrow">On the slate</p>
             <h2 className="cst-h2">The stories we're preparing</h2>
             <p className="cst-lede">Six saints in the pipeline. Your support decides how fast they arrive.</p>
           </div>
           <ul className="cst-slate">
-            {SLATE.map((s, idx) => (
-              <li key={s.name} className="cst-saint">
-                <span className="cst-saintN">{String(idx + 1).padStart(2, "0")}</span>
+            {SLATE.map((s, i) => (
+              <li key={s.name} className="cst-saint" data-reveal>
+                <span className="cst-saintN">{String(i + 1).padStart(2, "0")}</span>
                 <span className="cst-saintBody">
                   <span className="cst-saintName">{s.name}</span>
                   <span className="cst-saintEpithet">{s.epithet}</span>
                 </span>
-                <span className={`cst-status ${s.status === "In production" ? "is-active" : s.status === "Coming soon" ? "is-next" : ""}`}>
-                  {s.status}
-                </span>
+                <span className={`cst-status ${s.status === "In production" ? "is-active" : s.status === "Coming soon" ? "is-next" : ""}`}>{s.status}</span>
               </li>
             ))}
           </ul>
         </section>
 
-        {/* ───────── support ───────── */}
+        {/* ═══════════ SUPPORT ═══════════ */}
         <section className="cst-section cst-support" id="support">
-          <div className="cst-head cst-headCenter">
+          <div className="cst-head cst-headCenter" data-reveal>
             <p className="cst-eyebrow">Become a patron</p>
             <h2 className="cst-h2">Help bring the next saint story to life</h2>
-            <p className="cst-lede">
-              If these films have moved you, you can help make the next one. Monthly
-              support is what lets this work continue — about forty patrons covers an
-              entire month of production.
-            </p>
+            <p className="cst-lede">If these films have moved you, you can help make the next one. About forty monthly patrons covers an entire month of production.</p>
+          </div>
+
+          <div className="cst-goal" data-reveal>
+            <div className="cst-goalTop">
+              <span><strong>{GOAL.patrons}</strong> of {GOAL.target} patrons this month</span>
+              <span>{pct}%</span>
+            </div>
+            <div className="cst-goalBar"><span style={{ width: `${pct}%` }} /></div>
+            <p className="cst-goalNote">Updated monthly. When we reach {GOAL.target}, production is fully covered.</p>
           </div>
 
           <div className="cst-tiers">
             {TIERS.map((t) => (
-              <a
-                key={t.amount}
-                className={`cst-tier ${t.featured ? "is-featured" : ""}`}
-                href={STRIPE_LINK}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
+              <a key={t.amount} className={`cst-tier ${t.featured ? "is-featured" : ""}`} href={STRIPE_LINK} target="_blank" rel="noopener noreferrer" data-reveal>
                 {t.featured && <span className="cst-tierFlag">Most common</span>}
                 <span className="cst-tierName">{t.name}</span>
-                <span className="cst-tierAmt">
-                  <sup>$</sup>{t.amount}
-                  <span className="cst-tierPer">/mo{t.amount === 50 ? "+" : ""}</span>
-                </span>
+                <span className="cst-tierAmt"><sup>$</sup>{t.amount}<span className="cst-tierPer">/mo{t.amount === 50 ? "+" : ""}</span></span>
                 <span className="cst-tierLine">{t.line}</span>
                 <span className="cst-tierGo">Support <Svg sw={2.2}>{I.arrow}</Svg></span>
               </a>
             ))}
           </div>
 
-          <p className="cst-noPerks">
-            Support is a voluntary gift to the creator of this work. It earns our deep
-            gratitude and our prayers — but no rewards, ownership, or exclusive access.
-            The films themselves remain free, for everyone, always.
+          <p className="cst-noPerks" data-reveal>
+            Support is a voluntary gift to the creator of this work. It earns our deep gratitude and our
+            prayers — but no rewards, ownership, or exclusive access. The films remain free, for everyone, always.
           </p>
-
-          <div className="cst-alt">
+          <div className="cst-alt" data-reveal>
             <a className="cst-altBtn" href={STRIPE_LINK} target="_blank" rel="noopener noreferrer">Give once</a>
             <a className="cst-altBtn" href={PAYPAL_LINK} target="_blank" rel="noopener noreferrer">PayPal</a>
             <a className="cst-altBtn" href={`mailto:${CONTACT}`}>Questions? Write to us</a>
           </div>
-
-          <div className="cst-fine">
+          <div className="cst-fine" data-reveal>
             <h3>Transparency about your gift</h3>
             <p>
-              CatholicProjects is not a tax-exempt charitable organization, and
-              contributions are <strong>not tax-deductible</strong>. Your support is
-              voluntary creator support — it is received as ordinary income, reported
-              properly, and spent on the work described above. No contribution funds a
-              specific film, and no outcome is promised beyond this: more stories of
-              the saints, made well, released free.
+              CatholicProjects is not a tax-exempt charitable organization, and contributions are{" "}
+              <strong>not tax-deductible</strong>. Your support is voluntary creator support — received as
+              ordinary income, reported properly, and spent on the work described above. No contribution funds
+              a specific film, and no outcome is promised beyond this: more stories of the saints, made well,
+              released free.
             </p>
           </div>
         </section>
       </main>
 
-      {/* ───────── footer ───────── */}
       <footer className="cst-foot">
         <span className="cst-footCross" aria-hidden="true">✠</span>
         <p className="cst-footLine">Ad maiorem Dei gloriam.</p>
         <p className="cst-footMeta">
-          A project of <a href="https://catholicprojects.org">CatholicProjects.org</a> ·{" "}
-          <a href={`mailto:${CONTACT}`}>{CONTACT}</a> · © {new Date().getFullYear()}
+          A project of <a href="https://catholicprojects.org">CatholicProjects.org</a> · <a href={`mailto:${CONTACT}`}>{CONTACT}</a> · © {new Date().getFullYear()}
         </p>
-        <p className="cst-footFine">
-          CatholicProjects is an independent Catholic project and does not imply parish,
-          diocesan, or ecclesial endorsement unless specifically stated.
-        </p>
+        <p className="cst-footFine">CatholicProjects is an independent Catholic project and does not imply parish, diocesan, or ecclesial endorsement unless specifically stated.</p>
       </footer>
+
+      <Lightbox film={watching} onClose={closeWatch} />
     </div>
   );
 }
 
 /* -----------------------------------------------------------
-   Styles — scoped under .cst
+   Styles — candlelit palette, scoped under .cst
 ------------------------------------------------------------ */
-
 const CSS = `
 .cst{
-  --bg:#0D0A07;
-  --bg2:#15100A;
-  --panel:#1A140C;
-  --panel2:#201810;
-  --gold:#C9A356;
-  --gold-bright:#E3C57E;
-  --gold-dim:rgba(201,163,86,.38);
-  --hairline:rgba(201,163,86,.18);
-  --hairline-soft:rgba(243,234,218,.08);
-  --text:#F3EADA;
-  --muted:#B5A58E;
-  --faint:#8A7B64;
-  --serif:var(--cst-serif),Cormorant Garamond,Georgia,"Times New Roman",serif;
-  --sans:var(--cst-ui),Inter,system-ui,-apple-system,"Segoe UI",sans-serif;
+  --bg:#120D09;--bg2:#1A130D;--panel:#1F1710;--panel2:#261D14;
+  --gold:#C9A356;--gold-bright:#E6C97F;--gold-dim:rgba(201,163,86,.4);
+  --hair:rgba(201,163,86,.18);--hair-soft:rgba(243,234,218,.08);
+  --text:#F4ECDD;--muted:#BBAB94;--faint:#8F8069;
+  --serif:var(--cst-serif),"Cormorant Garamond",Georgia,serif;
+  --sans:var(--cst-ui),Inter,system-ui,sans-serif;
   position:relative;isolation:isolate;min-height:100svh;display:flex;flex-direction:column;overflow-x:clip;
-  background:var(--bg);color:var(--text);
-  font-family:var(--sans);font-size:16px;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+  background:var(--bg);color:var(--text);font-family:var(--sans);font-size:16px;-webkit-font-smoothing:antialiased;
 }
 .cst,.cst *,.cst *::before,.cst *::after{box-sizing:border-box;}
 .cst :where(a){color:inherit;text-decoration:none;}
+.cst :where(button){font:inherit;color:inherit;background:none;border:0;cursor:pointer;}
 .cst a:focus-visible,.cst button:focus-visible{outline:2px solid var(--gold);outline-offset:3px;border-radius:4px;}
 .cst ::selection{background:rgba(201,163,86,.3);}
-
-/* film grain */
-.cst-grain{position:fixed;inset:0;z-index:40;pointer-events:none;opacity:.05;mix-blend-mode:overlay;
+.cst-grain{position:fixed;inset:0;z-index:40;pointer-events:none;opacity:.055;mix-blend-mode:overlay;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");}
 
-/* ───── top bar ───── */
-.cst-bar{position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-content:space-between;gap:16px;
-  padding:14px clamp(20px,4vw,44px);border-bottom:1px solid var(--hairline-soft);
-  background:rgba(13,10,7,.78);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);}
+/* reveal */
+[data-reveal]{opacity:0;transform:translateY(22px);transition:opacity 900ms cubic-bezier(.2,.65,.2,1),transform 900ms cubic-bezier(.2,.65,.2,1);}
+[data-reveal].is-in{opacity:1;transform:none;}
+
+/* bar */
+.cst-bar{position:fixed;top:0;left:0;right:0;z-index:50;display:flex;align-items:center;justify-content:space-between;gap:16px;
+  padding:14px clamp(20px,4vw,44px);background:linear-gradient(180deg,rgba(18,13,9,.85),rgba(18,13,9,0));}
 .cst-mark{display:inline-flex;align-items:center;gap:10px;}
 .cst-markCross{color:var(--gold);font-size:17px;}
-.cst-markText{font-family:var(--serif);font-weight:600;font-size:17px;letter-spacing:.14em;text-transform:uppercase;color:var(--text);}
+.cst-markText{font-family:var(--serif);font-weight:600;font-size:17px;letter-spacing:.14em;text-transform:uppercase;}
 .cst-barNav{display:flex;align-items:center;gap:22px;}
-.cst-barLink{color:var(--muted);font-size:13px;font-weight:600;letter-spacing:.02em;transition:color 150ms ease;}
+.cst-barLink{color:var(--muted);font-size:13px;font-weight:600;transition:color 150ms;}
 .cst-barLink:hover{color:var(--text);}
-.cst-barCta{padding:9px 18px;border:1px solid var(--gold-dim);border-radius:999px;color:var(--gold-bright);font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;transition:background 160ms ease,border-color 160ms ease,color 160ms ease;}
-.cst-barCta:hover{background:var(--gold);border-color:var(--gold);color:#17110A;}
+.cst-barCta{padding:9px 18px;border:1px solid var(--gold-dim);border-radius:999px;color:var(--gold-bright);font-size:12.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;transition:background 160ms,color 160ms;}
+.cst-barCta:hover{background:var(--gold);color:#17110A;}
 
-/* ───── hero ───── */
-.cst-hero{position:relative;max-width:980px;margin:0 auto;padding:clamp(84px,12vh,150px) 20px 72px;text-align:center;}
-.cst-heroGlow{position:absolute;inset:-40% -30% auto;height:150%;z-index:-1;pointer-events:none;
+/* hero */
+.cst-hero{position:relative;min-height:100svh;display:flex;align-items:center;justify-content:center;overflow:hidden;
+  background:radial-gradient(60% 50% at 50% 35%,rgba(201,163,86,.14),transparent 70%),var(--bg);}
+.cst-heroVideo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 30%;z-index:0;
+  animation:cst-kb 28s ease-in-out infinite alternate;filter:saturate(.92) contrast(1.04);}
+@keyframes cst-kb{from{transform:scale(1)}to{transform:scale(1.07)}}
+.cst-heroShade{position:absolute;inset:0;z-index:1;
   background:
-    radial-gradient(52% 44% at 50% 30%, rgba(201,163,86,.17), transparent 70%),
-    radial-gradient(30% 26% at 50% 16%, rgba(227,197,126,.12), transparent 70%);}
-.cst-kicker{margin:0 0 26px;color:var(--gold);font-size:12px;font-weight:700;letter-spacing:.34em;text-transform:uppercase;}
-.cst-h1{margin:0 auto 24px;max-width:17ch;font-family:var(--serif);font-weight:600;color:var(--text);
-  font-size:clamp(2.9rem,7.2vw,5.4rem);line-height:1.04;letter-spacing:-.015em;}
-.cst-h1 em{display:block;margin-top:10px;font-style:italic;font-weight:500;font-size:.58em;letter-spacing:0;
-  background:linear-gradient(100deg,var(--gold) 10%,var(--gold-bright) 45%,var(--gold) 90%);
-  -webkit-background-clip:text;background-clip:text;color:transparent;}
-.cst-heroSub{margin:0 auto;max-width:56ch;color:var(--muted);font-size:clamp(1rem,1.5vw,1.14rem);line-height:1.75;}
-.cst-heroCtas{margin:38px auto 0;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:14px;}
+    radial-gradient(70% 60% at 50% 45%,rgba(18,13,9,.1),rgba(18,13,9,.78) 100%),
+    linear-gradient(180deg,rgba(18,13,9,.55) 0%,rgba(18,13,9,.15) 35%,rgba(18,13,9,.35) 70%,var(--bg) 100%);}
+.cst-letterbox{position:absolute;left:0;right:0;height:clamp(18px,3vh,36px);background:var(--bg);z-index:2;}
+.cst-letterboxTop{top:0}.cst-letterboxBot{bottom:0}
+.cst-heroInner{position:relative;z-index:3;max-width:900px;padding:120px 20px 110px;text-align:center;}
+.cst-kicker{margin:0 0 26px;color:var(--gold-bright);font-size:12px;font-weight:700;letter-spacing:.34em;text-transform:uppercase;text-shadow:0 2px 24px rgba(0,0,0,.6);}
+.cst-h1{margin:0 auto 24px;font-family:var(--serif);font-weight:600;font-size:clamp(3rem,7.6vw,5.8rem);line-height:1.02;letter-spacing:-.015em;text-shadow:0 4px 40px rgba(0,0,0,.6);}
+.cst-h1 em{display:block;margin-top:10px;font-style:italic;font-weight:500;font-size:.56em;
+  background:linear-gradient(100deg,var(--gold) 10%,var(--gold-bright) 45%,var(--gold) 90%);-webkit-background-clip:text;background-clip:text;color:transparent;}
+.cst-heroSub{margin:0 auto;max-width:56ch;color:#D9CDB8;font-size:clamp(1rem,1.5vw,1.15rem);line-height:1.75;text-shadow:0 2px 20px rgba(0,0,0,.7);}
+.cst-heroCtas{margin:38px auto 0;display:flex;justify-content:center;flex-wrap:wrap;gap:14px;}
 .cst-cta{display:inline-flex;align-items:center;gap:10px;min-height:54px;padding:15px 26px;border-radius:999px;
-  background:linear-gradient(135deg,#E3C57E 0%,#C9A356 55%,#A8823C 100%);color:#17110A;
-  font-size:15px;font-weight:800;letter-spacing:.01em;box-shadow:0 10px 36px -10px rgba(201,163,86,.5);
-  transition:transform 160ms ease,box-shadow 160ms ease;}
-.cst-cta:hover{transform:translateY(-2px);box-shadow:0 16px 44px -10px rgba(201,163,86,.62);}
+  background:linear-gradient(135deg,#E6C97F,#C9A356 55%,#A8823C);color:#17110A;font-size:15px;font-weight:800;box-shadow:0 10px 36px -10px rgba(201,163,86,.6);transition:transform 160ms,box-shadow 160ms;}
+.cst-cta:hover{transform:translateY(-2px);box-shadow:0 16px 44px -10px rgba(201,163,86,.7);}
 .cst-cta svg{width:17px;height:17px;}
-.cst-ghost{display:inline-flex;align-items:center;gap:10px;min-height:54px;padding:15px 24px;border:1px solid var(--hairline);border-radius:999px;
-  color:var(--text);font-size:15px;font-weight:700;transition:border-color 160ms ease,background 160ms ease;}
-.cst-ghost:hover{border-color:var(--gold-dim);background:rgba(201,163,86,.07);}
-.cst-ghostPlay{width:15px;height:15px;color:var(--gold-bright);}
+.cst-ghost{display:inline-flex;align-items:center;gap:10px;min-height:54px;padding:15px 24px;border:1px solid rgba(243,234,218,.28);border-radius:999px;
+  background:rgba(18,13,9,.35);backdrop-filter:blur(8px);font-size:15px;font-weight:700;transition:border-color 160ms,background 160ms;}
+.cst-ghost:hover{border-color:var(--gold-dim);background:rgba(201,163,86,.12);}
+.cst-ghostIcon{width:14px;height:14px;color:var(--gold-bright);}
+.cst-muteBtn{position:absolute;right:clamp(20px,4vw,44px);bottom:clamp(44px,7vh,64px);z-index:4;width:42px;height:42px;display:flex;align-items:center;justify-content:center;
+  border:1px solid rgba(243,234,218,.25);border-radius:50%;background:rgba(18,13,9,.5);backdrop-filter:blur(8px);color:var(--text);transition:border-color 150ms,background 150ms;}
+.cst-muteBtn:hover{border-color:var(--gold-dim);background:rgba(201,163,86,.15);}
+.cst-muteBtn svg{width:18px;height:18px;}
+.cst-scrollCue{position:absolute;left:50%;bottom:clamp(44px,7vh,64px);transform:translateX(-50%);z-index:4;color:var(--gold-bright);opacity:.7;animation:cst-cue 2.4s ease-in-out infinite;}
+.cst-scrollCue svg{width:22px;height:22px;}
+@keyframes cst-cue{0%,100%{transform:translate(-50%,0)}50%{transform:translate(-50%,8px)}}
 
-.cst-band{margin:64px auto 0;max-width:760px;display:grid;grid-template-columns:repeat(4,1fr);
-  border-top:1px solid var(--hairline);border-bottom:1px solid var(--hairline);}
-.cst-band>div{padding:22px 10px;display:flex;flex-direction:column;gap:5px;}
-.cst-band>div+div{border-left:1px solid var(--hairline-soft);}
-.cst-band dt{margin:0;font-family:var(--serif);font-weight:600;font-size:clamp(1.5rem,2.6vw,2rem);color:var(--gold-bright);line-height:1;}
+/* band */
+.cst-band{width:min(840px,calc(100% - 40px));margin:-8px auto 0;display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);}
+.cst-band>div{padding:24px 10px;display:flex;flex-direction:column;gap:5px;text-align:center;}
+.cst-band>div+div{border-left:1px solid var(--hair-soft);}
+.cst-band dt{margin:0;font-family:var(--serif);font-weight:600;font-size:clamp(1.6rem,2.8vw,2.2rem);color:var(--gold-bright);line-height:1;}
 .cst-band dd{margin:0;color:var(--faint);font-size:11.5px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;}
 
-/* ───── sections ───── */
-.cst-section{width:min(1120px,calc(100% - 40px));margin:0 auto;padding:clamp(56px,9vh,104px) 0 0;}
-.cst-head{max-width:640px;margin-bottom:clamp(32px,5vh,48px);}
+/* sections */
+.cst-section{width:min(1200px,calc(100% - 40px));margin:0 auto;padding:clamp(64px,10vh,120px) 0 0;scroll-margin-top:40px;}
+.cst-head{max-width:660px;margin-bottom:clamp(32px,5vh,52px);}
 .cst-headCenter{margin-left:auto;margin-right:auto;text-align:center;}
 .cst-eyebrow{margin:0 0 14px;color:var(--gold);font-size:11.5px;font-weight:700;letter-spacing:.3em;text-transform:uppercase;}
-.cst-h2{margin:0;font-family:var(--serif);font-weight:600;color:var(--text);font-size:clamp(2rem,4vw,3rem);line-height:1.1;letter-spacing:-.01em;}
-.cst-lede{margin:16px 0 0;color:var(--muted);font-size:16px;line-height:1.7;}
+.cst-h2{margin:0;font-family:var(--serif);font-weight:600;font-size:clamp(2.1rem,4.4vw,3.4rem);line-height:1.08;letter-spacing:-.01em;}
+.cst-lede{margin:16px 0 0;color:var(--muted);font-size:16.5px;line-height:1.7;}
 
-/* ───── films ───── */
-.cst-films{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;}
-.cst-film{display:flex;flex-direction:column;border:1px solid var(--hairline-soft);border-radius:18px;overflow:hidden;background:var(--panel);
-  transition:transform 200ms ease,border-color 200ms ease,box-shadow 200ms ease;}
-.cst-film:hover{transform:translateY(-5px);border-color:var(--gold-dim);box-shadow:0 30px 60px -30px rgba(0,0,0,.9),0 0 0 1px rgba(201,163,86,.08);}
-.cst-poster{position:relative;display:block;aspect-ratio:4/5;background-size:cover;background-position:center 20%;
-  background-color:var(--panel2);}
-.cst-poster::before{content:"";position:absolute;inset:0;z-index:0;
-  background:
-    radial-gradient(90% 70% at 50% 24%, hsl(var(--hue,40deg) 28% 24% / .55), transparent 72%),
-    radial-gradient(120% 90% at 50% 110%, rgba(13,10,7,.95), transparent 60%);}
-.cst-posterCross{position:absolute;top:50%;left:50%;transform:translate(-50%,-62%);z-index:0;
-  font-family:var(--serif);font-size:72px;color:rgba(201,163,86,.2);}
-.cst-lang{position:absolute;top:14px;left:14px;z-index:2;padding:5px 11px;border:1px solid rgba(227,197,126,.4);border-radius:999px;
-  background:rgba(13,10,7,.55);backdrop-filter:blur(6px);color:var(--gold-bright);font-size:10.5px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;}
-.cst-playBtn{position:absolute;right:16px;bottom:16px;z-index:2;width:46px;height:46px;display:flex;align-items:center;justify-content:center;
-  border:1px solid rgba(227,197,126,.5);border-radius:50%;background:rgba(13,10,7,.6);backdrop-filter:blur(6px);color:var(--gold-bright);
-  transition:background 180ms ease,color 180ms ease,transform 180ms ease;}
+/* films */
+.cst-films{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;}
+.cst-film{display:flex;flex-direction:column;border:1px solid var(--hair-soft);border-radius:20px;overflow:hidden;background:var(--panel);transition:transform 260ms ease,border-color 260ms,box-shadow 260ms;}
+.cst-film:hover,.cst-film.is-live{transform:translateY(-6px);border-color:var(--gold-dim);box-shadow:0 36px 70px -34px rgba(0,0,0,.95),0 0 0 1px rgba(201,163,86,.08);}
+.cst-poster{position:relative;display:block;width:100%;aspect-ratio:4/5;padding:0;background-size:cover;background-position:center 20%;background-color:var(--panel2);overflow:hidden;}
+.cst-posterVideo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 20%;opacity:0;transition:opacity 500ms ease;}
+.cst-film.is-live .cst-posterVideo{opacity:1;}
+.cst-posterShade{position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,rgba(18,13,9,.25) 0%,transparent 30%,transparent 55%,rgba(18,13,9,.9) 100%);}
+.cst-posterCross{position:absolute;top:50%;left:50%;transform:translate(-50%,-62%);z-index:0;font-family:var(--serif);font-size:72px;color:rgba(201,163,86,.16);}
+.cst-lang{position:absolute;top:14px;left:14px;z-index:2;padding:5px 11px;border:1px solid rgba(230,201,127,.4);border-radius:999px;background:rgba(18,13,9,.55);backdrop-filter:blur(6px);color:var(--gold-bright);font-size:10.5px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;}
+.cst-playBtn{position:absolute;right:16px;bottom:16px;z-index:2;width:48px;height:48px;display:flex;align-items:center;justify-content:center;border:1px solid rgba(230,201,127,.5);border-radius:50%;background:rgba(18,13,9,.6);backdrop-filter:blur(6px);color:var(--gold-bright);transition:background 180ms,color 180ms,transform 180ms;}
 .cst-playBtn svg{width:16px;height:16px;margin-left:2px;}
 .cst-film:hover .cst-playBtn{background:var(--gold);color:#17110A;transform:scale(1.06);}
-.cst-filmBody{display:flex;flex-direction:column;flex:1;padding:20px 20px 18px;}
-.cst-filmTitle{font-family:var(--serif);font-weight:600;font-size:24px;line-height:1.15;color:var(--text);}
-.cst-filmLogline{margin-top:9px;color:var(--muted);font-size:14px;line-height:1.6;font-style:italic;font-family:var(--serif);font-size:16.5px;}
-.cst-filmFoot{margin-top:auto;padding-top:16px;display:flex;align-items:center;justify-content:space-between;gap:12px;border-top:1px solid var(--hairline-soft);margin-top:18px;}
+.cst-filmBody{display:flex;flex-direction:column;flex:1;padding:20px 22px 18px;}
+.cst-filmTitle{margin:0;font-family:var(--serif);font-weight:600;font-size:25px;line-height:1.15;}
+.cst-filmLogline{margin:9px 0 0;color:var(--muted);font-family:var(--serif);font-style:italic;font-size:17px;line-height:1.55;}
+.cst-filmFoot{margin-top:18px;padding-top:16px;display:flex;align-items:center;justify-content:space-between;gap:12px;border-top:1px solid var(--hair-soft);}
 .cst-filmProof{color:var(--faint);font-size:11.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;}
-.cst-filmWatch{display:inline-flex;align-items:center;gap:6px;color:var(--gold-bright);font-size:13px;font-weight:700;}
-.cst-filmWatch svg{width:14px;height:14px;transition:transform 160ms ease;}
+.cst-filmWatch{display:inline-flex;align-items:center;gap:6px;padding:0;color:var(--gold-bright);font-size:13px;font-weight:700;}
+.cst-filmWatch svg{width:14px;height:14px;transition:transform 160ms;}
 .cst-film:hover .cst-filmWatch svg{transform:translateX(3px);}
-.cst-seeAll{margin:26px 0 0;text-align:center;}
-.cst-seeAll a{color:var(--muted);font-size:14px;font-weight:600;border-bottom:1px solid var(--hairline);padding-bottom:3px;transition:color 150ms ease,border-color 150ms ease;}
+.cst-seeAll{margin:28px 0 0;text-align:center;}
+.cst-seeAll a{color:var(--muted);font-size:14px;font-weight:600;border-bottom:1px solid var(--hair);padding-bottom:3px;transition:color 150ms,border-color 150ms;}
 .cst-seeAll a:hover{color:var(--gold-bright);border-color:var(--gold-dim);}
 
-/* ───── quote ───── */
-.cst-quote{width:min(820px,calc(100% - 40px));margin:clamp(72px,11vh,120px) auto 0;text-align:center;}
-.cst-quote blockquote{margin:0;font-family:var(--serif);font-style:italic;font-weight:500;color:var(--gold-bright);
-  font-size:clamp(1.6rem,3.4vw,2.5rem);line-height:1.35;}
-.cst-quote figcaption{margin-top:18px;color:var(--faint);font-size:12px;font-weight:700;letter-spacing:.26em;text-transform:uppercase;}
-.cst-quote::before{content:"";display:block;width:52px;height:1px;margin:0 auto 34px;background:var(--gold-dim);}
-.cst-quote::after{content:"";display:block;width:52px;height:1px;margin:34px auto 0;background:var(--gold-dim);}
+/* story break */
+.cst-break{position:relative;margin-top:clamp(72px,11vh,130px);min-height:72svh;display:flex;align-items:center;justify-content:center;
+  background-size:cover;background-position:center 35%;background-attachment:fixed;background-color:var(--bg2);}
+.cst-breakShade{position:absolute;inset:0;background:linear-gradient(180deg,var(--bg) 0%,rgba(18,13,9,.45) 25%,rgba(18,13,9,.55) 75%,var(--bg) 100%);}
+.cst-quote{position:relative;width:min(860px,calc(100% - 40px));margin:0;padding:48px 0;text-align:center;}
+.cst-quote blockquote{margin:0;font-family:var(--serif);font-style:italic;font-weight:500;color:var(--gold-bright);font-size:clamp(1.8rem,4vw,3rem);line-height:1.3;text-shadow:0 4px 40px rgba(0,0,0,.8);}
+.cst-quote figcaption{margin-top:20px;color:var(--text);font-size:12px;font-weight:700;letter-spacing:.3em;text-transform:uppercase;opacity:.8;}
+.cst-quote::before,.cst-quote::after{content:"";display:block;width:56px;height:1px;margin:0 auto;background:var(--gold-dim);}
+.cst-quote::before{margin-bottom:36px}.cst-quote::after{margin-top:36px}
 
-/* ───── mission ───── */
-.cst-missionCols{display:grid;grid-template-columns:1fr 1fr;gap:clamp(24px,4vw,56px);}
-.cst-missionCols p{margin:0;color:var(--muted);font-size:16.5px;line-height:1.85;}
-.cst-missionCols em{color:var(--text);font-style:italic;}
-.cst-missionCols p::first-letter{color:var(--gold-bright);}
+/* mission split */
+.cst-mission{display:grid;grid-template-columns:minmax(0,.95fr) minmax(0,1.05fr);gap:clamp(32px,5vw,72px);align-items:center;}
+.cst-missionStill{position:relative;aspect-ratio:4/5;border-radius:22px;background-size:cover;background-position:center 20%;background-color:var(--panel2);
+  box-shadow:0 40px 80px -40px rgba(0,0,0,.95);overflow:hidden;}
+.cst-missionStill::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 60%,rgba(18,13,9,.85));}
+.cst-missionCap{position:absolute;left:18px;bottom:16px;z-index:1;color:var(--muted);font-size:11.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;}
+.cst-missionCopy p:not(.cst-eyebrow){margin:18px 0 0;color:var(--muted);font-size:17px;line-height:1.85;}
+.cst-missionCopy em{color:var(--text);}
 
-/* ───── ledger ───── */
-.cst-ledger{margin:0;padding:0;list-style:none;border-top:1px solid var(--hairline);}
-.cst-row{display:grid;grid-template-columns:72px 240px 1fr;gap:20px;align-items:baseline;
-  padding:26px 6px;border-bottom:1px solid var(--hairline-soft);transition:background 160ms ease;}
+/* creator */
+.cst-creator{display:grid;grid-template-columns:260px 1fr;gap:clamp(28px,4vw,56px);align-items:center;padding:clamp(28px,4vw,48px);
+  border:1px solid var(--hair);border-radius:24px;background:linear-gradient(135deg,rgba(201,163,86,.08),rgba(201,163,86,.02) 60%,transparent);}
+.cst-creatorPhoto{aspect-ratio:4/5;border-radius:18px;background-size:cover;background-position:center;background-color:var(--panel2);box-shadow:0 30px 60px -30px rgba(0,0,0,.9);}
+.cst-creatorText{margin:0;font-family:var(--serif);font-size:clamp(1.25rem,2vw,1.55rem);line-height:1.55;color:var(--text);}
+.cst-creatorSig{margin:22px 0 0;font-family:var(--serif);font-style:italic;font-size:19px;color:var(--gold-bright);}
+.cst-creatorSig span{font-style:normal;font-family:var(--sans);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint);margin-left:8px;}
+
+/* ledger */
+.cst-ledger{margin:0;padding:0;list-style:none;border-top:1px solid var(--hair);}
+.cst-row{display:grid;grid-template-columns:72px 260px 1fr;gap:20px;align-items:baseline;padding:28px 6px;border-bottom:1px solid var(--hair-soft);transition:background 160ms;}
 .cst-row:hover{background:rgba(201,163,86,.03);}
 .cst-rowN{font-family:var(--serif);font-size:15px;color:var(--gold);letter-spacing:.1em;}
-.cst-rowTitle{font-family:var(--serif);font-weight:600;font-size:23px;color:var(--text);}
-.cst-rowText{color:var(--muted);font-size:14.5px;line-height:1.7;max-width:56ch;}
+.cst-rowTitle{font-family:var(--serif);font-weight:600;font-size:24px;}
+.cst-rowText{color:var(--muted);font-size:15px;line-height:1.7;max-width:58ch;}
 
-/* ───── slate ───── */
-.cst-slate{margin:0;padding:0;list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:0 clamp(28px,5vw,72px);border-top:1px solid var(--hairline);}
-.cst-saint{display:flex;align-items:center;gap:18px;padding:20px 6px;border-bottom:1px solid var(--hairline-soft);}
+/* slate */
+.cst-slate{margin:0;padding:0;list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:0 clamp(28px,5vw,72px);border-top:1px solid var(--hair);}
+.cst-saint{display:flex;align-items:center;gap:18px;padding:22px 6px;border-bottom:1px solid var(--hair-soft);}
 .cst-saintN{font-family:var(--serif);font-size:14px;color:var(--gold);letter-spacing:.08em;}
 .cst-saintBody{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;}
-.cst-saintName{font-family:var(--serif);font-weight:600;font-size:19px;color:var(--text);line-height:1.2;}
-.cst-saintEpithet{color:var(--faint);font-size:12.5px;font-style:italic;font-family:var(--serif);font-size:14px;}
-.cst-status{flex:0 0 auto;padding:5px 11px;border:1px solid var(--hairline-soft);border-radius:999px;color:var(--faint);
-  font-size:10px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;white-space:nowrap;}
+.cst-saintName{font-family:var(--serif);font-weight:600;font-size:20px;line-height:1.2;}
+.cst-saintEpithet{color:var(--faint);font-family:var(--serif);font-style:italic;font-size:15px;}
+.cst-status{flex:0 0 auto;padding:5px 11px;border:1px solid var(--hair-soft);border-radius:999px;color:var(--faint);font-size:10px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;white-space:nowrap;}
 .cst-status.is-active{border-color:var(--gold-dim);color:var(--gold-bright);background:rgba(201,163,86,.08);}
 .cst-status.is-next{border-color:rgba(243,234,218,.22);color:var(--muted);}
 
-/* ───── support ───── */
-.cst-support{padding-bottom:clamp(64px,10vh,110px);}
+/* support */
+.cst-support{padding-bottom:clamp(72px,10vh,120px);}
+.cst-goal{max-width:620px;margin:0 auto 40px;}
+.cst-goalTop{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px;color:var(--muted);font-size:14px;}
+.cst-goalTop strong{color:var(--gold-bright);font-family:var(--serif);font-size:22px;font-weight:600;}
+.cst-goalBar{height:6px;border-radius:999px;background:rgba(243,234,218,.08);overflow:hidden;}
+.cst-goalBar span{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--gold),var(--gold-bright));transition:width 1200ms ease;}
+.cst-goalNote{margin:10px 0 0;text-align:center;color:var(--faint);font-size:12.5px;}
 .cst-tiers{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;}
-.cst-tier{position:relative;display:flex;flex-direction:column;gap:10px;padding:28px 24px 24px;border:1px solid var(--hairline-soft);border-radius:18px;
-  background:linear-gradient(180deg,var(--panel) 0%,var(--bg2) 100%);
-  transition:transform 180ms ease,border-color 180ms ease,box-shadow 180ms ease;}
-.cst-tier:hover{transform:translateY(-4px);border-color:var(--gold-dim);box-shadow:0 26px 54px -28px rgba(0,0,0,.9);}
-.cst-tier.is-featured{border-color:var(--gold-dim);background:linear-gradient(180deg,rgba(201,163,86,.12) 0%,var(--panel) 60%);}
-.cst-tierFlag{position:absolute;top:-11px;left:50%;transform:translateX(-50%);padding:4px 12px;border-radius:999px;
-  background:var(--gold);color:#17110A;font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;white-space:nowrap;}
+.cst-tier{position:relative;display:flex;flex-direction:column;gap:10px;padding:30px 24px 24px;border:1px solid var(--hair-soft);border-radius:20px;background:linear-gradient(180deg,var(--panel),var(--bg2));transition:transform 180ms,border-color 180ms,box-shadow 180ms;}
+.cst-tier:hover{transform:translateY(-4px);border-color:var(--gold-dim);box-shadow:0 26px 54px -28px rgba(0,0,0,.95);}
+.cst-tier.is-featured{border-color:var(--gold-dim);background:linear-gradient(180deg,rgba(201,163,86,.14),var(--panel) 60%);}
+.cst-tierFlag{position:absolute;top:-11px;left:50%;transform:translateX(-50%);padding:4px 12px;border-radius:999px;background:var(--gold);color:#17110A;font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;white-space:nowrap;}
 .cst-tierName{color:var(--gold-bright);font-size:11.5px;font-weight:800;letter-spacing:.22em;text-transform:uppercase;}
-.cst-tierAmt{font-family:var(--serif);font-weight:600;font-size:44px;line-height:1;color:var(--text);}
+.cst-tierAmt{font-family:var(--serif);font-weight:600;font-size:46px;line-height:1;}
 .cst-tierAmt sup{font-size:.45em;vertical-align:.7em;margin-right:2px;color:var(--gold-bright);}
 .cst-tierPer{margin-left:4px;font-family:var(--sans);font-size:13px;font-weight:500;color:var(--faint);}
 .cst-tierLine{color:var(--muted);font-size:13.5px;line-height:1.55;min-height:3.1em;}
-.cst-tierGo{margin-top:auto;display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:11px 14px;border:1px solid var(--gold-dim);border-radius:999px;
-  color:var(--gold-bright);font-size:13px;font-weight:800;letter-spacing:.04em;transition:background 160ms ease,color 160ms ease;}
-.cst-tier:hover .cst-tierGo{background:var(--gold);color:#17110A;border-color:var(--gold);}
+.cst-tierGo{margin-top:auto;display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:11px 14px;border:1px solid var(--gold-dim);border-radius:999px;color:var(--gold-bright);font-size:13px;font-weight:800;transition:background 160ms,color 160ms;}
+.cst-tier:hover .cst-tierGo,.cst-tier.is-featured .cst-tierGo{background:var(--gold);color:#17110A;border-color:var(--gold);}
 .cst-tierGo svg{width:14px;height:14px;}
-.cst-tier.is-featured .cst-tierGo{background:var(--gold);color:#17110A;border-color:var(--gold);}
-.cst-tier.is-featured:hover .cst-tierGo{background:var(--gold-bright);border-color:var(--gold-bright);}
-
 .cst-noPerks{max-width:62ch;margin:30px auto 0;text-align:center;color:var(--faint);font-size:13px;line-height:1.7;}
-.cst-alt{margin:26px auto 0;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:10px;}
-.cst-altBtn{padding:10px 18px;border:1px solid var(--hairline-soft);border-radius:999px;color:var(--muted);font-size:13px;font-weight:700;
-  transition:border-color 150ms ease,color 150ms ease,background 150ms ease;}
+.cst-alt{margin:26px auto 0;display:flex;justify-content:center;flex-wrap:wrap;gap:10px;}
+.cst-altBtn{padding:10px 18px;border:1px solid var(--hair-soft);border-radius:999px;color:var(--muted);font-size:13px;font-weight:700;transition:border-color 150ms,color 150ms,background 150ms;}
 .cst-altBtn:hover{border-color:var(--gold-dim);color:var(--gold-bright);background:rgba(201,163,86,.05);}
-
-.cst-fine{max-width:720px;margin:56px auto 0;padding:26px 28px;border:1px solid var(--hairline-soft);border-radius:16px;background:rgba(243,234,218,.025);}
-.cst-fine h3{margin:0 0 10px;color:var(--text);font-size:13px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;}
+.cst-fine{max-width:720px;margin:56px auto 0;padding:26px 28px;border:1px solid var(--hair-soft);border-radius:16px;background:rgba(243,234,218,.025);}
+.cst-fine h3{margin:0 0 10px;font-size:13px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;}
 .cst-fine p{margin:0;color:var(--faint);font-size:13.5px;line-height:1.75;}
-.cst-fine strong{color:var(--muted);font-weight:700;}
+.cst-fine strong{color:var(--muted);}
 
-/* ───── footer ───── */
-.cst-foot{margin-top:auto;padding:52px 20px 58px;border-top:1px solid var(--hairline-soft);text-align:center;background:linear-gradient(180deg,transparent,rgba(201,163,86,.04));}
+/* lightbox */
+.cst-lb{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(10,7,5,.92);backdrop-filter:blur(10px);animation:cst-fade 200ms ease;}
+@keyframes cst-fade{from{opacity:0}to{opacity:1}}
+.cst-lbInner{position:relative;width:min(480px,100%);}
+.cst-lbClose{position:absolute;top:-48px;right:0;width:40px;height:40px;display:flex;align-items:center;justify-content:center;border:1px solid rgba(243,234,218,.25);border-radius:50%;color:var(--text);transition:background 150ms;}
+.cst-lbClose:hover{background:rgba(201,163,86,.15);}
+.cst-lbClose svg{width:18px;height:18px;}
+.cst-lbFrame{aspect-ratio:9/16;max-height:78svh;border-radius:16px;overflow:hidden;background:#000;border:1px solid var(--hair);}
+.cst-lbFrame iframe{width:100%;height:100%;border:0;display:block;}
+.cst-lbMeta{margin:14px 0 0;display:flex;justify-content:space-between;align-items:center;gap:12px;font-family:var(--serif);font-size:18px;}
+.cst-lbMeta a{display:inline-flex;align-items:center;gap:6px;font-family:var(--sans);font-size:12.5px;font-weight:700;color:var(--gold-bright);}
+.cst-lbMeta a svg{width:13px;height:13px;}
+
+/* footer */
+.cst-foot{margin-top:auto;padding:56px 20px 60px;border-top:1px solid var(--hair-soft);text-align:center;background:linear-gradient(180deg,transparent,rgba(201,163,86,.05));}
 .cst-footCross{display:block;color:var(--gold);font-size:22px;margin-bottom:12px;}
 .cst-footLine{margin:0 0 14px;font-family:var(--serif);font-style:italic;font-size:19px;color:var(--muted);}
 .cst-footMeta{margin:0 0 8px;color:var(--faint);font-size:13px;}
-.cst-footMeta a{color:var(--muted);font-weight:650;border-bottom:1px solid transparent;transition:color 150ms,border-color 150ms;}
-.cst-footMeta a:hover{color:var(--gold-bright);border-color:var(--gold-dim);}
-.cst-footFine{margin:0 auto;max-width:60ch;color:#6A5E4C;font-size:11.5px;line-height:1.6;}
+.cst-footMeta a{color:var(--muted);font-weight:650;}
+.cst-footMeta a:hover{color:var(--gold-bright);}
+.cst-footFine{margin:0 auto;max-width:60ch;color:#6E6250;font-size:11.5px;line-height:1.6;}
 
-/* ───── responsive ───── */
-@media (max-width:1000px){
+/* responsive */
+@media (max-width:1040px){
   .cst-films{grid-template-columns:repeat(2,1fr);}
   .cst-film:last-child{display:none;}
   .cst-tiers{grid-template-columns:repeat(2,1fr);}
-  .cst-row{grid-template-columns:52px 1fr;grid-template-rows:auto auto;}
+  .cst-row{grid-template-columns:52px 1fr;}
   .cst-rowText{grid-column:2;}
+  .cst-creator{grid-template-columns:200px 1fr;}
 }
-@media (max-width:780px){
-  .cst-missionCols{grid-template-columns:1fr;}
+@media (max-width:800px){
+  .cst-mission{grid-template-columns:1fr;}
+  .cst-missionStill{aspect-ratio:16/10;}
   .cst-slate{grid-template-columns:1fr;}
   .cst-band{grid-template-columns:repeat(2,1fr);}
   .cst-band>div:nth-child(3){border-left:0;}
-  .cst-band>div:nth-child(n+3){border-top:1px solid var(--hairline-soft);}
+  .cst-band>div:nth-child(n+3){border-top:1px solid var(--hair-soft);}
+  .cst-creator{grid-template-columns:1fr;}
+  .cst-creatorPhoto{max-width:220px;}
+  .cst-break{background-attachment:scroll;min-height:60svh;}
 }
 @media (max-width:600px){
   .cst-barLink{display:none;}
   .cst-markText{font-size:14px;letter-spacing:.1em;}
-  .cst-hero{padding-top:64px;}
+  .cst-heroInner{padding:100px 16px 120px;}
   .cst-kicker{letter-spacing:.22em;font-size:11px;}
   .cst-heroCtas{flex-direction:column;align-items:stretch;}
   .cst-cta,.cst-ghost{justify-content:center;width:100%;}
@@ -584,10 +665,13 @@ const CSS = `
   .cst-tiers{grid-template-columns:1fr;gap:14px;}
   .cst-tierLine{min-height:0;}
   .cst-row{padding:20px 2px;}
-  .cst-fine{padding:20px;}
+  .cst-fine,.cst-creator{padding:20px;}
+  .cst-lbClose{top:-46px;}
 }
+@media (hover:none){ .cst-posterVideo{display:none;} }
 @media (prefers-reduced-motion:reduce){
-  .cst *{transition:none!important;}
-  .cst-film:hover,.cst-tier:hover,.cst-cta:hover{transform:none;}
+  .cst *{transition:none!important;animation:none!important;}
+  [data-reveal]{opacity:1;transform:none;}
+  .cst-heroVideo{animation:none;}
 }
 `;
