@@ -31,7 +31,7 @@ const TIER_LINKS = [
   "https://buy.stripe.com/7sYeVcb8selzeOI2Go0Ba05", // Benefactor $25/mo
   "https://buy.stripe.com/6oU28q5O87Xb9uo94M0Ba03", // Founding Patron $50/mo
 ];
-const GIVE_ONCE_LINK = "https://buy.stripe.com/your-give-once-link"; // TODO: one-time "Customers choose what to pay" link
+const GIVE_ONCE_LINK = "https://buy.stripe.com/28EbJ0ekEa5jdKE3Ks0Ba06"; // one-time gift
 const PAYPAL_LINK = "https://paypal.me/catholicsaintstories"; // TODO: your real PayPal.me, or remove the button
 const FACEBOOK_URL = "https://www.facebook.com/people/Catholicsaintstories/61592672761916/";
 const INSTAGRAM_URL = "https://instagram.com/catholicsaintstories";
