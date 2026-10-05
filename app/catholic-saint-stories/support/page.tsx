@@ -23,8 +23,16 @@ const serif = Cormorant_Garamond({
 const A = "/saint-stories";
 const CP_LOGO = "https://app.catholicprojects.org/brand/catholicprojects-logo.png";
 const CONTACT = "team@catholicprojects.org";
-const STRIPE_LINK = "https://buy.stripe.com/your-stripe-link"; // TODO
-const PAYPAL_LINK = "https://paypal.me/catholicsaintstories"; // TODO
+/* Per-tier Stripe Payment Links, indexed to match TIER_AMOUNTS / COPY.tiers:
+   0 Friend $5 · 1 Patron $15 · 2 Benefactor $25 · 3 Founding Patron $50 */
+const TIER_LINKS = [
+  "https://buy.stripe.com/8x2aEW3G01yN6ic0yg0Ba02", // Friend $5/mo
+  "https://buy.stripe.com/bJe7sK5O8cdr7mggxe0Ba04", // Patron $15/mo
+  "https://buy.stripe.com/7sYeVcb8selzeOI2Go0Ba05", // Benefactor $25/mo
+  "https://buy.stripe.com/6oU28q5O87Xb9uo94M0Ba03", // Founding Patron $50/mo
+];
+const GIVE_ONCE_LINK = "https://buy.stripe.com/your-give-once-link"; // TODO: one-time "Customers choose what to pay" link
+const PAYPAL_LINK = "https://paypal.me/catholicsaintstories"; // TODO: your real PayPal.me, or remove the button
 const FACEBOOK_URL = "https://www.facebook.com/people/Catholicsaintstories/61592672761916/";
 const INSTAGRAM_URL = "https://instagram.com/catholicsaintstories";
 const TIKTOK_URL = "https://tiktok.com/@catholicsaintstories2";
@@ -143,6 +151,7 @@ const COPY = {
     tiers: [["Friend", "Keeps the research going."], ["Patron", "Helps carry a story through production."], ["Benefactor", "Funds narration and translation — in every language."], ["Founding Patron", "Sustains the whole slate, month after month."]],
     featured: "Most common", perMo: "/mo", support: "Support",
     noPerks: "Support is a voluntary gift to the creator of this work. It earns our deep gratitude and our prayers — but no rewards, ownership, or exclusive access. The films remain free, for everyone, always.",
+    recurringNote: "Monthly tiers renew each month until you cancel — cancel anytime in one click. One-time gifts are charged once.",
     giveOnce: "Give once", paypal: "PayPal", ask: "Questions? Write to us",
     fineH: "Transparency about your gift",
     fine: "CatholicProjects is not a tax-exempt charitable organization, and contributions are not tax-deductible. Your support is voluntary creator support — received as ordinary income, reported properly, and spent on the work described above. No contribution funds a specific film, and no outcome is promised beyond this: more stories of the saints, made well, released free.",
@@ -219,6 +228,7 @@ const COPY = {
     tiers: [["Amigo", "Mantiene viva la investigación."], ["Patrono", "Ayuda a llevar una historia hasta su producción."], ["Benefactor", "Financia narración y traducción — en cada idioma."], ["Patrono fundador", "Sostiene toda la cartelera, mes tras mes."]],
     featured: "El más elegido", perMo: "/mes", support: "Apoyar",
     noPerks: "El apoyo es un regalo voluntario al creador de esta obra. Recibe nuestra profunda gratitud y nuestras oraciones — pero no recompensas, propiedad ni acceso exclusivo. Las películas siguen siendo gratis, para todos, siempre.",
+    recurringNote: "Los niveles mensuales se renuevan cada mes hasta que canceles — cancela cuando quieras con un clic. Las donaciones únicas se cobran una sola vez.",
     giveOnce: "Donar una vez", paypal: "PayPal", ask: "¿Preguntas? Escríbenos",
     fineH: "Transparencia sobre tu aporte",
     fine: "CatholicProjects no es una organización benéfica exenta de impuestos, y los aportes no son deducibles de impuestos. Tu apoyo es apoyo voluntario a un creador — se recibe como ingreso ordinario, se declara correctamente y se destina al trabajo descrito arriba. Ningún aporte financia una película específica, y no se promete otro resultado que este: más historias de los santos, bien hechas, publicadas gratis.",
@@ -662,7 +672,7 @@ export default function SupportPage() {
           </div>
           <div className="cst-tiers">
             {t.tiers.map(([name, line], i) => (
-              <a key={name} className={`cst-tier ${i === 1 ? "is-featured" : ""}`} href={STRIPE_LINK} target="_blank" rel="noopener noreferrer" data-reveal>
+              <a key={name} className={`cst-tier ${i === 1 ? "is-featured" : ""}`} href={TIER_LINKS[i]} target="_blank" rel="noopener noreferrer" data-reveal>
                 {i === 1 && <span className="cst-tierFlag">{t.featured}</span>}
                 <span className="cst-tierName">{name}</span>
                 <span className="cst-tierAmt"><sup>$</sup>{TIER_AMOUNTS[i]}<span className="cst-tierPer">{t.perMo}{i === 3 ? "+" : ""}</span></span>
@@ -671,9 +681,10 @@ export default function SupportPage() {
               </a>
             ))}
           </div>
+          <p className="cst-recurringNote" data-reveal>{t.recurringNote}</p>
           <p className="cst-noPerks" data-reveal>{t.noPerks}</p>
           <div className="cst-alt" data-reveal>
-            <a className="cst-altBtn" href={STRIPE_LINK} target="_blank" rel="noopener noreferrer">{t.giveOnce}</a>
+            <a className="cst-altBtn" href={GIVE_ONCE_LINK} target="_blank" rel="noopener noreferrer">{t.giveOnce}</a>
             <a className="cst-altBtn" href={PAYPAL_LINK} target="_blank" rel="noopener noreferrer">{t.paypal}</a>
             <a className="cst-altBtn" href={`mailto:${CONTACT}`}>{t.ask}</a>
           </div>
@@ -988,7 +999,8 @@ const CSS = `
 .cst-tierGo{margin-top:auto;display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:11px 14px;border:1px solid var(--gold-dim);border-radius:999px;color:var(--gold-bright);font-size:13px;font-weight:800;transition:background 160ms,color 160ms;}
 .cst-tier:hover .cst-tierGo,.cst-tier.is-featured .cst-tierGo{background:var(--gold);color:#17110A;border-color:var(--gold);}
 .cst-tierGo svg{width:14px;height:14px;}
-.cst-noPerks{max-width:62ch;margin:30px auto 0;text-align:center;color:var(--faint);font-size:13px;line-height:1.7;}
+.cst-recurringNote{max-width:62ch;margin:24px auto 0;text-align:center;color:var(--muted);font-size:13.5px;line-height:1.6;}
+.cst-noPerks{max-width:62ch;margin:14px auto 0;text-align:center;color:var(--faint);font-size:13px;line-height:1.7;}
 .cst-alt{margin:26px auto 0;display:flex;justify-content:center;flex-wrap:wrap;gap:10px;}
 .cst-altBtn{padding:10px 18px;border:1px solid var(--hair-soft);border-radius:999px;color:var(--muted);font-size:13px;font-weight:700;transition:border-color 150ms,color 150ms,background 150ms;}
 .cst-altBtn:hover{border-color:var(--gold-dim);color:var(--gold-bright);background:rgba(201,163,86,.05);}
