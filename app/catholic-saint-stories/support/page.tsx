@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Inter, Cormorant_Garamond } from "next/font/google";
 import type { ReactNode } from "react";
 
