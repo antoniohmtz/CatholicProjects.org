@@ -88,7 +88,7 @@ const COPY = {
     heroSub: "Cinematic films about the men and women who gave their lives to Christ — martyrs, servants, mystics — told faithfully, released free, and carried to the feeds where the whole world now lives.",
     ctaPrimary: "Be part of the mission", ctaWatch: "Watch the stories",
     trust: ["Grounded in Tier 1 & Tier 2 Catholic sources", "Free to watch, always", "English & Español"],
-    phoneCap: "Now playing", prevFilm: "Previous story", nextFilm: "Next story",
+    phoneCap: "Now playing", prevFilm: "Previous story", nextFilm: "Next story", stop: "Stop",
     followEyebrow: "Follow & share", followH2: "The free way to help",
     followLede: "Every follow and every share carries a saint into a feed where he wasn't before. If you can't give, do this — it matters just as much.",
     followers: "followers", follow: "Follow",
@@ -165,7 +165,7 @@ const COPY = {
     heroSub: "Películas cinematográficas sobre los hombres y mujeres que entregaron su vida a Cristo — mártires, siervos, místicos — contadas con fidelidad, publicadas gratis y llevadas a las redes donde hoy vive el mundo entero.",
     ctaPrimary: "Sé parte de la misión", ctaWatch: "Ver las historias",
     trust: ["Fuentes católicas de Nivel 1 y 2", "Gratis, siempre", "Español e inglés"],
-    phoneCap: "En reproducción", prevFilm: "Historia anterior", nextFilm: "Siguiente historia",
+    phoneCap: "En reproducción", prevFilm: "Historia anterior", nextFilm: "Siguiente historia", stop: "Detener",
     followEyebrow: "Sigue y comparte", followH2: "La forma gratuita de ayudar",
     followLede: "Cada seguidor y cada compartido lleva a un santo a una pantalla donde antes no estaba. Si no puedes aportar, haz esto — importa igual.",
     followers: "seguidores", follow: "Seguir",
@@ -324,20 +324,48 @@ const I2 = {
 function PhoneFeed({ films, t }: { films: Film[]; t: T }) {
   const [i, setI] = useState(0);
   const [hover, setHover] = useState(false);
+  const [userControlled, setUserControlled] = useState(false); // stop auto-advance once they engage
+  const [engaged, setEngaged] = useState(false);               // a video has been tapped (may have sound)
+  const [reloadKey, setReloadKey] = useState(0);               // bump to tear players down = kill audio
+  const wrapRef = useRef<HTMLDivElement>(null);
   const n = films.length;
-  const go = (d: number) => setI((x) => (x + d + n) % n);
+  const sel = (k: number) => { setI(k); setUserControlled(true); };
+  const go = (d: number) => { setI((x) => (x + d + n) % n); setUserControlled(true); };
+
+  // Auto-advance ONLY while idle — never while hovering, in-control, or watching.
   useEffect(() => {
-    if (hover) return;
+    if (hover || userControlled || engaged) return;
     const id = window.setInterval(() => setI((x) => (x + 1) % n), 14000);
     return () => window.clearInterval(id);
-  }, [hover, n]);
+  }, [hover, userControlled, engaged, n]);
+
+  // The reel is a cross-origin iframe, so we can't see the click — but when someone
+  // taps into it the window blurs and the iframe becomes the active element.
+  useEffect(() => {
+    const onBlur = () => window.setTimeout(() => {
+      const a = document.activeElement;
+      if (a && a.tagName === "IFRAME" && wrapRef.current?.contains(a)) { setEngaged(true); setUserControlled(true); }
+    }, 0);
+    window.addEventListener("blur", onBlur);
+    return () => window.removeEventListener("blur", onBlur);
+  }, []);
+
+  // Stop = remount the players (destroys the playing iframe, killing its audio) then re-render muted.
+  useEffect(() => {
+    if (!reloadKey) return;
+    const el = wrapRef.current ?? undefined;
+    window.setTimeout(() => window.FB?.XFBML.parse(el), 0);
+  }, [reloadKey]);
+  const stop = () => { setReloadKey((k) => k + 1); setEngaged(false); };
+
   const onKey = (e: React.KeyboardEvent) => {
     if (e.key === "ArrowDown" || e.key === "ArrowRight") { e.preventDefault(); go(1); }
     if (e.key === "ArrowUp" || e.key === "ArrowLeft") { e.preventDefault(); go(-1); }
   };
   const f = films[i];
   return (
-    <div className="cst-heroPhoneWrap" onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)} onKeyDown={onKey} tabIndex={0} aria-label={`${t.phoneCap}: ${f.title}`}>
+   <>
+    <div className="cst-heroPhoneWrap" ref={wrapRef} onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)} onKeyDown={onKey} tabIndex={0} aria-label={`${t.phoneCap}: ${f.title}`}>
       <div className="cst-phoneGlow" aria-hidden="true" />
       <div className="cst-phone">
         <span className="cst-phoneBtn cst-phoneBtnMute" aria-hidden="true" />
@@ -355,7 +383,7 @@ function PhoneFeed({ films, t }: { films: Film[]; t: T }) {
             </span>
           </div>
           <div className="cst-feedArea">
-            <div className="cst-feedTrack" style={{ transform: `translateY(-${i * 100}%)` }}>
+            <div className="cst-feedTrack" key={reloadKey} style={{ transform: `translateY(-${i * 100}%)` }}>
               {films.map((film) => (
                 <div key={film.slug} className="cst-feedSlide"><Player film={film} /></div>
               ))}
@@ -369,7 +397,7 @@ function PhoneFeed({ films, t }: { films: Film[]; t: T }) {
         <button className="cst-feedBtn" onClick={() => go(-1)} aria-label={t.prevFilm}><Svg sw={2}>{I2.up}</Svg></button>
         <div className="cst-feedDots">
           {films.map((film, k) => (
-            <button key={film.slug} className={`cst-feedDot ${k === i ? "is-on" : ""}`} onClick={() => setI(k)} aria-label={film.title} />
+            <button key={film.slug} className={`cst-feedDot ${k === i ? "is-on" : ""}`} onClick={() => sel(k)} aria-label={film.title} />
           ))}
         </div>
         <button className="cst-feedBtn" onClick={() => go(1)} aria-label={t.nextFilm}><Svg sw={2}>{I2.down}</Svg></button>
@@ -379,6 +407,15 @@ function PhoneFeed({ films, t }: { films: Film[]; t: T }) {
       <div className="cst-chip cst-chipB" key={`b${i}`}><b>{f.stats.shares}</b> {t.shares}</div>
       <div className="cst-chip cst-chipC" key={`c${i}`}><span className="cst-chipDot" aria-hidden="true" />{t.phoneCap} · {f.title}</div>
     </div>
+
+    {engaged && (
+      <div className="cst-nowBar" role="status">
+        <span className="cst-nowDot" aria-hidden="true" />
+        <span className="cst-nowText">{t.phoneCap} · {f.title}</span>
+        <button className="cst-nowStop" onClick={stop}>{t.stop}</button>
+      </div>
+    )}
+   </>
   );
 }
 
@@ -820,6 +857,14 @@ const CSS = `
 @keyframes cst-chipIn{from{opacity:0}to{opacity:1}}
 .cst-chipDot{width:7px;height:7px;border-radius:50%;background:#E25D4B;box-shadow:0 0 0 3px rgba(226,93,75,.25);animation:cst-pulse 1.6s ease-in-out infinite;}
 @keyframes cst-pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* sticky "now playing — stop" bar (appears once a reel is tapped, findable even after scrolling) */
+.cst-nowBar{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);z-index:60;display:inline-flex;align-items:center;gap:12px;max-width:calc(100% - 32px);padding:9px 10px 9px 16px;border:1px solid var(--gold-dim);border-radius:999px;background:rgba(18,13,9,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);box-shadow:0 18px 44px -16px rgba(0,0,0,.95);animation:cst-nowIn 300ms cubic-bezier(.2,.65,.2,1);}
+@keyframes cst-nowIn{from{opacity:0;transform:translate(-50%,10px)}to{opacity:1;transform:translate(-50%,0)}}
+.cst-nowDot{flex:0 0 auto;width:8px;height:8px;border-radius:50%;background:#E25D4B;box-shadow:0 0 0 3px rgba(226,93,75,.25);animation:cst-pulse 1.6s ease-in-out infinite;}
+.cst-nowText{min-width:0;color:var(--muted);font-family:var(--serif);font-style:italic;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.cst-nowStop{flex:0 0 auto;display:inline-flex;align-items:center;padding:8px 18px;border-radius:999px;background:var(--gold);color:#17110A;font-size:12.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;transition:background 150ms;}
+.cst-nowStop:hover{background:var(--gold-bright);}
 .cst-cta{display:inline-flex;align-items:center;gap:10px;min-height:54px;padding:15px 26px;border-radius:999px;background:linear-gradient(135deg,#E6C97F,#C9A356 55%,#A8823C);color:#17110A;font-size:15px;font-weight:800;box-shadow:0 10px 36px -10px rgba(201,163,86,.6);transition:transform 160ms,box-shadow 160ms;}
 .cst-cta:hover{transform:translateY(-2px);box-shadow:0 16px 44px -10px rgba(201,163,86,.7);}
 .cst-cta svg{width:17px;height:17px;}
