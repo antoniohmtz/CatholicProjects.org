@@ -54,7 +54,7 @@ const FILMS: Film[] = [
     logline: "A captain of the Emperor's guard who served another King — and would not deny Him, even under the arrows.",
     stats: { likes: "1.8K", comments: "134", shares: "243" },
     ig: "https://www.instagram.com/reel/DdmraoEBnF8/", fb: "https://fb.watch/v/79fkexHl-/" },
-  { slug: "sheen", title: "Blessed Fulton Sheen", lang: "English",
+  { slug: "sheen", title: "Venerable Fulton Sheen", lang: "English",
     logline: "A bishop, a chalkboard, and a television camera — and thirty million people listening.",
     stats: { likes: "1.9K", comments: "61", shares: "245" },
     ig: "https://www.instagram.com/reel/DduZyldBW9M/", fb: "https://fb.watch/v/6tDwOkXld/" },
@@ -77,7 +77,7 @@ const MISSION_FILM: Film = {
 /* Witnesses: a printed litany by default. Flip to true once the
    witness-<slug>.jpg portraits are in /public/saint-stories/. */
 const WITNESS_PORTRAITS = false;
-const WITNESS_SLUGS = ["vincent", "gines", "damien", "sebastian", "frassati", "acutis", "pio", "anthony", "kolbe", "alacoque", "therese", "sheen"];
+const WITNESS_SLUGS = ["mary", "joseph", "vincent", "gines", "damien", "sebastian", "frassati", "acutis", "pio", "anthony", "kolbe", "alacoque", "therese", "sheen"];
 
 /* ═══════════════════════ COPY ═══════════════════════ */
 const COPY = {
@@ -92,7 +92,7 @@ const COPY = {
     followEyebrow: "Follow & share", followH2: "The free way to help",
     followLede: "Every follow and every share carries a saint into a feed where he wasn't before. If you can't give, do this — it matters just as much.",
     followers: "followers", follow: "Follow",
-    litany: ["St. Vincent de Paul, pray for us", "San Ginés de Roma, pray for us", "St. Damien of Molokai, pray for us", "St. Pier Giorgio Frassati, pray for us", "St. Carlo Acutis, pray for us", "St. Padre Pio, pray for us", "St. Anthony of Padua, pray for us", "St. Maximilian Kolbe, pray for us", "St. Sebastian, pray for us", "St. Margaret Mary Alacoque, pray for us", "Blessed Fulton Sheen, pray for us", "All you holy men and women, pray for us"],
+    litany: ["Holy Mary, Mother of God, pray for us", "St. Joseph, pray for us", "St. Vincent de Paul, pray for us", "St. Genesius of Rome, pray for us", "St. Damien of Molokai, pray for us", "St. Pier Giorgio Frassati, pray for us", "St. Carlo Acutis, pray for us", "St. Padre Pio, pray for us", "St. Anthony of Padua, pray for us", "St. Maximilian Kolbe, pray for us", "St. Sebastian, pray for us", "St. Margaret Mary Alacoque, pray for us", "Venerable Fulton Sheen, pray for us", "All you holy men and women, pray for us"],
     band: [["435K", "monthly views"], ["14K", "followers"], ["102", "stories released"], ["EN · ES", "two languages"]],
     showingEyebrow: "Now showing", showingH2: "Stories people can't stop sharing",
     showingLede: "Every film is free to watch. These are the ones traveling furthest right now.",
@@ -104,14 +104,16 @@ const COPY = {
     missionVerse: "Since we are surrounded by so great a cloud of witnesses…", missionVerseRef: "Hebrews 12:1",
     missionH2: "Lives that belonged to Christ",
     missionP1: "For two thousand years the Church has held up the saints — in Scripture, in the liturgy, on the altars of every parish — because they are the proof that the Gospel can actually be lived. Not in theory. In a body, in a century, in a city, by a person with a name.",
-    missionP2: "People get the saints wrong. They imagine plaster statues — serene, distant, born holy. The truth is harder and far more beautiful. Augustine ran from God for years. Ginés was mocking the faith on stage when grace found him mid-play. Vincent de Paul wanted a comfortable career before Christ led him to the poor of Paris. Damien chose the lepers of Molokai knowing he would die among them. The saints were not born saints. They were sinners who said yes — and kept saying it.",
+    missionP2: "People get the saints wrong. They imagine plaster statues — serene, distant, born holy. The truth is harder and far more beautiful. Augustine ran from God for years. Genesius was mocking the faith on stage when grace found him mid-play. Vincent de Paul wanted a comfortable career before Christ led him to the poor of Paris. Damien chose the lepers of Molokai knowing he would die among them. The saints were not born saints. They were sinners who said yes — and kept saying it.",
     missionP3: "That is why we tell their stories: holiness is not reserved for a few. It is the vocation of every baptized person. The saints are not only to be admired. They are to be followed — all the way to Christ, and home to His Church.",
     missionCap: "San Damián de Molokai — from the film",
     saintsEyebrow: "Martyrs · Servants · Mystics · Saints", saintsH2: "A cloud of witnesses",
     saintsLede: "The saints we have told, and the ones we are telling next. A litany — and a promise of what is coming.",
     saints: [
+      ["Holy Mary, Mother of God", "Queen of all saints · Our Lady of Guadalupe"],
+      ["St. Joseph", "Patron of the universal Church · guardian of the Redeemer"],
       ["St. Vincent de Paul", "Servant of the poor · Paris, 1660"],
-      ["San Ginés de Roma", "Martyr · the actor who believed · Rome, 303"],
+      ["St. Genesius of Rome", "Martyr · the actor who believed · Rome, 303"],
       ["St. Damien of Molokai", "Apostle to the lepers · Hawaiʻi, 1889"],
       ["St. Sebastian", "Martyr · soldier of Christ · Rome, 288"],
       ["St. Pier Giorgio Frassati", "Verso l'alto · Turin, 1925"],
@@ -121,7 +123,7 @@ const COPY = {
       ["St. Maximilian Kolbe", "Martyr of charity · Auschwitz, 1941"],
       ["St. Margaret Mary Alacoque", "Apostle of the Sacred Heart · 1690"],
       ["St. Thérèse of Lisieux", "The Little Way · Doctor of the Church · 1897"],
-      ["Blessed Fulton Sheen", "Life is worth living · 1979"],
+      ["Venerable Fulton Sheen", "Life is worth living · 1979"],
     ],
     prayForUs: "pray for us",
     litanyClose: "All you holy men and women of God,", litanyCloseR: "pray for us.",
@@ -149,7 +151,7 @@ const COPY = {
     supportLede: "You're not funding a channel. You're helping tell the stories of the saints to people who have never heard them — and pointing them home: to their parish, to the sacraments, to Christ. Every gift carries real impact. It becomes research, production, narration, translation — the next story, reaching the next person.",
     tiers: [["Friend", "Keeps the research going."], ["Patron", "Helps carry a story through production."], ["Benefactor", "Funds narration and translation — in every language."], ["Founding Patron", "Sustains the whole slate, month after month."]],
     featured: "Most common", perMo: "/mo", support: "Support",
-    noPerks: "Support is a voluntary gift to the creator of this work. It earns our deep gratitude and our prayers — but no rewards, ownership, or exclusive access. The films remain free, for everyone, always.",
+    noPerks: "Support is a voluntary gift to the creator of this work. It earns our deep gratitude and our prayers — but no rewards, ownership, or exclusive access. The films remain free, for everyone, always. A Mass is offered each month for all who support this work.",
     recurringNote: "Monthly tiers renew each month until you cancel — cancel anytime in one click. One-time gifts are charged once.",
     giveOnce: "Give once", paypal: "PayPal", ask: "Questions? Write to us",
     fineH: "Transparency about your gift",
@@ -169,7 +171,7 @@ const COPY = {
     followEyebrow: "Sigue y comparte", followH2: "La forma gratuita de ayudar",
     followLede: "Cada seguidor y cada compartido lleva a un santo a una pantalla donde antes no estaba. Si no puedes aportar, haz esto — importa igual.",
     followers: "seguidores", follow: "Seguir",
-    litany: ["San Vicente de Paúl, ruega por nosotros", "San Ginés de Roma, ruega por nosotros", "San Damián de Molokai, ruega por nosotros", "San Pier Giorgio Frassati, ruega por nosotros", "San Carlo Acutis, ruega por nosotros", "San Pío de Pietrelcina, ruega por nosotros", "San Antonio de Padua, ruega por nosotros", "San Maximiliano Kolbe, ruega por nosotros", "San Sebastián, ruega por nosotros", "Santa Margarita María de Alacoque, ruega por nosotros", "Beato Fulton Sheen, ruega por nosotros", "Santos y santas de Dios, rueguen por nosotros"],
+    litany: ["Santa María, Madre de Dios, ruega por nosotros", "San José, ruega por nosotros", "San Vicente de Paúl, ruega por nosotros", "San Ginés de Roma, ruega por nosotros", "San Damián de Molokai, ruega por nosotros", "San Pier Giorgio Frassati, ruega por nosotros", "San Carlo Acutis, ruega por nosotros", "San Pío de Pietrelcina, ruega por nosotros", "San Antonio de Padua, ruega por nosotros", "San Maximiliano Kolbe, ruega por nosotros", "San Sebastián, ruega por nosotros", "Santa Margarita María de Alacoque, ruega por nosotros", "Venerable Fulton Sheen, ruega por nosotros", "Santos y santas de Dios, rueguen por nosotros"],
     band: [["435K", "vistas al mes"], ["14K", "seguidores"], ["102", "historias publicadas"], ["ES · EN", "dos idiomas"]],
     showingEyebrow: "En cartelera", showingH2: "Historias que la gente no deja de compartir",
     showingLede: "Todas las películas son gratis. Estas son las que más lejos están llegando ahora.",
@@ -187,6 +189,8 @@ const COPY = {
     saintsEyebrow: "Mártires · Siervos · Místicos · Santos", saintsH2: "Una nube de testigos",
     saintsLede: "Los santos que ya hemos contado, y los que vienen. Una letanía — y una promesa de lo que está por llegar.",
     saints: [
+      ["Santa María, Madre de Dios", "Reina de todos los santos · Nuestra Señora de Guadalupe"],
+      ["San José", "Patrono de la Iglesia universal · custodio del Redentor"],
       ["San Vicente de Paúl", "Siervo de los pobres · París, 1660"],
       ["San Ginés de Roma", "Mártir · el actor que creyó · Roma, 303"],
       ["San Damián de Molokai", "Apóstol de los leprosos · Hawái, 1889"],
@@ -198,7 +202,7 @@ const COPY = {
       ["San Maximiliano Kolbe", "Mártir de la caridad · Auschwitz, 1941"],
       ["Santa Margarita María de Alacoque", "Apóstol del Sagrado Corazón · 1690"],
       ["Santa Teresita de Lisieux", "El Caminito · Doctora de la Iglesia · 1897"],
-      ["Beato Fulton Sheen", "La vida vale la pena vivirla · 1979"],
+      ["Venerable Fulton Sheen", "La vida vale la pena vivirla · 1979"],
     ],
     prayForUs: "ruega por nosotros",
     litanyClose: "Santos y santas de Dios,", litanyCloseR: "rueguen por nosotros.",
@@ -226,7 +230,7 @@ const COPY = {
     supportLede: "No estás financiando un canal. Estás ayudando a contar las historias de los santos a personas que nunca las han oído — y a orientarlas de vuelta a casa: a su parroquia, a los sacramentos, a Cristo. Cada aporte tiene un impacto real. Se convierte en investigación, producción, narración, traducción — la próxima historia, llegando a la próxima persona.",
     tiers: [["Amigo", "Mantiene viva la investigación."], ["Patrono", "Ayuda a llevar una historia hasta su producción."], ["Benefactor", "Financia narración y traducción — en cada idioma."], ["Patrono fundador", "Sostiene toda la cartelera, mes tras mes."]],
     featured: "El más elegido", perMo: "/mes", support: "Apoyar",
-    noPerks: "El apoyo es un regalo voluntario al creador de esta obra. Recibe nuestra profunda gratitud y nuestras oraciones — pero no recompensas, propiedad ni acceso exclusivo. Las películas siguen siendo gratis, para todos, siempre.",
+    noPerks: "El apoyo es un regalo voluntario al creador de esta obra. Recibe nuestra profunda gratitud y nuestras oraciones — pero no recompensas, propiedad ni acceso exclusivo. Las películas siguen siendo gratis, para todos, siempre. Cada mes se ofrece una Misa por todos los que apoyan esta obra.",
     recurringNote: "Los niveles mensuales se renuevan cada mes hasta que canceles — cancela cuando quieras con un clic. Las donaciones únicas se cobran una sola vez.",
     giveOnce: "Donar una vez", paypal: "PayPal", ask: "¿Preguntas? Escríbenos",
     fineH: "Transparencia sobre tu aporte",
