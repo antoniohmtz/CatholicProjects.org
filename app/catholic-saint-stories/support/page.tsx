@@ -32,7 +32,6 @@ const TIER_LINKS = [
   "https://buy.stripe.com/6oU28q5O87Xb9uo94M0Ba03", // Founding Patron $50/mo
 ];
 const GIVE_ONCE_LINK = "https://buy.stripe.com/28EbJ0ekEa5jdKE3Ks0Ba06"; // one-time gift
-const PAYPAL_LINK = "https://paypal.me/catholicsaintstories"; // TODO: your real PayPal.me, or remove the button
 const FACEBOOK_URL = "https://www.facebook.com/people/Catholicsaintstories/61592672761916/";
 const INSTAGRAM_URL = "https://instagram.com/catholicsaintstories";
 const TIKTOK_URL = "https://tiktok.com/@catholicsaintstories2";
@@ -685,7 +684,6 @@ export default function SupportPage() {
           <p className="cst-noPerks" data-reveal>{t.noPerks}</p>
           <div className="cst-alt" data-reveal>
             <a className="cst-altBtn" href={GIVE_ONCE_LINK} target="_blank" rel="noopener noreferrer">{t.giveOnce}</a>
-            <a className="cst-altBtn" href={PAYPAL_LINK} target="_blank" rel="noopener noreferrer">{t.paypal}</a>
             <a className="cst-altBtn" href={`mailto:${CONTACT}`}>{t.ask}</a>
           </div>
           <div className="cst-fine" data-reveal>
